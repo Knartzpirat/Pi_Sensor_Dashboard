@@ -1,0 +1,125 @@
+{
+  "common": {
+    "redirectingIn": "Weiterleitung in {seconds} Sekunden..."
+  },
+  "inputs": {
+    "username": "Benutzername",
+    "password": "Passwort",
+    "dbhost": "Datenbank-Host",
+    "dbport": "Datenbank-Port",
+    "dbuser": "Datenbank-Benutzer",
+    "dbpassword": "Datenbank-Passwort",
+    "dbname": "Datenbankname",
+    "recoverycode": "Wiederherstellungscode",
+    "newpassword": "Neues Passwort",
+    "confirmpassword": "Passwort bestätigen"
+  },
+
+  "test": {
+    "title": "Test Titel",
+    "description": "Dies ist eine Testbeschreibung."
+  },
+  "validation": {
+    "username": {
+      "min": "Benutzername muss mindestens 3 Zeichen lang sein",
+      "max": "Benutzername darf maximal 20 Zeichen lang sein"
+    },
+    "password": {
+      "min": "Passwort muss mindestens 8 Zeichen lang sein",
+      "max": "Passwort darf maximal 100 Zeichen lang sein"
+    },
+    "dbHost": {
+      "required": "Datenbank-Host ist erforderlich"
+    },
+    "dbPort": {
+      "min": "Port muss mindestens 1 sein",
+      "max": "Port darf maximal 65535 sein"
+    },
+    "dbUser": {
+      "required": "Datenbank-Benutzer ist erforderlich"
+    },
+    "dbPassword": {
+      "required": "Datenbank-Passwort ist erforderlich"
+    },
+    "dbName": {
+      "required": "Datenbankname ist erforderlich"
+    }
+  },
+  
+
+  "buttons": {
+    "setup": "Einrichten",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "loading": "Laden...",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "switchTheme": "Theme wechseln",
+    "switchLocale": "Sprache wechseln",
+    "gotologin": "Zum Login",
+    "backtologin": "Zurück zum Login",
+    "copyall": "Alles kopieren",
+    "download": "Herunterladen",
+    "verify": "Überprüfen",
+    "resetpassword": "Passwort zurücksetzen"
+  },
+
+  "errors": {
+    "title": "Fehler",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "backendError": "Backend-Fehler. Bitte versuchen Sie es später erneut.",
+    "connection2db_failed": "Verbindung zur Datenbank fehlgeschlagen. Bitte überprüfen Sie Ihre Einstellungen.",
+    "resetPassword_failed": "Passwort zurücksetzen fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "password": {
+      "notmatch": "Die Passwörter stimmen nicht überein.",
+      "tooShort": "Das Passwort ist zu kurz. Bitte wählen Sie ein längeres Passwort."
+    }
+  },
+
+  "success": {
+    "title": "Erfolg",
+    "messageGeneric": "Die Aktion war erfolgreich."
+  },
+
+  "setup": {
+    "logindata": {
+      "title": "Anmeldedaten",
+      "description": "Erstellen Sie Ihren Administrator-Benutzer."
+    },
+    "connectionSettings": {
+      "title": "Datenbank-Verbindungseinstellungen",
+      "description": "Geben Sie die Verbindungsdetails für Ihre Datenbank ein."
+    },
+    "recoverycode": {
+      "title": "Wiederherstellungscode",
+      "description": "Notieren Sie sich diesen Code, um Ihren Administrator-Benutzer wiederherzustellen."
+    },
+    "Success": "Setup erfolgreich abgeschlossen!",
+    "Error": "Setup fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+
+  "login": {
+    "title": "Anmeldung",
+    "description": "Melden Sie sich mit Ihrem Benutzernamen und Passwort an.",
+    "forgotPassword": "Passwort vergessen?",
+    "stayedLoggedIn": "Angemeldet bleiben",
+    "success": "Erfolgreich angemeldet."
+  },
+
+  "forgotPassword": {
+    "title": "Passwort vergessen",
+    "description_recoverycode": "Geben Sie einen Wiederherstellungscode ein, um Ihr Passwort zurückzusetzen.",
+    "success": "Anweisungen zum Zurücksetzen des Passworts wurden an Ihre registrierte E-Mail-Adresse gesendet."
+  },
+  "resetPassword": {
+    "title": "Passwort zurücksetzen",
+    "description": "Setzen Sie Ihr Passwort zurück, indem Sie ein neues Passwort eingeben.",
+    "success": "Ihr Passwort wurde erfolgreich zurückgesetzt."
+  },
+
+  "language": {
+    "german": "Deutsch",
+    "english": "Englisch"
+  }
+}
