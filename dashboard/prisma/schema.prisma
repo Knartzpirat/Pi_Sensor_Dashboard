@@ -15,8 +15,56 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relationen
+  refreshTokens  RefreshToken[]
+  recoveryTokens RecoveryToken[]
+
   @@map("users")
 }
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  // "Angemeldet bleiben" Flag
+  persistent Boolean  @default(false)
+  
+  // Security
+  ipAddress String?
+  userAgent String?
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model RecoveryToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  // IP für Security Logging
+  ipAddress String?
+  
+  // Beziehung zum User
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("recovery_tokens")
+}
+
 
 model SetupStatus {
   id          String   @id @default(cuid())
