@@ -17,7 +17,7 @@ model User {
 
   // Relationen
   refreshTokens  RefreshToken[]
-  recoveryTokens RecoveryToken[]
+  recoveryCodes  RecoveryCode[]
 
   @@map("users")
 }
@@ -44,25 +44,20 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-model RecoveryToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  expiresAt DateTime
-  used      Boolean  @default(false)
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  code      String    // Gehasht gespeichert (bcrypt)
+  used      Boolean   @default(false)
   usedAt    DateTime?
-  createdAt DateTime @default(now())
-  
-  // IP für Security Logging
-  ipAddress String?
+  createdAt DateTime  @default(now())
   
   // Beziehung zum User
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
-  @@map("recovery_tokens")
+  @@index([used])
+  @@map("recovery_codes")
 }
 
 
