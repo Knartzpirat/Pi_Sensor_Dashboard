@@ -1,0 +1,51 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Backend starten (FastAPI)",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "uvicorn",
+                "backend.main:app",
+                "--reload"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Frontend starten (Next.js)",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Starte Backend + Frontend",
+            "dependsOn": [
+                "Backend starten (FastAPI)",
+                "Frontend starten (Next.js)"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        }
+    ]
+}
