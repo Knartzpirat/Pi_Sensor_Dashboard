@@ -27,7 +27,7 @@ export function SetupForm() {
   const [setupProgress, setSetupProgress] = useState(0);
   const [setupMessage, setSetupMessage] = useState('');
 
-  // ✅ Schema mit Übersetzungen
+  // Schema mit Übersetzungen
   const setupSchema = z.object({
     userName: z
       .string()
@@ -142,14 +142,37 @@ export function SetupForm() {
               }
 
               if (data.step === 'complete') {
+                if (data.refreshToken && data.refreshTokenExpiresAt) {
+                  // Berechne maxAge in Sekunden
+                  const maxAge = Math.floor(
+                    (new Date(data.refreshTokenExpiresAt).getTime() -
+                      Date.now()) /
+                      1000
+                  );
+
+                  document.cookie = `refreshToken=${
+                    data.refreshToken
+                  }; path=/; max-age=${maxAge}; SameSite=Strict${
+                    process.env.NODE_ENV === 'production' ? '; Secure' : ''
+                  }`;
+                }
+
+                // Recovery Codes speichern
+                if (data.recoveryCodes) {
+                  sessionStorage.setItem(
+                    'recoveryCodes',
+                    JSON.stringify(data.recoveryCodes)
+                  );
+                }
+
                 toast.dismiss(toastId);
                 toast.success('Setup completed!', {
-                  description: 'Redirecting to login...',
+                  description: 'Redirecting to recovery-codes...',
                 });
 
                 // Redirect nach kurzer Verzögerung
                 setTimeout(() => {
-                  window.location.href = '/login';
+                  window.location.href = '/setup/recovery-codes';
                 }, 2000);
               }
             }
@@ -378,11 +401,7 @@ export function SetupForm() {
             </FieldGroup>
           </FieldSet>
         </FieldGroup>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isLoading}
-        >
+        <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
