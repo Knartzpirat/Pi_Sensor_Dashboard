@@ -45,7 +45,6 @@
       "required": "Datenbankname ist erforderlich"
     }
   },
-  
 
   "buttons": {
     "setup": "Einrichten",
@@ -93,6 +92,10 @@
     },
     "recoverycode": {
       "title": "Wiederherstellungscode",
+      "nocodefound": "Kein Wiederherstellungscode gefunden. Bitte starten Sie den Einrichtungsprozess neu.",
+      "allcopied": "Alle Wiederherstellungscodes wurden in die Zwischenablage kopiert.",
+      "downloaded": "Wiederherstellungscodes wurden als Datei heruntergeladen.",
+      "validating": "Wiederherstellungscode wird überprüft...",
       "description": "Notieren Sie sich diesen Code, um Ihren Administrator-Benutzer wiederherzustellen."
     },
     "Success": "Setup erfolgreich abgeschlossen!",
