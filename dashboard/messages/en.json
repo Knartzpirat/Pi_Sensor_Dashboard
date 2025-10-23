@@ -1,0 +1,95 @@
+{
+  "common": {
+    "redirectingIn": "Redirecting in {seconds} seconds..."
+  },
+  "inputs": {
+    "username": "Username",
+    "password": "Password",
+    "dbhost": "Database Host",
+    "dbport": "Database Port",
+    "dbuser": "Database User",
+    "dbpassword": "Database Password",
+    "dbname": "Database Name",
+    "recoverycode": "Recovery Code",
+    "newpassword": "New Password",
+    "confirmpassword": "Confirm Password"
+  },
+
+  "test": {
+    "title": "Test Title",
+    "description": "This is a test description."
+  },
+  "buttons": {
+    "setup": "Set Up",
+    "login": "Log In",
+    "logout": "Log Out",
+    "loading": "Loading...",
+    "showPassword": "Show Password",
+    "hidePassword": "Hide Password",
+    "switchTheme": "Switch Theme",
+    "changeLanguage": "Change Language",
+    "gotologin": "Go to Login",
+    "backtologin": "Back to Login",
+    "copyall": "Copy All",
+    "download": "Download",
+    "verify": "Verify",
+    "resetpassword": "Reset Password"
+  },
+
+  "errors": {
+    "title": "Error",
+    "networkError": "Network error. Please check your connection.",
+    "serverError": "Server error. Please try again later.",
+    "backendError": "Backend error. Please try again later.",
+    "connection2db_failed": "Connection to database failed. Please check your settings.",
+    "resetPassword_failed": "Password reset failed. Please try again.",
+    "password": {
+      "notmatch": "The passwords do not match.",
+      "tooShort": "The password is too short. Please choose a longer password."
+    }
+  },
+
+  "success": {
+    "title": "Success",
+    "messageGeneric": "The action was successful."
+  },
+
+  "setup": {
+    "logindata": {
+      "title": "Login Data",
+      "description": "Create your administrator user."
+    },
+    "connectionSettings": {
+      "title": "Database Connection Settings",
+      "description": "Enter the connection details for your database."
+    },
+    "recoverycode": {
+      "title": "Recovery Code",
+      "description": "Write down this code to recover your administrator user."
+    }
+  },
+
+  "login": {
+    "title": "Login",
+    "description": "Log in with your username and password.",
+    "forgotPassword": "Forgot password?",
+    "stayedLoggedIn": "Stay logged in",
+    "success": "Successfully logged in."
+  },
+
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "description_recoverycode": "Enter a recovery code to reset your password.",
+    "success": "Password reset instructions have been sent to your registered email address."
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "description": "Reset your password by entering a new password.",
+    "success": "Your password has been successfully reset."
+  },
+
+  "language": {
+    "german": "German",
+    "english": "English"
+  }
+}
