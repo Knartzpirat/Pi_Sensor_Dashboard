@@ -46,6 +46,23 @@
             "problemMatcher": [
                 "$eslint-compact"
             ]
-        }
+        },
+        {
+            "label": "Prisma Studio starten",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "prisma",
+                "studio"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
     ]
 }
