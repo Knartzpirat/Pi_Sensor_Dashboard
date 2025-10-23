@@ -163,7 +163,7 @@ export default function RecoveryCodesPage() {
             onClick={handleContinue}
             disabled={codes.length === 0}
           >
-            {t('buttons.gotologin')}
+            {t('buttons.continue')}
           </Button>
         </CardContent>
       </Card>
