@@ -59,6 +59,7 @@ export function SetupForm() {
     },
     validators: {
       onSubmit: setupSchema,
+      onBlur: setupSchema,
     },
     onSubmit: async ({ value }) => {
       setIsLoading(true);
@@ -380,9 +381,9 @@ export function SetupForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={form.state.isSubmitting}
+          disabled={isLoading}
         >
-          {form.state.isSubmitting ? (
+          {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {t('buttons.loading')}
