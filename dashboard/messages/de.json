@@ -110,6 +110,8 @@
     "description": "Melden Sie sich mit Ihrem Benutzernamen und Passwort an.",
     "forgotPassword": "Passwort vergessen?",
     "stayedLoggedIn": "Angemeldet bleiben",
+    "error": "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.",
+    "redirecting": "Erfolgreich angemeldet. Sie werden weitergeleitet...",
     "success": "Erfolgreich angemeldet."
   },
 

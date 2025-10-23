@@ -1,75 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { generateAccessToken, generateRefreshToken } from '@/lib/token-helper';
+import { generateRefreshToken } from '@/lib/token-helper';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
+  const prisma = new PrismaClient();
+
   try {
     const { username, password, stayLoggedIn } = await request.json();
 
-    const prisma = getPrismaClient();
+    // Validierung
+    if (!username || !password) {
+      return NextResponse.json(
+        { error: 'Username and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // User finden
     const user = await prisma.user.findUnique({
       where: { username },
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // ✅ Access Token IMMER generieren
-    const accessToken = await generateAccessToken(
-      user.id,
-      user.username,
-      user.role
-    );
+    // Passwort prüfen
+    const isValidPassword = await bcrypt.compare(password, user.password);
 
-    // ✅ Refresh Token IMMER generieren (mit variabler Lebensdauer)
-    const refreshToken = await generateRefreshToken(
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    // Generiere Refresh Token mit expiresAt
+    const { token: refreshToken, expiresAt } = await generateRefreshToken(
       prisma,
       user.id,
-      stayLoggedIn, // ✅ Unterschiedliche Lebensdauer
+      stayLoggedIn || false, // ✅ Flag vom Frontend
       request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       request.headers.get('user-agent') || undefined
     );
 
-    const response = NextResponse.json({
+    // Setze Cookies
+    const cookieStore = await cookies();
+
+    // ✅ Refresh Token Cookie mit maxAge aus DB
+    const maxAge = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+    cookieStore.set('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge,
+      path: '/',
+    });
+
+    return NextResponse.json({
       success: true,
       user: {
         id: user.id,
         username: user.username,
         role: user.role,
       },
+      expiresAt: expiresAt.toISOString(),
     });
-
-    // ✅ Access Token Cookie (kurz)
-    response.cookies.set('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 15, // 15 Minuten
-      path: '/',
-    });
-
-    // ✅ Refresh Token Cookie (variabel)
-    response.cookies.set('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: stayLoggedIn
-        ? 60 * 60 * 24 * 30 // 30 Tage
-        : 60 * 60 * 24, // 1 Tag
-      path: '/',
-    });
-
-    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'next/navigation';
-import * as z from 'zod';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
@@ -26,26 +25,12 @@ export default function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loginSchema = z.object({
-    username: z
-      .string()
-      .min(3, t('validation.username.min'))
-      .max(20, t('validation.username.max')),
-    password: z
-      .string()
-      .min(8, t('validation.password.min'))
-      .max(100, t('validation.password.max')),
-  });
-
   const form = useForm({
     defaultValues: {
       username: '',
       password: '',
     },
-    validators: {
-      onSubmit: loginSchema,
-      onBlur: loginSchema,
-    },
+    
     onSubmit: async ({ value }) => {
       setIsLoading(true);
       try {
