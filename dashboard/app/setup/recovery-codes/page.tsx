@@ -83,7 +83,7 @@ export default function RecoveryCodesPage() {
 
   const handleContinue = () => {
     sessionStorage.removeItem('recoveryCodes');
-    router.push('/login');
+    router.push('/');
   };
 
   if (isLoading) {
