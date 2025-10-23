@@ -3,7 +3,7 @@ import { runSetup, SetupProgress } from '@/lib/setup-helper';
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
-
+  
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -45,15 +45,32 @@ export async function POST(request: NextRequest) {
               `data: ${JSON.stringify({ error: result.error })}\n\n`
             )
           );
+          controller.close();
+          return;
         }
+
+
+
+        // Sende Complete-Event mit Recovery Codes
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              step: 'complete',
+              progress: 100,
+              recoveryCodes: result.recoveryCodes,
+              refreshToken: result.refreshToken,
+              refreshTokenExpiresAt: result.refreshTokenExpiresAt,
+              userId: result.userId,
+            })}\n\n`
+          )
+        );
 
         controller.close();
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const errorMessage =
+          error instanceof Error ? error.message : 'An unknown error occurred';
         controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ error: errorMessage })}\n\n`
-          )
+          encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`)
         );
         controller.close();
       }
