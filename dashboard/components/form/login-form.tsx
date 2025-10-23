@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Field,
   FieldDescription,
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { InputPasswordComponent } from '@/components/inputGroup-password';
+import { Label } from '../ui/label';
 
 export default function LoginForm() {
   const t = useTranslations();
@@ -29,8 +31,9 @@ export default function LoginForm() {
     defaultValues: {
       username: '',
       password: '',
+      stayLoggedIn: false,
     },
-    
+
     onSubmit: async ({ value }) => {
       setIsLoading(true);
       try {
@@ -40,6 +43,7 @@ export default function LoginForm() {
           body: JSON.stringify({
             username: value.username,
             password: value.password,
+            stayLoggedIn: value.stayLoggedIn,
           }),
         });
 
@@ -155,6 +159,27 @@ export default function LoginForm() {
                       </Field>
                     );
                   }}
+                </form.Field>
+                {/* Stay logged in */}
+                <form.Field name="stayLoggedIn">
+                  {(field) => (
+                      <Field>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="stayLoggedIn"
+                            name="stayLoggedIn"
+                            checked={field.state.value}
+                            onCheckedChange={(checked) =>
+                              field.handleChange(checked === true)
+                            }
+                            disabled={isLoading}
+                          />
+                          <Label htmlFor="stayLoggedIn">
+                            {t('login.stayedLoggedIn')}
+                          </Label>
+                        </div>
+                      </Field>
+                    )}
                 </form.Field>
               </FieldGroup>
 
