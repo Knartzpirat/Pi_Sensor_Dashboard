@@ -94,7 +94,9 @@
     "recoverycode": {
       "title": "Wiederherstellungscode",
       "nocodefound": "Kein Wiederherstellungscode gefunden. Bitte starten Sie den Einrichtungsprozess neu.",
+      "invalidformat": "Ungültiges Format des Wiederherstellungscodes. Bitte überprüfen Sie den Code und versuchen Sie es erneut.",
       "allcopied": "Alle Wiederherstellungscodes wurden in die Zwischenablage kopiert.",
+      "codecopied": "Wiederherstellungscode {number} wurde in die Zwischenablage kopiert.",
       "downloaded": "Wiederherstellungscodes wurden als Datei heruntergeladen.",
       "validating": "Wiederherstellungscode wird überprüft...",
       "description": "Notieren Sie sich diesen Code, um Ihren Administrator-Benutzer wiederherzustellen."
