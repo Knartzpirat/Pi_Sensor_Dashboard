@@ -76,7 +76,7 @@ model Label {
   id        String       @id @default(cuid())
   name      String
   color     String?      // z.B. "#FF5733"
-  type      LabelType    @default(TEST_OBJECT)  // ← NEU: Label-Typ
+  type      EntityType     
   createdAt DateTime     @default(now())
   
   testObjects TestObject[]
@@ -86,11 +86,12 @@ model Label {
 }
 
 // Enum für Label-Typen
-enum LabelType {
+enum EntityType {
   TEST_OBJECT
   SENSOR
+  USER_PROFILE
   MEASUREMENT
-  // ... weitere Typen später hinzufügen
+  // ... weitere Typen später
 }
 
 // Testobjekt-Tabelle
@@ -103,7 +104,6 @@ model TestObject {
   
   labelId     String?
   label       Label?    @relation(fields: [labelId], references: [id], onDelete: SetNull)
-  pictures    Picture[]
   
   @@index([labelId])
   @@index([createdAt])
@@ -118,10 +118,13 @@ model Picture {
   size          Int
   url           String
   order         Int        @default(0)
+  
+  // Polymorphe Beziehung
+  entityType    EntityType           // ← Zu welcher Entität gehört das Bild?
+  entityId      String               // ← ID der Entität
+  
   createdAt     DateTime   @default(now())
   
-  testObjectId  String
-  testObject    TestObject @relation(fields: [testObjectId], references: [id], onDelete: Cascade)
-  
-  @@index([testObjectId, order])
+  @@index([entityType, entityId, order])
+  @@index([entityType, entityId])
 }
