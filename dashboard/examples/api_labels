@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TestObject Labels abrufen
 const response = await fetch('/api/labels?type=TEST_OBJECT');
 const testObjectLabels = await response.json();
