@@ -13,6 +13,7 @@ import {
   BookOpenText,
   Cable,
   SquareActivity,
+  FlaskConical
 } from 'lucide-react';
 
 import {
@@ -32,7 +33,7 @@ const data = {
       icon: Home,
     },
     {
-      key: 'analytics',
+      key: 'measurements',
       url: '#',
       icon: ChartSpline,
     },
@@ -45,6 +46,11 @@ const data = {
       key: 'sensors',
       url: '#',
       icon: Cable,
+    },
+    {
+      key: 'testobjects',
+      url: '/dashboard/testobjects',
+      icon: FlaskConical,
     },
   ],
 
