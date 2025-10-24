@@ -3,7 +3,7 @@ import { runSetup, SetupProgress } from '@/lib/setup-helper';
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
-  
+
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -28,9 +28,11 @@ export async function POST(request: NextRequest) {
 
         // Setup ausführen mit Progress Updates
         const result = await runSetup(
+          request,
           databaseUrl,
           user_data.username,
           user_data.password,
+
           (progress: SetupProgress) => {
             // Sende Progress Update
             controller.enqueue(
@@ -48,8 +50,6 @@ export async function POST(request: NextRequest) {
           controller.close();
           return;
         }
-
-
 
         // Sende Complete-Event mit Recovery Codes
         controller.enqueue(
