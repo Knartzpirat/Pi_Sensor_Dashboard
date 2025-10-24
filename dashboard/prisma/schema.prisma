@@ -69,3 +69,47 @@ model SetupStatus {
 
   @@map("setup_status")
 }
+
+// Label-Tabelle (wiederverwendbare Tags/Kategorien)
+model Label {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  color     String?      // z.B. für UI-Farben: "#FF5733"
+  createdAt DateTime     @default(now())
+  
+  testObjects TestObject[]
+}
+
+// Testobjekt-Tabelle
+model TestObject {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Beziehungen
+  labelId     String?
+  label       Label?    @relation(fields: [labelId], references: [id], onDelete: SetNull)
+  pictures    Picture[]
+  
+  @@index([labelId])
+  @@index([createdAt])
+}
+
+// Bilder-Tabelle
+model Picture {
+  id            String     @id @default(cuid())
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  url           String     // Pfad oder URL zum Bild
+  createdAt     DateTime   @default(now())
+  
+  // Beziehung zu TestObject
+  testObjectId  String
+  testObject    TestObject @relation(fields: [testObjectId], references: [id], onDelete: Cascade)
+  
+  @@index([testObjectId])
+}
