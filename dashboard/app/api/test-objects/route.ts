@@ -4,20 +4,44 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET - Alle TestObjects
+// GET - Alle TestObjects (mit optionalen Bildern)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const labelId = searchParams.get('labelId');
+    const includePictures = searchParams.get('includePictures') === 'true';
+    const pictureLimit = searchParams.get('pictureLimit'); // z.B. nur erstes Bild
 
     const testObjects = await prisma.testObject.findMany({
       where: labelId ? { labelId } : undefined,
       include: {
         label: true,
-        pictures: true,
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // Wenn Bilder gewünscht sind, lade sie separat
+    if (includePictures) {
+      const testObjectsWithPictures = await Promise.all(
+        testObjects.map(async (testObject) => {
+          const pictures = await prisma.picture.findMany({
+            where: {
+              entityType: 'TEST_OBJECT',
+              entityId: testObject.id,
+            },
+            orderBy: { order: 'asc' },
+            ...(pictureLimit ? { take: parseInt(pictureLimit) } : {}),
+          });
+
+          return {
+            ...testObject,
+            pictures,
+          };
+        })
+      );
+
+      return NextResponse.json(testObjectsWithPictures);
+    }
 
     return NextResponse.json(testObjects);
   } catch (error) {
@@ -48,7 +72,6 @@ export async function POST(request: NextRequest) {
       },
       include: {
         label: true,
-        pictures: true,
       },
     });
 
