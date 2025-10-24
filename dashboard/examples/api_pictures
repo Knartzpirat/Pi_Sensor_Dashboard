@@ -1,0 +1,137 @@
+// @ts-nocheck
+// Beispiel: Liste aller TestObjects (nur mit erstem Bild als Thumbnail)
+const response = await fetch(
+  '/api/test-objects?includePictures=true&pictureLimit=1'
+);
+const testObjects = await response.json();
+// → Jedes TestObject hat pictures: [ersteBild] oder pictures: []
+
+// Beispiel: Liste ohne Bilder (schneller)
+const response = await fetch('/api/test-objects');
+const testObjects = await response.json();
+// → Keine pictures Property
+
+// Beispiel: Einzelnes TestObject mit allen Bildern
+const response = await fetch(`/api/test-objects/${id}`);
+const testObject = await response.json();
+// → testObject.pictures enthält alle Bilder sortiert
+
+// Beispiel: Einzelnes TestObject OHNE Bilder
+const response = await fetch(`/api/test-objects/${id}?includePictures=false`);
+const testObject = await response.json();
+// → Keine pictures Property
+
+// Beispiel: Bilder separat laden (wenn schon TestObject geladen)
+const pictures = await fetch(
+  `/api/pictures?entityType=TEST_OBJECT&entityId=${testObject.id}`
+).then((r) => r.json());
+
+
+// components/test-object-list.tsx
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { TestObject } from '@/types/test-object';
+
+// @ts-nocheck
+export function TestObjectList() {
+  const [testObjects, setTestObjects] = useState([]);
+
+  useEffect(() => {
+    // Lade TestObjects mit nur erstem Bild
+    fetch('/api/test-objects?includePictures=true&pictureLimit=1')
+      .then(r => r.json())
+      .then(setTestObjects);
+  }, []);
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {testObjects.map((obj) => (
+        <div key={obj.id} className="border rounded p-4">
+          {/* Thumbnail */}
+          {obj.pictures?.[0] && (
+            <Image
+              src={obj.pictures[0].url}
+              alt={obj.title}
+              width={300}
+              height={200}
+              className="rounded"
+            />
+          )}
+          
+          <h3 className="font-bold mt-2">{obj.title}</h3>
+          {obj.label && (
+            <span 
+              className="text-xs px-2 py-1 rounded"
+              style={{ backgroundColor: obj.label.color }}
+            >
+              {obj.label.name}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+// components/test-object-detail.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { TestObject } from '@/types/test-object';
+
+export function TestObjectDetail({ id }: { id: string }) {
+  const [testObject, setTestObject] = useState<TestObject | null>(null);
+
+  useEffect(() => {
+    // Lade TestObject mit allen Bildern
+    fetch(`/api/test-objects/${id}`)
+      .then(r => r.json())
+      .then(setTestObject);
+  }, [id]);
+
+  if (!testObject) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>{testObject.title}</h1>
+      <p>{testObject.description}</p>
+
+      {/* Bildergalerie */}
+      <div className="grid grid-cols-4 gap-2 mt-4">
+        {testObject.pictures?.map((picture, index) => (
+          <div key={picture.id} className="relative">
+            <Image
+              src={picture.url}
+              alt={picture.originalName}
+              width={200}
+              height={200}
+              className="rounded"
+            />
+            <span className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+              {index + 1}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+// Zusammenfassung
+// Query-Parameter für TestObjects:
+
+// ?includePictures=true → Bilder werden geladen
+// ?includePictures=false → Keine Bilder (Standard bei Liste)
+// ?pictureLimit=1 → Nur erstes Bild (für Thumbnails)
+// ?labelId=abc123 → Filter nach Label
+
+// Verwendungsmuster:
+
+// ✅ Liste: ?includePictures=true&pictureLimit=1 (nur Thumbnail)
+// ✅ Detail: Automatisch alle Bilder laden
+// ✅ Schnell: Ohne Bilder laden, separat abrufen bei Bedarf
+
+// So hast du maximale Flexibilität und Kontrolle! 🎉
