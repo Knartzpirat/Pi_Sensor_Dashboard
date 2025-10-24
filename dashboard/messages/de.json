@@ -5,16 +5,17 @@
   },
   
   "sidebar": {
-    "title": "Seitenleiste",
+    "title": "Pi Sensor Dashboard",
 
     "pages": {
       "dashboard": "Dashboard",
       "settings": "Einstellungen",
       "search": "Suche",
-      "analytics": "Analytik",
+      "measurements": "Messungen",
       "sensors": "Sensoren",
       "reports": "Berichte",
-      "help": "Hilfe"
+      "help": "Hilfe",
+      "testobjects": "Testobjekte"
     }
   },
   "common": {
@@ -124,6 +125,7 @@
       "codecopied": "Wiederherstellungscode {number} wurde in die Zwischenablage kopiert.",
       "downloaded": "Wiederherstellungscodes wurden als Datei heruntergeladen.",
       "validating": "Wiederherstellungscode wird überprüft...",
+      "sessionexpired": "Sitzung abgelaufen. Bitte starten Sie den Einrichtungsprozess neu.",
       "description": "Notieren Sie sich diesen Code, um Ihren Administrator-Benutzer wiederherzustellen."
     },
     "Success": "Setup erfolgreich abgeschlossen!",
