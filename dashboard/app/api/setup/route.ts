@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { runSetup, SetupProgress } from '@/lib/setup-helper';
+import { isSetupAllowed, runSetup, SetupProgress } from '@/lib/setup-helper';
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
@@ -7,6 +7,20 @@ export async function POST(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        const setupAllowed = await isSetupAllowed();
+        if (!setupAllowed) {
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                error:
+                  'Setup already completed. Set ALLOW_SETUP_AGAIN=true in .env to run again.',
+              })}\n\n`
+            )
+          );
+          controller.close();
+          return;
+        }
+
         const body = await request.json();
         const { user_data, db_config } = body;
 
