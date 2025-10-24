@@ -1,0 +1,37 @@
+// TestObject Labels abrufen
+const response = await fetch('/api/labels?type=TEST_OBJECT');
+const testObjectLabels = await response.json();
+
+// Sensor Labels abrufen
+const response = await fetch('/api/labels?type=SENSOR');
+const sensorLabels = await response.json();
+
+// Alle Labels abrufen
+const response = await fetch('/api/labels');
+const allLabels = await response.json();
+
+// Neues Label erstellen
+await fetch('/api/labels', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Temperatur',
+    color: '#FF5733',
+    type: 'SENSOR', // oder 'TEST_OBJECT', 'MEASUREMENT'
+  }),
+});
+
+// Label bearbeiten
+await fetch('/api/labels/abc123', {
+  method: 'PATCH',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Neuer Name',
+    color: '#00FF00',
+  }),
+});
+
+// Label löschen
+await fetch('/api/labels/abc123', {
+  method: 'DELETE',
+});
