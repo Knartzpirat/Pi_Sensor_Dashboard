@@ -29,8 +29,9 @@ node_modules/
 jspm_packages/
 bower_components/
 web_modules/
-prisma/generated/
-prisma/migrations/
+
+
+**/prisma/migrations/
 
 
 # Logs
