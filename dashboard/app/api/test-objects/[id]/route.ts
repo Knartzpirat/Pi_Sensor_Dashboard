@@ -13,8 +13,7 @@ export async function GET(
     const testObject = await prisma.testObject.findUnique({
       where: { id: params.id },
       include: {
-        label: true,
-        pictures: true,
+        label: true
       },
     });
 
@@ -53,8 +52,7 @@ export async function PUT(
         labelId,
       },
       include: {
-        label: true,
-        pictures: true,
+        label: true
       },
     });
 
