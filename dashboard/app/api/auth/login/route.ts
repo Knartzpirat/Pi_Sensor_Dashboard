@@ -1,16 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { generateRefreshToken } from '@/lib/token-helper';
 import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
+import { generateRefreshToken } from '@/lib/token-helper';
+import { getClientInfo } from '@/lib/request-utils';
 
 export async function POST(request: NextRequest) {
   const prisma = new PrismaClient();
 
   try {
     const { username, password, stayLoggedIn } = await request.json();
+    const { ipAddress, userAgent } = getClientInfo(request);
 
-    // Validierung
+    // Validierung der Eingabedaten
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Username and password are required' },
@@ -44,9 +46,9 @@ export async function POST(request: NextRequest) {
     const { token: refreshToken, expiresAt } = await generateRefreshToken(
       prisma,
       user.id,
-      stayLoggedIn || false, // ✅ Flag vom Frontend
-      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-      request.headers.get('user-agent') || undefined
+      stayLoggedIn || false,
+      ipAddress,
+      userAgent
     );
 
     // Setze Cookies
