@@ -71,13 +71,26 @@ model SetupStatus {
 }
 
 // Label-Tabelle (wiederverwendbare Tags/Kategorien)
+// Label-Tabelle mit Type für verschiedene Kategorien
 model Label {
   id        String       @id @default(cuid())
-  name      String       @unique
-  color     String?      // z.B. für UI-Farben: "#FF5733"
+  name      String
+  color     String?      // z.B. "#FF5733"
+  type      LabelType    @default(TEST_OBJECT)  // ← NEU: Label-Typ
   createdAt DateTime     @default(now())
   
   testObjects TestObject[]
+  
+  @@unique([name, type])  // ← Name muss nur pro Typ unique sein
+  @@index([type])
+}
+
+// Enum für Label-Typen
+enum LabelType {
+  TEST_OBJECT
+  SENSOR
+  MEASUREMENT
+  // ... weitere Typen später hinzufügen
 }
 
 // Testobjekt-Tabelle
@@ -88,7 +101,6 @@ model TestObject {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
-  // Beziehungen
   labelId     String?
   label       Label?    @relation(fields: [labelId], references: [id], onDelete: SetNull)
   pictures    Picture[]
@@ -97,19 +109,19 @@ model TestObject {
   @@index([createdAt])
 }
 
-// Bilder-Tabelle
+// Bilder-Tabelle mit Reihenfolge
 model Picture {
   id            String     @id @default(cuid())
   filename      String
   originalName  String
   mimeType      String
   size          Int
-  url           String     // Pfad oder URL zum Bild
+  url           String
+  order         Int        @default(0)
   createdAt     DateTime   @default(now())
   
-  // Beziehung zu TestObject
   testObjectId  String
   testObject    TestObject @relation(fields: [testObjectId], references: [id], onDelete: Cascade)
   
-  @@index([testObjectId])
+  @@index([testObjectId, order])
 }
