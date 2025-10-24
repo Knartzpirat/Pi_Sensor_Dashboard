@@ -1,4 +1,22 @@
 {
+  "homepage": {
+    "title": "Willkommen zum Pi Sensor Dashboard",
+    "description": "Überwachen und analysieren Sie Ihre Sensordaten mit Leichtigkeit."
+  },
+  
+  "sidebar": {
+    "title": "Seitenleiste",
+
+    "pages": {
+      "dashboard": "Dashboard",
+      "settings": "Einstellungen",
+      "search": "Suche",
+      "analytics": "Analytik",
+      "sensors": "Sensoren",
+      "reports": "Berichte",
+      "help": "Hilfe"
+    }
+  },
   "common": {
     "redirectingIn": "Weiterleitung in {seconds} Sekunden..."
   },
@@ -66,7 +84,9 @@
     "copyall": "Alles kopieren",
     "download": "Herunterladen",
     "verify": "Überprüfen",
-    "resetpassword": "Passwort zurücksetzen"
+    "resetpassword": "Passwort zurücksetzen",
+    "startmeasurements": "Messungen starten",
+    "addsensor": "Sensor hinzufügen"
   },
 
   "errors": {
