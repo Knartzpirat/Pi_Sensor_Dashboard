@@ -65,7 +65,7 @@ export function SetupForm() {
       setIsLoading(true);
       let toastId: string | number;
       try {
-        // Zeige Toast mit Progress
+        document.cookie = 'refreshToken=; path=/; max-age=0';
         toastId = toast.loading('Starting setup...', {
           description: (
             <div className="space-y-2">
