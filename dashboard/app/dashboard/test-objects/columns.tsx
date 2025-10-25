@@ -28,32 +28,27 @@ export function useTestObjectColumns(): ColumnDef<TestObjectWithRelations>[] {
       enableSorting: false,
       enableHiding: false,
       header: ({ table }) => (
-        <div className="pl-2">
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-            aria-label="Select all"
-          />
-        </div>
+        <Checkbox
+          className="flex justify-start"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
       ),
       cell: ({ row }) => (
-        <div className="">
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        </div>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
       ),
     },
     {
       id: 'thumbnail',
-      header: 'ff', //t('thumbnail'),
+      header: '', //t('thumbnail'),
       size: 80,
       maxSize: 80,
       enableSorting: false,
@@ -61,7 +56,7 @@ export function useTestObjectColumns(): ColumnDef<TestObjectWithRelations>[] {
       cell: ({ row }) => {
         const thumbnail = row.original.pictures?.[0];
         return (
-          <div className="h-12 w-12 mx-auto overflow-hidden rounded-md border border-muted">
+          <div className="flex justify-center h-12 w-12 mx-auto overflow-hidden rounded-md border border-muted">
             {thumbnail ? (
               <Image
                 src={thumbnail.url}
@@ -84,11 +79,9 @@ export function useTestObjectColumns(): ColumnDef<TestObjectWithRelations>[] {
         <DataTableColumnHeader column={column} title={t('title')} />
       ),
       cell: ({ row }) => (
-        <div className="flex space-x-2">
-          <span className="max-w-[250px] truncate font-medium">
-            {row.getValue('title')}
-          </span>
-        </div>
+        <span className="min-w-[100px ] max-w-[550px] truncate font-medium">
+          {row.getValue('title')}
+        </span>
       ),
     },
     {
@@ -154,9 +147,9 @@ export function useTestObjectColumns(): ColumnDef<TestObjectWithRelations>[] {
       size: 80,
       maxSize: 80,
       enableResizing: false,
-      header: 'ghg', //t('actions')
+      header: '', //t('actions')
       cell: ({ row }) => (
-        <div className="flex justify-end pr-2">
+        <div className="flex justify-end text-right pr-2">
           <DataTableRowActions row={row} />
         </div>
       ),
