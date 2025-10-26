@@ -24,17 +24,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import { DataTablePagination } from '@/components/data-table/pagination';
-import { DataTableToolbar } from '@/components/data-table/toolbar';
+import { DataTablePagination } from '@/components/data-table_old/pagination';
+import { DataTableToolbar } from '@/components/data-table_old/toolbar';
 import { Label } from '@prisma/client';
 import { useTestObjectColumns, TestObjectWithRelations } from './columns';
 
-
-export function DataTable({ data, labels }: { data: TestObjectWithRelations[]; labels: Label[] }) {
+export function DataTable({
+  data,
+  labels,
+}: {
+  data: TestObjectWithRelations[];
+  labels: Label[];
+}) {
   const columns = useTestObjectColumns();
   const t = useTranslations();
   // ✅ Generiere Columns mit Translations
-  
+
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -67,15 +72,19 @@ export function DataTable({ data, labels }: { data: TestObjectWithRelations[]; l
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} labels={labels} tableKey="test-objects-table" />
+      <DataTableToolbar
+        table={table}
+        labels={labels}
+        tableKey="test-objects-table"
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow  key={headerGroup.id}>
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead  key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
