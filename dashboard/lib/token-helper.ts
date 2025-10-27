@@ -48,7 +48,7 @@ export async function verifyRefreshToken(
   prisma: PrismaClient,
   token: string,
   rotate: boolean = false
-): Promise<{ userId: string; token: string; expiresAt: Date } | null> {
+): Promise<{ userId: string; token: string; expiresAt: Date; username: string; role: string } | null> {
   // Find token in database
     const refreshToken = await prisma.refreshToken.findUnique({
       where: { token },
@@ -74,6 +74,8 @@ export async function verifyRefreshToken(
     userId: refreshToken.userId,
     token: refreshToken.token,
     expiresAt: refreshToken.expiresAt,
+    username: refreshToken.user.username,
+    role: refreshToken.user.role,
   };
 
   // Optionally rotate the token (for added security)
@@ -96,6 +98,8 @@ export async function verifyRefreshToken(
       userId: refreshToken.userId,
       token: newToken.token,
       expiresAt: newToken.expiresAt,
+      username: refreshToken.user.username,
+      role: refreshToken.user.role,
     };
   }
 

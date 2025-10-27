@@ -1,69 +1,49 @@
-import type { Table } from '@tanstack/react-table';
-
-interface ExportTableToCsvOptions {
-  filename?: string;
-  excludeColumns?: string[];
-}
+import type { Table } from "@tanstack/react-table";
 
 export function exportTableToCSV<TData>(
   table: Table<TData>,
-  options: ExportTableToCsvOptions = {}
+  opts: {
+    filename?: string;
+    excludeColumns?: (keyof TData | "select" | "actions")[];
+    onlySelected?: boolean;
+  } = {},
 ): void {
-  const { filename = 'table', excludeColumns = [] } = options;
+  const {
+    filename = "table",
+    excludeColumns = [],
+    onlySelected = false,
+  } = opts;
 
-  // Get visible columns
-  const columns = table
-    .getAllColumns()
-    .filter(
-      (column) => column.getIsVisible() && !excludeColumns.includes(column.id)
-    );
+  const headers = table
+    .getAllLeafColumns()
+    .map((column) => column.id)
+    .filter((id) => !excludeColumns.includes(id as keyof TData | "select" | "actions"));
 
-  // Get rows
-  const rows = table.getFilteredRowModel().rows;
+  const csvContent = [
+    headers.join(","),
+    ...(onlySelected
+      ? table.getFilteredSelectedRowModel().rows
+      : table.getRowModel().rows
+    ).map((row) =>
+      headers
+        .map((header) => {
+          const cellValue = row.getValue(header);
+          return typeof cellValue === "string"
+            ? `"${cellValue.replace(/"/g, '""')}"`
+            : cellValue;
+        })
+        .join(","),
+    ),
+  ].join("\n");
 
-  // Create CSV header
-  const header = columns
-    .map((column) => {
-      const columnDef = column.columnDef;
-      const headerValue =
-        typeof columnDef.header === 'string' ? columnDef.header : column.id;
-      return `"${String(headerValue).replace(/"/g, '""')}"`;
-    })
-    .join(',');
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
-  // Create CSV rows
-  const csvRows = rows.map((row) => {
-    return columns
-      .map((column) => {
-        const cellValue = row.getValue(column.id);
-        let value = '';
-
-        if (cellValue instanceof Date) {
-          value = cellValue.toISOString();
-        } else if (cellValue != null) {
-          value = String(cellValue);
-        }
-
-        return `"${value.replace(/"/g, '""')}"`;
-      })
-      .join(',');
-  });
-
-  // Combine header and rows
-  const csv = [header, ...csvRows].join('\n');
-
-  // Create blob and download
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-
-  link.setAttribute('href', url);
-  link.setAttribute('download', `${filename}.csv`);
-  link.style.visibility = 'hidden';
-
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  link.style.visibility = "hidden";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
 }
