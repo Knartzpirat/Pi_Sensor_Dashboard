@@ -1,0 +1,142 @@
+'use client';
+
+import type { ColumnDef } from '@tanstack/react-table';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import type { TestObjectsTableData } from '@/types/test-object';
+import { formatDate } from '@/lib/format';
+import { Badge } from '@/components/ui/badge';
+
+export function getColumns(): ColumnDef<TestObjectsTableData>[] {
+  return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="translate-y-0.5"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="translate-y-0.5"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'title',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Titel" />
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex space-x-2">
+            <span className="max-w-[500px] truncate font-medium">
+              {row.getValue('title')}
+            </span>
+          </div>
+        );
+      },
+      enableColumnFilter: true,
+      enableSorting: true,
+      meta: {
+        label: 'Titel',
+        variant: 'text',
+      },
+    },
+    {
+      accessorKey: 'description',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Beschreibung" />
+      ),
+      cell: ({ row }) => {
+        const description = row.getValue('description') as string | null;
+        return (
+          <div className="max-w-[300px] truncate">
+            {description || '-'}
+          </div>
+        );
+      },
+      enableColumnFilter: true,
+      enableSorting: false,
+      meta: {
+        label: 'Beschreibung',
+        variant: 'text',
+      },
+    },
+    {
+      accessorKey: 'label',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Label" />
+      ),
+      cell: ({ row }) => {
+        const label = row.getValue('label') as string | null;
+        const labelColor = row.original.labelColor;
+
+        if (!label) return <span className="text-muted-foreground">-</span>;
+
+        return (
+          <Badge
+            variant="outline"
+            style={{
+              borderColor: labelColor || undefined,
+              color: labelColor || undefined,
+            }}
+          >
+            {label}
+          </Badge>
+        );
+      },
+      enableColumnFilter: true,
+      enableSorting: true,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+      meta: {
+        label: 'Label',
+        variant: 'select',
+        options: [],
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Erstellt" />
+      ),
+      cell: ({ row }) => {
+        return formatDate(row.getValue('createdAt'));
+      },
+      enableColumnFilter: true,
+      enableSorting: true,
+      meta: {
+        label: 'Erstellt',
+        variant: 'date',
+      },
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Aktualisiert" />
+      ),
+      cell: ({ row }) => {
+        return formatDate(row.getValue('updatedAt'));
+      },
+      enableColumnFilter: true,
+      enableSorting: true,
+      meta: {
+        label: 'Aktualisiert',
+        variant: 'date',
+      },
+    },
+  ];
+}
