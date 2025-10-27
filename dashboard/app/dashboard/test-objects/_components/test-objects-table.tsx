@@ -13,15 +13,16 @@ interface TestObjectsTableProps {
       {
         data: TestObjectsTableData[];
         total: number;
-      }
+      },
+      Record<string, number>
     ]
   >;
 }
 
 export function TestObjectsTable({ promises }: TestObjectsTableProps) {
-  const [{ data, total }] = React.use(promises);
+  const [{ data, total }, labelCounts] = React.use(promises);
 
-  const columns = React.useMemo(() => getColumns(), []);
+  const columns = React.useMemo(() => getColumns({ labelCounts }), [labelCounts]);
 
   const pageCount = Math.ceil(total / 10);
 
