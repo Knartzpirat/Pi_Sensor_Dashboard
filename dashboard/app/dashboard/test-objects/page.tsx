@@ -3,7 +3,7 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { FeatureFlagsProvider } from '@/components/data-table/feature-flags-provider';
 import { searchParamsCache } from '@/lib/validations/params';
 import { getValidFilters } from '@/lib/data-table';
-import { getTestObjects } from './_lib/queries';
+import { getTestObjects, getLabelCounts } from './_lib/queries';
 import { TestObjectsTable } from './_components/test-objects-table';
 import type { SearchParams } from '@/types';
 
@@ -49,7 +49,7 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
       ...search,
       filters: validFilters,
     }),
-    Promise.resolve({} as Record<string, number>),
+    getLabelCounts(),
   ]);
 
   return <TestObjectsTable promises={promises} />;

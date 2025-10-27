@@ -1,8 +1,8 @@
 // app/api/test-objects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Alle TestObjects (mit optionalen Bildern)
 export async function GET(request: NextRequest) {
@@ -50,8 +50,6 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch test objects' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -82,7 +80,5 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to create test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
