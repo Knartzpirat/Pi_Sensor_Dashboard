@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import type {
   GetTestObjectsParams,
   TestObjectsTableData,
+  TestObjectWithLabel,
 } from '@/types/test-object';
 
 export async function getTestObjects(
@@ -23,11 +24,11 @@ export async function getTestObjects(
       throw new Error('Failed to fetch test objects');
     }
 
-    const allData = await response.json();
+    const allData: TestObjectWithLabel[] = await response.json();
 
     // Transform data to table format
     const transformedData: TestObjectsTableData[] = allData.map(
-      (item: any) => ({
+      (item) => ({
         id: item.id,
         title: item.title,
         description: item.description,
