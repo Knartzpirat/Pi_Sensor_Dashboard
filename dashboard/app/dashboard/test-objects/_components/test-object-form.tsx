@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 const testObjectSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -36,11 +37,13 @@ type TestObjectFormValues = z.infer<typeof testObjectSchema>;
 interface TestObjectFormProps {
   defaultValues?: Partial<TestObjectFormValues>;
   onSuccess?: () => void;
+  className?: string;
 }
 
 export function TestObjectForm({
   defaultValues,
   onSuccess,
+  className,
 }: TestObjectFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
@@ -96,7 +99,7 @@ export function TestObjectForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="title"
