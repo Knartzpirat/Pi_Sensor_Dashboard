@@ -6,6 +6,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
 import { getColumns } from '../_lib/columns';
+import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 
 interface TestObjectsTableProps {
   promises: Promise<
@@ -13,15 +14,16 @@ interface TestObjectsTableProps {
       {
         data: TestObjectsTableData[];
         total: number;
-      }
+      },
+      Record<string, number>
     ]
   >;
 }
 
 export function TestObjectsTable({ promises }: TestObjectsTableProps) {
-  const [{ data, total }] = React.use(promises);
+  const [{ data, total }, labelCounts] = React.use(promises);
 
-  const columns = React.useMemo(() => getColumns(), []);
+  const columns = React.useMemo(() => getColumns({ labelCounts }), [labelCounts]);
 
   const pageCount = Math.ceil(total / 10);
 
