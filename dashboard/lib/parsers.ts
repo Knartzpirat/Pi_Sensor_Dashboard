@@ -5,12 +5,15 @@ import {
   type ParserBuilder,
 } from 'nuqs';
 import { z } from 'zod';
-import type { ExtendedColumnSort } from '@/types/data-table';
+import { dataTableConfig } from '@/config/data-table';
+import type { ExtendedColumnSort, ExtendedColumnFilter } from '@/types/data-table';
 
 export const filterItemSchema = z.object({
   id: z.string(),
-  value: z.unknown(),
-  operator: z.string().optional(),
+  value: z.union([z.string(), z.array(z.string())]),
+  variant: z.enum(dataTableConfig.filterVariants),
+  operator: z.enum(dataTableConfig.operators),
+  filterId: z.string(),
 });
 
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
@@ -82,43 +85,39 @@ export function getValidFilters(filters: unknown): FilterItemSchema[] {
   }
 }
 
-export function getFiltersStateParser(
-  columnIds: Set<string>
-): ParserBuilder<FilterSchema> {
+export function getFiltersStateParser<TData>(
+  columnIds: string[] | Set<string>
+): ParserBuilder<ExtendedColumnFilter<TData>[]> {
+  const validKeys = columnIds instanceof Set ? columnIds : new Set(columnIds);
+
   return createParser({
     parse: (value) => {
-      if (!value) {
-        return { items: [] };
-      }
+      if (!value) return null;
 
       try {
         const parsed = JSON.parse(value);
-        const result = filterSchema.safeParse(parsed);
+        const result = z.array(filterItemSchema).safeParse(parsed);
 
-        if (!result.success) {
-          return { items: [] };
+        if (!result.success) return null;
+
+        if (result.data.some((item) => !validKeys.has(item.id))) {
+          return null;
         }
 
-        // Filter out items with invalid column IDs
-        const validItems = result.data.items.filter((item) =>
-          columnIds.has(item.id)
-        );
-
-        return {
-          items: validItems,
-          joinOperator: result.data.joinOperator,
-        };
+        return result.data as ExtendedColumnFilter<TData>[];
       } catch {
-        return { items: [] };
+        return null;
       }
     },
-    serialize: (value) => {
-      if (!value || value.items.length === 0) return '';
-
-      return JSON.stringify({
-        items: value.items,
-        ...(value.joinOperator && { joinOperator: value.joinOperator }),
-      });
-    },
-  }) as ParserBuilder<FilterSchema>;
+    serialize: (value) => JSON.stringify(value),
+    eq: (a, b) =>
+      a.length === b.length &&
+      a.every(
+        (filter, index) =>
+          filter.id === b[index]?.id &&
+          filter.value === b[index]?.value &&
+          filter.variant === b[index]?.variant &&
+          filter.operator === b[index]?.operator,
+      ),
+  });
 }
