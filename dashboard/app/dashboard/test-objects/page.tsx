@@ -42,7 +42,45 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   const searchParams = await props.searchParams;
   const search = searchParamsCache.parse(searchParams);
 
-  const validFilters = getValidFilters(Array.isArray(search.filters) ? search.filters : []);
+  // Parse filters string to array if it's a string (Advanced Filter mode)
+  let parsedFilters: any[] = [];
+  if (search.filters) {
+    try {
+      parsedFilters = typeof search.filters === 'string'
+        ? JSON.parse(search.filters)
+        : search.filters;
+    } catch (e) {
+      console.error('Error parsing filters:', e);
+      parsedFilters = [];
+    }
+  }
+
+  // Also check for individual column filters (Normal Filter mode)
+  // These come from DataTableToolbar as separate URL params
+  const columnFilters: any[] = [];
+
+  // Check for title filter
+  if (searchParams.title) {
+    columnFilters.push({
+      id: 'title',
+      value: searchParams.title,
+    });
+  }
+
+  // Check for label filter (can be multiple values)
+  if (searchParams.label) {
+    const labelValues = Array.isArray(searchParams.label)
+      ? searchParams.label
+      : [searchParams.label];
+    columnFilters.push({
+      id: 'label',
+      value: labelValues,
+    });
+  }
+
+  // Combine both filter types
+  const allFilters = [...parsedFilters, ...columnFilters];
+  const validFilters = getValidFilters(Array.isArray(allFilters) ? allFilters : []);
 
   const promises = Promise.all([
     getTestObjects({
