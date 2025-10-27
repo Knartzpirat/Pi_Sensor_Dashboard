@@ -57,3 +57,33 @@ export async function getTestObjects(
     };
   }
 }
+
+export async function getLabelCounts(): Promise<Record<string, number>> {
+  noStore();
+
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/test-objects`, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch test objects');
+    }
+
+    const allData: TestObjectWithLabel[] = await response.json();
+
+    // Count occurrences of each label
+    const counts: Record<string, number> = {};
+
+    for (const item of allData) {
+      const labelName = item.label?.name || 'No Label';
+      counts[labelName] = (counts[labelName] || 0) + 1;
+    }
+
+    return counts;
+  } catch (error) {
+    console.error('Error fetching label counts:', error);
+    return {};
+  }
+}
