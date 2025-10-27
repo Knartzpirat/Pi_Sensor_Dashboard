@@ -42,7 +42,9 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   return (
     <div className="space-y-4">
       <DataTable table={table}>
-        <DataTableToolbar table={table} />
+        <DataTableToolbar table={table}>
+          <TestObjectsTableToolbarActions table={table} />
+        </DataTableToolbar>
       </DataTable>
     </div>
   );
