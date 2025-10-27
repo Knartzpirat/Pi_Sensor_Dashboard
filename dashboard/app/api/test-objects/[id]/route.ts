@@ -1,17 +1,18 @@
 // app/api/test-objects/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Einzelnes TestObject
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const testObject = await prisma.testObject.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         label: true
       },
@@ -31,21 +32,20 @@ export async function GET(
       { error: 'Failed to fetch test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // PUT - TestObject aktualisieren
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { title, description, labelId } = await request.json();
 
     const testObject = await prisma.testObject.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         description,
@@ -63,19 +63,18 @@ export async function PUT(
       { error: 'Failed to update test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // DELETE - TestObject löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.testObject.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Test object deleted' });
@@ -85,7 +84,5 @@ export async function DELETE(
       { error: 'Failed to delete test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
