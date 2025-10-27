@@ -6,6 +6,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
 import { getColumns } from '../_lib/columns';
+import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 
 interface TestObjectsTableProps {
   promises: Promise<
@@ -41,7 +42,9 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   return (
     <div className="space-y-4">
       <DataTable table={table}>
-        <DataTableToolbar table={table} />
+        <DataTableToolbar table={table}>
+          <TestObjectsTableToolbarActions table={table} />
+        </DataTableToolbar>
       </DataTable>
     </div>
   );
