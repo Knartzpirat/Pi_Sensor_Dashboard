@@ -15,8 +15,10 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { TestObjectForm } from './test-object-form';
+import { useTranslations } from 'next-intl';
 
 export function CreateTestObjectSheet() {
+  const t = useTranslations();
   const [open, setOpen] = React.useState(false);
 
   return (
