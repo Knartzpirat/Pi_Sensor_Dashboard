@@ -28,7 +28,16 @@
     "clear": "Löschen",
     "save": "Speichern",
     "search": "Suche..."
+    
   },
+
+  "deleteDialog": {
+      "title": "Bist du sicher?",
+      "description": "Möchten Sie dieses Element wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "loading": "Löschen...",
+      "confirm": "Löschen"
+    },
 
   "inputs": {
     "username": "Benutzername",
@@ -49,6 +58,7 @@
     "logout": "Abmelden",
     "loading": "Laden...",
     "continue": "Weiter",
+    "cancel": "Abbrechen",
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
     "switchTheme": "Theme wechseln",
@@ -62,6 +72,7 @@
     "startmeasurements": "Messungen starten",
     "addsensor": "Sensor hinzufügen"
   },
+
   "table": {
     "title": "Titel",
     "description": "Beschreibung",
@@ -108,12 +119,22 @@
     "description": "Beschreiben Sie Ihre Testobjekte und deren Eigenschaften. Sie können diese Sensoren zuweisen, um Messungen zu organisieren und ihre Berichte zu erstellen.",
     "table": {
       "title": "Titel",
+      "title_description": "Titel des Testobjekts",
       "description": "Beschreibung",
+      "description_placeholder": "Beschreibung des Testobjekts (Optional)",
       "label": "Typ",
+      "label_placeholder": "Wählen Sie einen Typ (Optional)",
       "type": "Typ",
       "createdAt": "Erstellt",
       "updatedAt": "Aktualisiert",
       "actions": "Aktionen"
+    },
+    "createTestObject": {
+      "title": "Testobjekt erstellen",
+      "description": "Erstellen Sie ein neues Testobjekt, um Ihre Sensoren zu organisieren."
+    },
+    "deleteDialog": {
+      "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht."
     }
   },
   
