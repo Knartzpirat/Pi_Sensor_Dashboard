@@ -25,7 +25,7 @@ interface TestObjectsTableProps {
 
 export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   const [{ data, total }, labelCounts] = React.use(promises);
-  const { filterFlag } = useFeatureFlags();
+  const { enableAdvancedFilter } = useFeatureFlags();
 
   const columns = React.useMemo(() => getColumns({ labelCounts }), [labelCounts]);
 
@@ -35,6 +35,7 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
     data,
     columns,
     pageCount,
+    enableAdvancedFilter,
     initialState: {
       pagination: {
         pageIndex: 0,
@@ -46,7 +47,7 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   return (
     <div className="space-y-4">
       <DataTable table={table}>
-        {filterFlag === 'commandFilters' ? (
+        {enableAdvancedFilter ? (
           <DataTableAdvancedToolbar table={table}>
             <DataTableFilterMenu table={table} />
             <TestObjectsTableToolbarActions table={table} />
