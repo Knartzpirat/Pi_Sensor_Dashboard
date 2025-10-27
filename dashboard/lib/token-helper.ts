@@ -39,6 +39,14 @@ export async function generateRefreshToken(
   return { token, expiresAt };
 }
 
+export interface VerifiedToken {
+  userId: string;
+  token: string;
+  expiresAt: Date;
+  username: string;
+  role: string;
+}
+
 /**
  * Verify and optionally rotate a refresh token
  */
@@ -46,7 +54,7 @@ export async function verifyRefreshToken(
   prisma: PrismaClient,
   token: string,
   rotate: boolean = false
-): Promise<{ userId: string; token: string; expiresAt: Date } | null> {
+): Promise<VerifiedToken | null> {
   // Find token in database
   const refreshToken = await prisma.refreshToken.findUnique({
     where: { token },
@@ -67,11 +75,13 @@ export async function verifyRefreshToken(
     return null;
   }
 
-  // Token is valid
-  const result = {
+  // Token is valid - include user data
+  const result: VerifiedToken = {
     userId: refreshToken.userId,
     token: refreshToken.token,
     expiresAt: refreshToken.expiresAt,
+    username: refreshToken.user.username,
+    role: refreshToken.user.role,
   };
 
   // Optionally rotate the token (for added security)
@@ -94,6 +104,8 @@ export async function verifyRefreshToken(
       userId: refreshToken.userId,
       token: newToken.token,
       expiresAt: newToken.expiresAt,
+      username: refreshToken.user.username,
+      role: refreshToken.user.role,
     };
   }
 
