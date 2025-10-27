@@ -43,7 +43,9 @@ export function TestObjectForm({
   onSuccess,
 }: TestObjectFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [labels, setLabels] = React.useState<{ id: string; name: string }[]>([]);
+  const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
+    []
+  );
 
   const form = useForm<TestObjectFormValues>({
     resolver: zodResolver(testObjectSchema),

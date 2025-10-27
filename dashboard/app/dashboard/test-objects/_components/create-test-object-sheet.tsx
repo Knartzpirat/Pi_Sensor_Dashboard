@@ -31,12 +31,11 @@ export function CreateTestObjectSheet() {
         <SheetHeader className="text-left">
           <SheetTitle>Test-Objekt erstellen</SheetTitle>
           <SheetDescription>
-            Erstelle ein neues Test-Objekt mit Titel und optionaler Beschreibung.
+            Erstelle ein neues Test-Objekt mit Titel und optionaler
+            Beschreibung.
           </SheetDescription>
         </SheetHeader>
-        <TestObjectForm
-          onSuccess={() => setOpen(false)}
-        />
+        <TestObjectForm onSuccess={() => setOpen(false)} />
         <SheetFooter className="gap-2 pt-2 sm:space-x-0">
           <SheetClose asChild>
             <Button type="button" variant="outline">

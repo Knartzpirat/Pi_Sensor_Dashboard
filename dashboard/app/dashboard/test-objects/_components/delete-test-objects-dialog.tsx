@@ -43,7 +43,9 @@ export function DeleteTestObjectsDialog({
       );
 
       toast.success(
-        `${testObjects.length} Test-Objekt${testObjects.length > 1 ? 'e' : ''} erfolgreich gelöscht`
+        `${testObjects.length} Test-Objekt${
+          testObjects.length > 1 ? 'e' : ''
+        } erfolgreich gelöscht`
       );
 
       setOpen(false);
@@ -72,7 +74,8 @@ export function DeleteTestObjectsDialog({
           <DialogTitle>Bist du sicher?</DialogTitle>
           <DialogDescription>
             Diese Aktion kann nicht rückgängig gemacht werden. Es werden{' '}
-            <span className="font-medium">{testObjects.length}</span> Test-Objekt
+            <span className="font-medium">{testObjects.length}</span>{' '}
+            Test-Objekt
             {testObjects.length > 1 ? 'e' : ''} permanent gelöscht.
           </DialogDescription>
         </DialogHeader>

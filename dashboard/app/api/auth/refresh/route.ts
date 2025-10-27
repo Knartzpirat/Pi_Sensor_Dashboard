@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
-import { refreshAccessToken } from '@/lib/token-helper';
+import { refreshRefreToken } from '@/lib/token-helper';
 
 export async function POST(request: NextRequest) {
   try {

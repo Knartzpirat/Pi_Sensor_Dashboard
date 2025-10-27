@@ -29,14 +29,14 @@ export async function getTestObjects(
     // Transform data to table format
     const transformedData: TestObjectsTableData[] = allData.map(
       (item) => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        createdAt: new Date(item.createdAt),
-        updatedAt: new Date(item.updatedAt),
-        labelId: item.labelId,
-        label: item.label?.name || null,
-        labelColor: item.label?.color || null,
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt),
+      labelId: item.labelId,
+      label: item.label?.name || null,
+      labelColor: item.label?.color || null,
       })
     );
 

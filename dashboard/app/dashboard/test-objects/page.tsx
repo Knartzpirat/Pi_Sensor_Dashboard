@@ -3,7 +3,7 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { FeatureFlagsProvider } from '@/components/data-table/feature-flags-provider';
 import { searchParamsCache } from '@/lib/validations/params';
 import { getValidFilters } from '@/lib/parsers';
-import { getTestObjects, getLabelCounts } from './_lib/queries';
+import { getTestObjects } from './_lib/queries';
 import { TestObjectsTable } from './_components/test-objects-table';
 import type { SearchParams } from '@/types';
 
@@ -18,7 +18,15 @@ export default function IndexPage(props: TestObjectsProps) {
         <DataTableSkeleton
           columnCount={7}
           filterCount={2}
-          cellWidths={['10rem', '30rem', '10rem', '10rem', '6rem', '6rem', '6rem']}
+          cellWidths={[
+            '10rem',
+            '30rem',
+            '10rem',
+            '10rem',
+            '6rem',
+            '6rem',
+            '6rem',
+          ]}
           shrinkZero
         />
       }
@@ -41,7 +49,6 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
       ...search,
       filters: validFilters,
     }),
-    getLabelCounts(),
   ]);
 
   return <TestObjectsTable promises={promises} />;
