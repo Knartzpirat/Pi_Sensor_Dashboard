@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 const testObjectSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -36,12 +38,15 @@ type TestObjectFormValues = z.infer<typeof testObjectSchema>;
 interface TestObjectFormProps {
   defaultValues?: Partial<TestObjectFormValues>;
   onSuccess?: () => void;
+  className?: string;
 }
 
 export function TestObjectForm({
   defaultValues,
   onSuccess,
+  className,
 }: TestObjectFormProps) {
+  const t = useTranslations();
   const [isLoading, setIsLoading] = React.useState(false);
   const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
     []
@@ -52,7 +57,7 @@ export function TestObjectForm({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
-      labelId: defaultValues?.labelId ?? '',
+      labelId: defaultValues?.labelId ?? undefined,
     },
   });
 
@@ -96,15 +101,15 @@ export function TestObjectForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 ", className)}>
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Titel</FormLabel>
+              <FormLabel>{t('testObjects.table.title')}</FormLabel>
               <FormControl>
-                <Input placeholder="Test-Objekt Titel" {...field} />
+                <Input placeholder={t('testObjects.table.title_description')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,11 +120,11 @@ export function TestObjectForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Beschreibung (Optional)</FormLabel>
+              <FormLabel>{t('testObjects.table.description')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Beschreibung des Test-Objekts..."
-                  className="resize-none"
+                  placeholder={t('testObjects.table.description_placeholder')}
+                  //className="resize-none"
                   {...field}
                 />
               </FormControl>
@@ -132,15 +137,17 @@ export function TestObjectForm({
           name="labelId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Label (Optional)</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormLabel>{t('testObjects.table.label')}</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || undefined}
+              >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Label auswählen" />
+                    <SelectValue placeholder={t('testObjects.table.label_placeholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">Kein Label</SelectItem>
                   {labels.map((label) => (
                     <SelectItem key={label.id} value={label.id}>
                       {label.name}
