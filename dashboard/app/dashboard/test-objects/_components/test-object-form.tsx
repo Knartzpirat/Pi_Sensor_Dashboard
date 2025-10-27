@@ -52,7 +52,7 @@ export function TestObjectForm({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
-      labelId: defaultValues?.labelId ?? '',
+      labelId: defaultValues?.labelId ?? undefined,
     },
   });
 
@@ -133,14 +133,16 @@ export function TestObjectForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Label (Optional)</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || undefined}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Label auswählen" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">Kein Label</SelectItem>
                   {labels.map((label) => (
                     <SelectItem key={label.id} value={label.id}>
                       {label.name}
