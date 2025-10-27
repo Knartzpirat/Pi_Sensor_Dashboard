@@ -14,6 +14,7 @@ import {
   loadTableViewFromCookie,
   saveTableViewToCookie
 } from '@/lib/tableView-cookies';
+import { useTranslations } from 'next-intl';
 
 const TABLE_VIEW_KEY = 'test-objects-table-view';
 
@@ -32,8 +33,11 @@ interface TestObjectsTableProps {
 export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   const [{ data, total }, labelCounts] = React.use(promises);
   const { enableAdvancedFilter } = useFeatureFlags();
-
-  const columns = React.useMemo(() => getColumns({ labelCounts }), [labelCounts]);
+  const t = useTranslations();
+  const columns = React.useMemo(
+    () => getColumns({ t, labelCounts }),
+    [t, labelCounts]
+  );
 
   const pageCount = Math.ceil(total / 10);
 
