@@ -5,6 +5,7 @@ import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar';
 import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-menu';
+import { DataTableSortList } from '@/components/data-table/data-table-sort-list';
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
@@ -34,6 +35,7 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   const [{ data, total }, labelCounts] = React.use(promises);
   const { enableAdvancedFilter } = useFeatureFlags();
   const t = useTranslations();
+
   const columns = React.useMemo(
     () => getColumns({ t, labelCounts }),
     [t, labelCounts]
@@ -75,11 +77,13 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
       <DataTable table={table}>
         {enableAdvancedFilter ? (
           <DataTableAdvancedToolbar table={table}>
+            <DataTableSortList table={table} align="start" />
             <DataTableFilterMenu table={table} />
             <TestObjectsTableToolbarActions table={table} />
           </DataTableAdvancedToolbar>
         ) : (
         <DataTableToolbar table={table}>
+            <DataTableSortList table={table} align="end" />
           <TestObjectsTableToolbarActions table={table} />
         </DataTableToolbar>
         )}
