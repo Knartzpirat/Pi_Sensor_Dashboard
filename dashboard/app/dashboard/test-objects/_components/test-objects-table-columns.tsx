@@ -8,11 +8,16 @@ import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Tag } from 'lucide-react';
 
+
+
 interface GetColumnsProps {
+  t: (key: string, values?: Record<string, string | number | Date>) => string;
   labelCounts: Record<string, number>;
 }
 
-export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObjectsTableData>[] {
+export function getColumns(
+  { t, labelCounts }: GetColumnsProps
+): ColumnDef<TestObjectsTableData>[] {
   return [
     {
       id: 'select',
@@ -41,7 +46,10 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
     {
       accessorKey: 'title',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label="Titel" />
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.title')}
+        />
       ),
       cell: ({ row }) => {
         return (
@@ -55,34 +63,38 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'Titel',
+        label: 'title',
         variant: 'text',
       },
     },
     {
       accessorKey: 'description',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label="Beschreibung" />
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.description')}
+        />
       ),
       cell: ({ row }) => {
         const description = row.getValue('description') as string | null;
         return (
-          <div className="max-w-[300px] truncate">
-            {description || '-'}
-          </div>
+          <div className="max-w-[300px] truncate">{description || '-'}</div>
         );
       },
       enableColumnFilter: false,
       enableSorting: false,
       meta: {
-        label: 'Beschreibung',
+        label: 'description',
         variant: 'text',
       },
     },
     {
       accessorKey: 'label',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label="Label" />
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.label')}
+        />
       ),
       cell: ({ row }) => {
         const label = row.getValue('label') as string | null;
@@ -108,7 +120,7 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
         return value.includes(row.getValue(id));
       },
       meta: {
-        label: 'Label',
+        label: 'label',
         variant: 'multiSelect',
         options: Object.entries(labelCounts).map(([label, count]) => ({
           label,
@@ -121,7 +133,10 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
     {
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label="Erstellt" />
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.createdAt')}
+        />
       ),
       cell: ({ row }) => {
         return formatDate(row.getValue('createdAt'));
@@ -129,14 +144,17 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'Erstellt',
+        label: 'createdAt',
         variant: 'date',
       },
     },
     {
       accessorKey: 'updatedAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label="Aktualisiert" />
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.updatedAt')}
+        />
       ),
       cell: ({ row }) => {
         return formatDate(row.getValue('updatedAt'));
@@ -144,7 +162,7 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'Aktualisiert',
+        label: 'updatedAt',
         variant: 'date',
       },
     },
