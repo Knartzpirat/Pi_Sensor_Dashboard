@@ -8,7 +8,7 @@ import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-m
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
-import { getColumns } from '../_lib/columns';
+import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 
 interface TestObjectsTableProps {

@@ -1,3 +1,5 @@
+// dashboard/lib/token-helper.ts
+
 import { PrismaClient } from '@prisma/client';
 import { randomBytes } from 'crypto';
 
@@ -39,14 +41,6 @@ export async function generateRefreshToken(
   return { token, expiresAt };
 }
 
-export interface VerifiedToken {
-  userId: string;
-  token: string;
-  expiresAt: Date;
-  username: string;
-  role: string;
-}
-
 /**
  * Verify and optionally rotate a refresh token
  */
@@ -54,34 +48,32 @@ export async function verifyRefreshToken(
   prisma: PrismaClient,
   token: string,
   rotate: boolean = false
-): Promise<VerifiedToken | null> {
+): Promise<{ userId: string; token: string; expiresAt: Date } | null> {
   // Find token in database
-  const refreshToken = await prisma.refreshToken.findUnique({
-    where: { token },
-    include: { user: true },
-  });
+    const refreshToken = await prisma.refreshToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
   // Check if token exists
-  if (!refreshToken) {
-    return null;
-  }
+    if (!refreshToken) {
+      return null;
+    }
 
   // Check if token is expired
-  if (refreshToken.expiresAt < new Date()) {
+    if (refreshToken.expiresAt < new Date()) {
     // Clean up expired token
-    await prisma.refreshToken.delete({
-      where: { id: refreshToken.id },
-    });
-    return null;
-  }
+      await prisma.refreshToken.delete({
+        where: { id: refreshToken.id },
+      });
+      return null;
+    }
 
-  // Token is valid - include user data
-  const result: VerifiedToken = {
+  // Token is valid
+  const result = {
     userId: refreshToken.userId,
     token: refreshToken.token,
     expiresAt: refreshToken.expiresAt,
-    username: refreshToken.user.username,
-    role: refreshToken.user.role,
   };
 
   // Optionally rotate the token (for added security)
@@ -104,8 +96,6 @@ export async function verifyRefreshToken(
       userId: refreshToken.userId,
       token: newToken.token,
       expiresAt: newToken.expiresAt,
-      username: refreshToken.user.username,
-      role: refreshToken.user.role,
     };
   }
 
@@ -120,9 +110,9 @@ export async function revokeRefreshToken(
   token: string
 ): Promise<boolean> {
   try {
-    await prisma.refreshToken.delete({
-      where: { token },
-    });
+  await prisma.refreshToken.delete({
+    where: { token },
+  });
     return true;
   } catch (error) {
     return false;

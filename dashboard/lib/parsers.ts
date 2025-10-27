@@ -1,14 +1,55 @@
-import {
-  createParser,
-  parseAsArrayOf,
-  parseAsString,
-  type ParserBuilder,
-} from 'nuqs';
-import { z } from 'zod';
-import { dataTableConfig } from '@/config/data-table';
-import type { ExtendedColumnSort, ExtendedColumnFilter } from '@/types/data-table';
+import { createParser } from "nuqs/server";
+import { z } from "zod";
 
-export const filterItemSchema = z.object({
+import { dataTableConfig } from "@/config/data-table";
+
+import type {
+  ExtendedColumnFilter,
+  ExtendedColumnSort,
+} from "@/types/data-table";
+
+const sortingItemSchema = z.object({
+  id: z.string(),
+  desc: z.boolean(),
+});
+
+export const getSortingStateParser = <TData>(
+  columnIds?: string[] | Set<string>,
+) => {
+  const validKeys = columnIds
+    ? columnIds instanceof Set
+      ? columnIds
+      : new Set(columnIds)
+    : null;
+
+  return createParser({
+    parse: (value) => {
+      try {
+        const parsed = JSON.parse(value);
+        const result = z.array(sortingItemSchema).safeParse(parsed);
+
+        if (!result.success) return null;
+
+        if (validKeys && result.data.some((item) => !validKeys.has(item.id))) {
+          return null;
+        }
+
+        return result.data as ExtendedColumnSort<TData>[];
+      } catch {
+        return null;
+      }
+    },
+    serialize: (value) => JSON.stringify(value),
+    eq: (a, b) =>
+      a.length === b.length &&
+      a.every(
+        (item, index) =>
+          item.id === b[index]?.id && item.desc === b[index]?.desc,
+      ),
+  });
+};
+
+const filterItemSchema = z.object({
   id: z.string(),
   value: z.union([z.string(), z.array(z.string())]),
   variant: z.enum(dataTableConfig.filterVariants),
@@ -18,89 +59,24 @@ export const filterItemSchema = z.object({
 
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
 
-export const filterSchema = z.object({
-  items: z.array(filterItemSchema),
-  joinOperator: z.enum(['and', 'or']).optional(),
-});
-
-export type FilterSchema = z.infer<typeof filterSchema>;
-
-export function getSortingStateParser<TData>(
-  columnIds: Set<string>
-): ParserBuilder<ExtendedColumnSort<TData>[]> {
-  return createParser({
-    parse: (value) => {
-      if (!value) return [];
-
-      const parts = value.split(',');
-      const sorting: ExtendedColumnSort<TData>[] = [];
-
-      for (const part of parts) {
-        const match = part.match(/^(.+)\.(asc|desc)$/);
-        if (match) {
-          const [, id, order] = match;
-          if (columnIds.has(id)) {
-            sorting.push({
-              id: id as Extract<keyof TData, string>,
-              desc: order === 'desc',
-            });
-          }
-        }
-      }
-
-      return sorting;
-    },
-    serialize: (value) => {
-      if (!value || value.length === 0) return '';
-
-      return value
-        .map((sort) => `${String(sort.id)}.${sort.desc ? 'desc' : 'asc'}`)
-        .join(',');
-    },
-  });
-}
-
-export const searchParamsParser = {
-  page: parseAsString.withDefault('1'),
-  perPage: parseAsString.withDefault('10'),
-  sort: parseAsString,
-  filters: parseAsString,
-  joinOperator: parseAsString,
-};
-
-export function getValidFilters(filters: unknown): FilterItemSchema[] {
-  if (!filters) return [];
-
-  try {
-    if (typeof filters === 'string') {
-      const parsed = JSON.parse(filters);
-      const result = z.array(filterItemSchema).safeParse(parsed);
-      return result.success ? result.data : [];
-    }
-
-    const result = z.array(filterItemSchema).safeParse(filters);
-    return result.success ? result.data : [];
-  } catch {
-    return [];
-  }
-}
-
-export function getFiltersStateParser<TData>(
-  columnIds: string[] | Set<string>
-): ParserBuilder<ExtendedColumnFilter<TData>[]> {
-  const validKeys = columnIds instanceof Set ? columnIds : new Set(columnIds);
+export const getFiltersStateParser = <TData>(
+  columnIds?: string[] | Set<string>,
+) => {
+  const validKeys = columnIds
+    ? columnIds instanceof Set
+      ? columnIds
+      : new Set(columnIds)
+    : null;
 
   return createParser({
     parse: (value) => {
-      if (!value) return null;
-
       try {
         const parsed = JSON.parse(value);
         const result = z.array(filterItemSchema).safeParse(parsed);
 
         if (!result.success) return null;
 
-        if (result.data.some((item) => !validKeys.has(item.id))) {
+        if (validKeys && result.data.some((item) => !validKeys.has(item.id))) {
           return null;
         }
 
@@ -120,4 +96,4 @@ export function getFiltersStateParser<TData>(
           filter.operator === b[index]?.operator,
       ),
   });
-}
+};

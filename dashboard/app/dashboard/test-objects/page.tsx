@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { FeatureFlagsProvider } from '@/components/data-table/feature-flags-provider';
 import { searchParamsCache } from '@/lib/validations/params';
-import { getValidFilters } from '@/lib/parsers';
-import { getTestObjects, getLabelCounts } from './_lib/queries';
+import { getValidFilters } from '@/lib/data-table';
+import { getTestObjects } from './_lib/queries';
 import { TestObjectsTable } from './_components/test-objects-table';
 import type { SearchParams } from '@/types';
 
@@ -42,14 +42,14 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   const searchParams = await props.searchParams;
   const search = searchParamsCache.parse(searchParams);
 
-  const validFilters = getValidFilters(search.filters);
+  const validFilters = getValidFilters(Array.isArray(search.filters) ? search.filters : []);
 
   const promises = Promise.all([
     getTestObjects({
       ...search,
       filters: validFilters,
     }),
-    getLabelCounts(),
+    Promise.resolve({} as Record<string, number>),
   ]);
 
   return <TestObjectsTable promises={promises} />;

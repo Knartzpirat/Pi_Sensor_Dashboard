@@ -14,20 +14,22 @@ export function exportTableToCSV<TData>(
   // Get visible columns
   const columns = table
     .getAllColumns()
-    .filter((column) => column.getIsVisible() && !excludeColumns.includes(column.id));
+    .filter(
+      (column) => column.getIsVisible() && !excludeColumns.includes(column.id)
+    );
 
   // Get rows
   const rows = table.getFilteredRowModel().rows;
 
   // Create CSV header
-  const header = columns.map((column) => {
-    const columnDef = column.columnDef;
-    const headerValue =
-      typeof columnDef.header === 'string'
-        ? columnDef.header
-        : column.id;
-    return `"${String(headerValue).replace(/"/g, '""')}"`;
-  }).join(',');
+  const header = columns
+    .map((column) => {
+      const columnDef = column.columnDef;
+      const headerValue =
+        typeof columnDef.header === 'string' ? columnDef.header : column.id;
+      return `"${String(headerValue).replace(/"/g, '""')}"`;
+    })
+    .join(',');
 
   // Create CSV rows
   const csvRows = rows.map((row) => {
