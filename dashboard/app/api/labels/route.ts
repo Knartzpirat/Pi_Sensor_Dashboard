@@ -1,6 +1,6 @@
 // app/api/labels/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, LabelType } from '@prisma/client';
+import { PrismaClient, EntityType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') as LabelType | null;
+    const type = searchParams.get('type') as EntityType | null;
 
     const labels = await prisma.label.findMany({
       where: type ? { type } : undefined,
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    // Validiere LabelType
-    if (!Object.values(LabelType).includes(type)) {
+    // Validiere EntityType
+    if (!Object.values(EntityType).includes(type)) {
       return NextResponse.json(
-        { error: 'Invalid label type' },
+        { error: 'Invalid entity type' },
         { status: 400 }
       );
     }
