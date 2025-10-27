@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Sheet,
   SheetClose,
@@ -26,25 +27,26 @@ export function CreateTestObjectSheet() {
       <SheetTrigger asChild>
         <Button variant="outline" size="sm">
           <Plus className="mr-2 size-4" aria-hidden="true" />
-          Neues Test-Objekt
+          {t('testObjects.createTestObject.title')}
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col gap-6 sm:max-w-md">
-        <SheetHeader className="text-left">
-          <SheetTitle>Test-Objekt erstellen</SheetTitle>
-          <SheetDescription>
-            Erstelle ein neues Test-Objekt mit Titel und optionaler
-            Beschreibung.
-          </SheetDescription>
-        </SheetHeader>
-        <TestObjectForm onSuccess={() => setOpen(false)} />
-        <SheetFooter className="gap-2 pt-2 sm:space-x-0">
-          <SheetClose asChild>
-            <Button type="button" variant="outline">
-              Abbrechen
-            </Button>
-          </SheetClose>
-        </SheetFooter>
+        <ScrollArea className="h-screen">
+          <SheetHeader className="text-left">
+            <SheetTitle>{t('testObjects.createTestObject.title')}</SheetTitle>
+            <SheetDescription>
+              {t('testObjects.createTestObject.description')}
+            </SheetDescription>
+          </SheetHeader>
+          <TestObjectForm className="mx-4" onSuccess={() => setOpen(false)} />
+          <SheetFooter className="gap-2 pt-2 sm:space-x-0">
+            <SheetClose asChild>
+              <Button type="button" variant="outline">
+                {t('buttons.cancel')}
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );
