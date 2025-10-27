@@ -16,8 +16,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relationen
-  refreshTokens  RefreshToken[]
-  recoveryCodes  RecoveryCode[]
+  refreshTokens   RefreshToken[]
+  recoveryCodes RecoveryCode[]
 
   @@map("users")
 }
