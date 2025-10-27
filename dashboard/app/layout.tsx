@@ -3,6 +3,7 @@ import './globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 type Props = {
   children: React.ReactNode;
@@ -11,10 +12,7 @@ type Props = {
 export default async function RootLayout({ children }: Props) {
 
   return (
-    <html
-      suppressHydrationWarning={true}
-      data-lt-installed="true"
-    >
+    <html suppressHydrationWarning={true} data-lt-installed="true">
       <body>
         <ThemeProvider
           attribute="class"
@@ -22,10 +20,12 @@ export default async function RootLayout({ children }: Props) {
           enableSystem
           disableTransitionOnChange
         >
-          <NextIntlClientProvider>
-            <main>{children}</main>
-            <Toaster />
-          </NextIntlClientProvider>
+          <NuqsAdapter>
+            <NextIntlClientProvider>
+              <main>{children}</main>
+              <Toaster />
+            </NextIntlClientProvider>
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>
