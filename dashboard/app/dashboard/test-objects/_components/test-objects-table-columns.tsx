@@ -72,7 +72,7 @@ export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObje
           </div>
         );
       },
-      enableColumnFilter: true,
+      enableColumnFilter: false,
       enableSorting: false,
       meta: {
         label: 'Beschreibung',
