@@ -1,37 +1,48 @@
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
-import { refreshRefreToken } from '@/lib/token-helper';
+import { verifyRefreshToken } from '@/lib/token-helper';
 
 export async function POST(request: NextRequest) {
+  const prisma = getPrismaClient();
+
   try {
-    const refreshToken = request.cookies.get('refresh_token')?.value;
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get('refreshToken')?.value;
 
     if (!refreshToken) {
-      return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
-    }
-
-    const prisma = getPrismaClient();
-    const result = await refreshAccessToken(prisma, refreshToken);
-
-    if (!result) {
       return NextResponse.json(
-        { error: 'Invalid refresh token' },
+        { error: 'No refresh token' },
         { status: 401 }
       );
     }
 
-    const response = NextResponse.json({ success: true });
+    // Verify and rotate the token for security
+    const result = await verifyRefreshToken(prisma, refreshToken, true);
 
-    // Setze neues Access Token
-    response.cookies.set('access_token', result.accessToken, {
+    if (!result) {
+      return NextResponse.json(
+        { error: 'Invalid or expired refresh token' },
+        { status: 401 }
+      );
+    }
+
+    // Calculate maxAge from expiresAt
+    const maxAge = Math.floor((result.expiresAt.getTime() - Date.now()) / 1000);
+
+    // Set new refresh token cookie
+    cookieStore.set('refreshToken', result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 15, // 15 Minuten
+      sameSite: 'strict',
+      maxAge,
       path: '/',
     });
 
-    return response;
+    return NextResponse.json({
+      success: true,
+      expiresAt: result.expiresAt.toISOString(),
+    });
   } catch (error) {
     console.error('Refresh error:', error);
     return NextResponse.json(
