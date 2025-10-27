@@ -10,6 +10,12 @@ import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
 import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
+import {
+  loadTableViewFromCookie,
+  saveTableViewToCookie
+} from '@/lib/tableView-cookies';
+
+const TABLE_VIEW_KEY = 'test-objects-table-view';
 
 interface TestObjectsTableProps {
   promises: Promise<
@@ -31,6 +37,12 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
 
   const pageCount = Math.ceil(total / 10);
 
+  // Load column visibility from cookies
+  const savedColumnVisibility = React.useMemo(() => {
+    if (typeof window === 'undefined') return {};
+    return loadTableViewFromCookie<Record<string, boolean>>(TABLE_VIEW_KEY) ?? {};
+  }, []);
+
   const { table } = useDataTable({
     data,
     columns,
@@ -41,8 +53,18 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
         pageIndex: 0,
         pageSize: 10,
       },
+      columnVisibility: savedColumnVisibility,
     },
   });
+
+  // Save column visibility to cookies when it changes
+  const columnVisibility = table.getState().columnVisibility;
+  const columnVisibilityJson = JSON.stringify(columnVisibility);
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    saveTableViewToCookie(TABLE_VIEW_KEY, columnVisibility);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnVisibilityJson]);
 
   return (
     <div className="space-y-4">
