@@ -1,6 +1,6 @@
 'use client';
 
-import { Download, Plus } from 'lucide-react';
+import { Download } from 'lucide-react';
 import type { Table } from '@tanstack/react-table';
 
 import { exportTableToCSV } from '@/lib/export';

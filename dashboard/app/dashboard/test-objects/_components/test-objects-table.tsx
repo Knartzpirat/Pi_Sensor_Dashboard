@@ -5,7 +5,7 @@ import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import type { TestObjectsTableData } from '@/types/test-object';
-import { getColumns } from '../_lib/columns';
+import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 
 interface TestObjectsTableProps {
