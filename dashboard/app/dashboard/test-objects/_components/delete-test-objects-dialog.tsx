@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +27,7 @@ export function DeleteTestObjectsDialog({
   testObjects,
   onSuccess,
 }: DeleteTestObjectsDialogProps) {
+  const t = useTranslations();
   const [open, setOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -66,22 +68,21 @@ export function DeleteTestObjectsDialog({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <TrashIcon className="mr-2 size-4" aria-hidden="true" />
-          Löschen ({testObjects.length})
+          {t('deleteDialog.confirm')} ({testObjects.length})
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Bist du sicher?</DialogTitle>
+          <DialogTitle>{t('deleteDialog.title')}</DialogTitle>
           <DialogDescription>
-            Diese Aktion kann nicht rückgängig gemacht werden. Es werden{' '}
-            <span className="font-medium">{testObjects.length}</span>{' '}
-            Test-Objekt
-            {testObjects.length > 1 ? 'e' : ''} permanent gelöscht.
+            {t('testObjects.deleteDialog.permanentDelete', {
+              count: testObjects.length,
+            })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:space-x-0">
           <DialogClose asChild>
-            <Button variant="outline">Abbrechen</Button>
+            <Button variant="outline">{t('deleteDialog.cancel')}</Button>
           </DialogClose>
           <Button
             aria-label="Delete selected rows"
@@ -89,7 +90,7 @@ export function DeleteTestObjectsDialog({
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Löschen...' : 'Löschen'}
+            {isDeleting ? t('deleteDialog.loading') : t('deleteDialog.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>
