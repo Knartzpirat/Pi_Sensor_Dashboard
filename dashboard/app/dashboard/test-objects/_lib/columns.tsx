@@ -6,8 +6,13 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import type { TestObjectsTableData } from '@/types/test-object';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
+import { Tag } from 'lucide-react';
 
-export function getColumns(): ColumnDef<TestObjectsTableData>[] {
+interface GetColumnsProps {
+  labelCounts: Record<string, number>;
+}
+
+export function getColumns({ labelCounts }: GetColumnsProps): ColumnDef<TestObjectsTableData>[] {
   return [
     {
       id: 'select',
@@ -62,7 +67,9 @@ export function getColumns(): ColumnDef<TestObjectsTableData>[] {
       cell: ({ row }) => {
         const description = row.getValue('description') as string | null;
         return (
-          <div className="max-w-[300px] truncate">{description || '-'}</div>
+          <div className="max-w-[300px] truncate">
+            {description || '-'}
+          </div>
         );
       },
       enableColumnFilter: true,
@@ -102,8 +109,13 @@ export function getColumns(): ColumnDef<TestObjectsTableData>[] {
       },
       meta: {
         label: 'Label',
-        variant: 'select',
-        options: [],
+        variant: 'multiSelect',
+        options: Object.entries(labelCounts).map(([label, count]) => ({
+          label,
+          value: label,
+          count,
+          icon: Tag,
+        })),
       },
     },
     {
