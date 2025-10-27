@@ -52,7 +52,7 @@ export function SetupForm() {
       userName: '',
       password: '',
       dbHost: 'localhost',
-      dbPort: 54753,
+      dbPort: 5432,
       dbUser: '',
       dbPassword: '',
       dbName: '',
