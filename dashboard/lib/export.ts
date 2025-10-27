@@ -31,7 +31,7 @@ export function exportTableToCSV<TData>(
           return typeof cellValue === "string"
             ? `"${cellValue.replace(/"/g, '""')}"`
             : cellValue;
-        })
+      })
         .join(","),
     ),
   ].join("\n");

@@ -2,6 +2,7 @@
 
 import { useQueryState } from 'nuqs';
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/tooltip';
 import { type FlagConfig, flagConfig } from '@/config/flag';
 
-type FilterFlag = FlagConfig['featureFlags'][number]['value'];
+type FilterFlag = FlagConfig[number]['key'];
 
 interface FeatureFlagsContextValue {
   filterFlag: FilterFlag;
@@ -40,6 +41,7 @@ export function FeatureFlagsProvider({
   children,
   tableId,
 }: FeatureFlagsProviderProps) {
+  const t = useTranslations('FeatureFlags');
   const queryParamKey = `${tableId}FilterFlag`;
 
   const [filterFlag, setFilterFlag] = useQueryState<FilterFlag | null>(
@@ -47,7 +49,7 @@ export function FeatureFlagsProvider({
     {
       parse: (value) => {
         if (!value) return null;
-        const validValues = flagConfig.featureFlags.map((flag) => flag.value);
+        const validValues = flagConfig.map((flag) => flag.key);
         return validValues.includes(value as FilterFlag)
           ? (value as FilterFlag)
           : null;
@@ -87,16 +89,16 @@ export function FeatureFlagsProvider({
           onValueChange={onFilterFlagChange}
           className="w-fit gap-0"
         >
-          {flagConfig.featureFlags.map((flag) => (
-            <Tooltip key={flag.value} delayDuration={700}>
+          {flagConfig.map((flag) => (
+            <Tooltip key={flag.key} delayDuration={700}>
               <ToggleGroupItem
-                value={flag.value}
+                value={flag.key}
                 className="whitespace-nowrap px-3 text-xs data-[state=on]:bg-accent/70 data-[state=on]:hover:bg-accent/90"
                 asChild
               >
                 <TooltipTrigger>
                   <flag.icon className="size-3.5 shrink-0" />
-                  {flag.label}
+                  {t(`${flag.key}.label`)}
                 </TooltipTrigger>
               </ToggleGroupItem>
               <TooltipContent
@@ -105,9 +107,9 @@ export function FeatureFlagsProvider({
                 sideOffset={6}
                 className="flex flex-col gap-1.5 border bg-background py-2 font-semibold text-foreground [&>span]:hidden"
               >
-                <div>{flag.tooltipTitle}</div>
+                <div>{t(`${flag.key}.tooltipTitle`)}</div>
                 <p className="text-balance text-muted-foreground text-xs">
-                  {flag.tooltipDescription}
+                  {t(`${flag.key}.tooltipDescription`)}
                 </p>
               </TooltipContent>
             </Tooltip>

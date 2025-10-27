@@ -67,6 +67,7 @@ import type {
   FilterOperator,
   JoinOperator,
 } from "@/types/data-table";
+import { useTranslations } from "next-intl";
 
 const DEBOUNCE_MS = 300;
 const THROTTLE_MS = 50;
@@ -88,6 +89,7 @@ export function DataTableFilterList<TData>({
   shallow = true,
   ...props
 }: DataTableFilterListProps<TData>) {
+  const t = useTranslations();
   const id = React.useId();
   const labelId = React.useId();
   const descriptionId = React.useId();
@@ -228,7 +230,7 @@ export function DataTableFilterList<TData>({
             onKeyDown={onTriggerKeyDown}
           >
             <ListFilter className="text-muted-foreground" />
-            Filter
+            {t('table.Filter')}
             {filters.length > 0 && (
               <Badge
                 variant="secondary"
@@ -340,6 +342,7 @@ function DataTableFilterItem<TData>({
   onFilterUpdate,
   onFilterRemove,
 }: DataTableFilterItemProps<TData>) {
+  const t = useTranslations();
   const [showFieldSelector, setShowFieldSelector] = React.useState(false);
   const [showOperatorSelector, setShowOperatorSelector] = React.useState(false);
   const [showValueSelector, setShowValueSelector] = React.useState(false);
@@ -445,9 +448,9 @@ function DataTableFilterItem<TData>({
             className="w-40 p-0"
           >
             <Command>
-              <CommandInput placeholder="Search fields..." />
+              <CommandInput placeholder={t('common.search')} />
               <CommandList>
-                <CommandEmpty>No fields found.</CommandEmpty>
+                <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                 <CommandGroup>
                   {columns.map((column) => (
                     <CommandItem

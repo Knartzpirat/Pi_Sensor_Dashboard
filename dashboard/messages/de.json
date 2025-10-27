@@ -22,8 +22,12 @@
   "common": {
     "redirectingIn": "Weiterleitung in {seconds} Sekunden...",
     "noResults": "Keine Ergebnisse gefunden.",
+    "nofieldsfound": "Keine Felder gefunden.",
     "selected": "ausgewählt",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "clear": "Löschen",
+    "save": "Speichern",
+    "search": "Suche..."
   },
 
   "inputs": {
@@ -64,30 +68,55 @@
     "thumbnail": "Vorschaubild",
     "image": "Bild",
     "noImage": "Kein Bild",
-    "label": "Typ",
     "status": "Status",
     "actions": "Aktionen",
     "createdAt": "Erstellt",
     "updatedAt": "Aktualisiert",
-    "ascending": "Aufsteigend",
-    "descending": "Absteigend",
+    "asc": "Aufsteigend",
+    "desc": "Absteigend",
     "hide": "Ausblenden",
     "view": "Ansicht",
-    "searchPlaceholder": "Testobjekte durchsuchen...",
-    "addTestObject": "Testobjekt hinzufügen",
-    "clearFilter": "Filter löschen"
+    "clearFilter": "Filter löschen",
+    "sort": "Sortieren",
+    "sortby": "Sortieren nach",
+    "nosortingapplied": "Keine Sortierung angewendet",
+    "modifysortingdescription": "Sortierung ändern um Ihre Zeilen zu organisieren.",
+    "addsortingdescription": "Sortierung hinzufügen um Ihre Zeilen zu organisieren.",
+    "addsort": "Sortierung hinzufügen",
+    "resetsorting": "Sortierung zurücksetzen",
+    "selectionInfo": "{selectedCount, plural, =0 {Keine Zeilen ausgewählt} one {{selectedCount} von {totalCount} Zeile ausgewählt} other {{selectedCount} von {totalCount} Zeilen ausgewählt}}",
+    "pageInfo": "Seite {currentPage} von {totalPages}",
+    "rowsPerPage": "Zeilen pro Seite",
+    "Filter": "Filter"
   },
 
-  "test-objects": {
+  "FeatureFlags": {
+    "advancedFilters": {
+      "label": "Erweiterte Filter",
+      "tooltipTitle": "Erweiterte Filter",
+      "tooltipDescription": "Airtable-ähnliche erweiterte Filter zum Filtern von Zeilen."
+    },
+    "commandFilters": {
+      "label": "Befehlsfilter",
+      "tooltipTitle": "Befehlsfilter-Chips",
+      "tooltipDescription": "Linear-ähnliche Befehls-Palette zum Filtern von Zeilen."
+    }
+  },
+
+  "testObjects": {
     "title": "Testobjekte",
-    "description": "Beschreiben Sie Ihre Testobjekte und deren Eigenschaften. Sie können diese Sensoren zuweisen, um Messungen zu organisieren und ihre Berichte zu erstellen."
+    "description": "Beschreiben Sie Ihre Testobjekte und deren Eigenschaften. Sie können diese Sensoren zuweisen, um Messungen zu organisieren und ihre Berichte zu erstellen.",
+    "table": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "label": "Typ",
+      "type": "Typ",
+      "createdAt": "Erstellt",
+      "updatedAt": "Aktualisiert",
+      "actions": "Aktionen"
+    }
   },
-  "Pagination": {
-    "rowsSelected": "{count, plural, one {# Zeile ausgewählt} other {# Zeilen ausgewählt}}",
-    "of": "von",
-    "page": "Seite",
-    "rowsPerPage": "Zeilen pro Seite"
-  },
+  
 
   "setup": {
     "logindata": {
