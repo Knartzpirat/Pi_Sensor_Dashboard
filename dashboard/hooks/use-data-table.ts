@@ -178,7 +178,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const filterableColumns = React.useMemo(() => {
     if (enableAdvancedFilter) return [];
 
-    return columns.filter((column) => column.enableColumnFilter);
+    const filtered = columns.filter((column) => column.enableColumnFilter);
+    console.log('[useDataTable] filterableColumns:', filtered.map(c => c.id));
+    return filtered;
   }, [columns, enableAdvancedFilter]);
 
   const filterParsers = React.useMemo(() => {
@@ -194,7 +196,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       startTransition,
     };
 
-    return filterableColumns.reduce<
+    const parsers = filterableColumns.reduce<
       Record<string, SingleParser<string> | SingleParser<string[]>>
     >((acc, column) => {
       if (column.meta?.options) {
@@ -207,14 +209,21 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       }
       return acc;
     }, {});
+
+    console.log('[useDataTable] filterParsers:', Object.keys(parsers));
+    return parsers;
   }, [filterableColumns, enableAdvancedFilter, history, scroll, shallow, clearOnDefault, startTransition]);
 
   const [filterValues, setFilterValues] = useQueryStates(filterParsers);
 
+  console.log('[useDataTable] filterValues:', filterValues);
+
   const debouncedSetFilterValues = useDebouncedCallback(
     async (values: typeof filterValues) => {
+      console.log('[useDataTable] debouncedSetFilterValues called with:', values);
       await setPage(1);
       await setFilterValues(values);
+      console.log('[useDataTable] setFilterValues completed');
     },
     debounceMs
   );
@@ -247,6 +256,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const onColumnFiltersChange = React.useCallback(
     (updaterOrValue: Updater<ColumnFiltersState>) => {
+      console.log('[useDataTable] onColumnFiltersChange called, enableAdvancedFilter:', enableAdvancedFilter);
       if (enableAdvancedFilter) return;
 
       setColumnFilters((prev) => {
@@ -254,6 +264,8 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           typeof updaterOrValue === 'function'
             ? updaterOrValue(prev)
             : updaterOrValue;
+
+        console.log('[useDataTable] onColumnFiltersChange - next filters:', next);
 
         const filterUpdates = next.reduce<
           Record<string, string | string[] | null>
@@ -283,6 +295,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           }
         }
 
+        console.log('[useDataTable] onColumnFiltersChange - filterUpdates:', filterUpdates);
         debouncedSetFilterValues(filterUpdates);
         return next;
       });
