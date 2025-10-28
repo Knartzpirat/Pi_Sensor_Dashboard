@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import * as z from 'zod';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Form,
   FormControl,
@@ -35,17 +35,21 @@ const testObjectSchema = z.object({
 
 type TestObjectFormValues = z.infer<typeof testObjectSchema>;
 
+export interface TestObjectFormRef {
+  submit: () => void;
+  isLoading: boolean;
+}
+
 interface TestObjectFormProps {
   defaultValues?: Partial<TestObjectFormValues>;
   onSuccess?: () => void;
   className?: string;
 }
 
-export function TestObjectForm({
-  defaultValues,
-  onSuccess,
-  className,
-}: TestObjectFormProps) {
+export const TestObjectForm = React.forwardRef<
+  TestObjectFormRef,
+  TestObjectFormProps
+>(({ defaultValues, onSuccess, className }, ref) => {
   const t = useTranslations();
   const [isLoading, setIsLoading] = React.useState(false);
   const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
@@ -99,72 +103,86 @@ export function TestObjectForm({
     }
   }
 
+  // Parent kann submit() und isLoading von außen ansteuern
+  React.useImperativeHandle(ref, () => ({
+    submit: form.handleSubmit(onSubmit),
+    isLoading,
+  }));
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 ", className)}>
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('testObjects.table.title')}</FormLabel>
-              <FormControl>
-                <Input placeholder={t('testObjects.table.title_description')} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('testObjects.table.description')}</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={t('testObjects.table.description_placeholder')}
-                  //className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="labelId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('testObjects.table.label')}</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value || undefined}
-              >
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn('space-y-4 overflow-y-auto', className)}
+      >
+        
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('testObjects.table.title')}</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('testObjects.table.label_placeholder')} />
-                  </SelectTrigger>
+                  <Input
+                    placeholder={t('testObjects.table.title_description')}
+                    {...field}
+                  />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('testObjects.table.description')}</FormLabel>
+                <FormControl>
+                  <Textarea
+        
+                    placeholder={t('testObjects.table.description_placeholder')}
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="labelId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('testObjects.table.label')}</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t('testObjects.table.label_placeholder')}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
 
-                <SelectContent>
-                  {labels.map((label) => (
-                    <SelectItem key={label.id} value={label.id}>
-                      {label.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-                
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? 'Erstellen...' : 'Test-Objekt erstellen'}
-        </Button>
+                  <SelectContent>
+                    {labels.map((label) => (
+                      <SelectItem key={label.id} value={label.id}>
+                        {label.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
       </form>
     </Form>
   );
-}
+});
+
+TestObjectForm.displayName = 'TestObjectForm';
