@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { FeatureFlagsProvider } from '@/components/data-table/feature-flags-provider';
 import { searchParamsCache } from '@/lib/validations/params';
-import { getValidFilters } from '@/lib/data-table';
 import { getTestObjects, getLabelCounts } from './_lib/queries';
 import { TestObjectsTable } from './_components/test-objects-table';
 import type { SearchParams } from '@/types';
@@ -43,7 +42,7 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   const search = searchParamsCache.parse(searchParams);
 
   // Parse filters string to array if it's a string (Advanced Filter mode)
-  let parsedFilters: unknown[] = [];
+  let parsedFilters: { id: string; value: unknown }[] = [];
   if (search.filters) {
     try {
       parsedFilters = typeof search.filters === 'string'
@@ -57,30 +56,33 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
 
   // Also check for individual column filters (Normal Filter mode)
   // These come from DataTableToolbar as separate URL params
-  const columnFilters: unknown[] = [];
+  const columnFilters: { id: string; value: unknown }[] = [];
 
   // Check for title filter
-  if (searchParams.title) {
+  if (search.title) {
     columnFilters.push({
       id: 'title',
-      value: searchParams.title,
+      value: search.title,
     });
   }
 
   // Check for label filter (can be multiple values)
-  if (searchParams.label) {
-    const labelValues = Array.isArray(searchParams.label)
-      ? searchParams.label
-      : [searchParams.label];
+  if (search.label) {
     columnFilters.push({
       id: 'label',
-      value: labelValues,
+      value: search.label, // Already parsed as array by searchParamsCache
     });
   }
 
-  // Combine both filter types
+  // Combine both filter types and validate
   const allFilters = [...parsedFilters, ...columnFilters];
-  const validFilters = getValidFilters(Array.isArray(allFilters) ? allFilters : []);
+
+  // Simple validation: remove filters with empty values
+  const validFilters = allFilters.filter((filter) => {
+    if (!filter.value) return false;
+    if (Array.isArray(filter.value)) return filter.value.length > 0;
+    return filter.value !== '' && filter.value !== null && filter.value !== undefined;
+  });
 
   const promises = Promise.all([
     getTestObjects({

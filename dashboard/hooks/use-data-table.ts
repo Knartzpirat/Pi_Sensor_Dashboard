@@ -184,6 +184,16 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const filterParsers = React.useMemo(() => {
     if (enableAdvancedFilter) return {};
 
+    // Create separate options for filter parsers without debounce/throttle
+    // since we handle debouncing manually in debouncedSetFilterValues
+    const filterQueryStateOptions = {
+      history,
+      scroll,
+      shallow,
+      clearOnDefault,
+      startTransition,
+    };
+
     return filterableColumns.reduce<
       Record<string, SingleParser<string> | SingleParser<string[]>>
     >((acc, column) => {
@@ -191,20 +201,20 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
         acc[column.id ?? ''] = parseAsArrayOf(
           parseAsString,
           ARRAY_SEPARATOR
-        ).withOptions(queryStateOptions);
+        ).withOptions(filterQueryStateOptions);
       } else {
-        acc[column.id ?? ''] = parseAsString.withOptions(queryStateOptions);
+        acc[column.id ?? ''] = parseAsString.withOptions(filterQueryStateOptions);
       }
       return acc;
     }, {});
-  }, [filterableColumns, queryStateOptions, enableAdvancedFilter]);
+  }, [filterableColumns, enableAdvancedFilter, history, scroll, shallow, clearOnDefault, startTransition]);
 
   const [filterValues, setFilterValues] = useQueryStates(filterParsers);
 
   const debouncedSetFilterValues = useDebouncedCallback(
-    (values: typeof filterValues) => {
-      void setPage(1);
-      void setFilterValues(values);
+    async (values: typeof filterValues) => {
+      await setPage(1);
+      await setFilterValues(values);
     },
     debounceMs
   );
