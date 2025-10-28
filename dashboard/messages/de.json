@@ -232,14 +232,18 @@
     "isNot": "Ist nicht",
     "isEmpty": "Ist leer",
     "isNotEmpty": "Ist nicht leer",
+    "isAfter": "Ist nach",
+    "isBefore": "Ist vor",
+    "isOnOrAfter": "Ist am oder nach",
+    "isOnOrBefore": "Ist am oder vor",
     "isLessThan": "Ist kleiner als",
     "isLessThanOrEqual": "Ist kleiner oder gleich",
     "isGreaterThan": "Ist größer als",
     "isGreaterThanOrEqual": "Ist größer oder gleich",
     "isBetween": "Liegt zwischen",
     "isRelativeToToday": "Bezieht sich auf heute",
-    "hasanyof": "Hat eines von",
-    "hasnoneof": "Hat keines von"
+    "hasAnyOf": "Hat eines von",
+    "hasNoneOf": "Hat keines von"
   },
 
   "sort": {
