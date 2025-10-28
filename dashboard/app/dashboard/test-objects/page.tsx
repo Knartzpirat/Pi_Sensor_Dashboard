@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { FeatureFlagsProvider } from '@/components/data-table/feature-flags-provider';
 import { searchParamsCache } from '@/lib/validations/params';
-import { getValidFilters } from '@/lib/data-table';
 import { getTestObjects, getLabelCounts } from './_lib/queries';
 import { TestObjectsTable } from './_components/test-objects-table';
 import type { SearchParams } from '@/types';
@@ -75,9 +74,15 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
     });
   }
 
-  // Combine both filter types
+  // Combine both filter types and validate
   const allFilters = [...parsedFilters, ...columnFilters];
-  const validFilters = getValidFilters(Array.isArray(allFilters) ? allFilters : []);
+
+  // Simple validation: remove filters with empty values
+  const validFilters = allFilters.filter((filter) => {
+    if (!filter.value) return false;
+    if (Array.isArray(filter.value)) return filter.value.length > 0;
+    return filter.value !== '' && filter.value !== null && filter.value !== undefined;
+  });
 
   const promises = Promise.all([
     getTestObjects({
