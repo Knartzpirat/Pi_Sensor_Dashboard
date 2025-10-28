@@ -4,11 +4,11 @@ import * as React from 'react';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar';
-import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-menu';
+import { DataTableFilterList } from '@/components/data-table/data-table-filter-list';
 import { DataTableSortList } from '@/components/data-table/data-table-sort-list';
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
-import type { TestObjectsTableData } from '@/types/test-object';
+import type { TestObjectsTableData, QueryKeys } from '@/types/test-object';
 import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 import {
@@ -16,6 +16,7 @@ import {
   saveTableViewToCookie,
 } from '@/lib/tableView-cookies';
 import { useTranslations } from 'next-intl';
+import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-menu';
 
 const TABLE_VIEW_KEY = 'test-objects-table-view';
 
@@ -29,9 +30,13 @@ interface TestObjectsTableProps {
       Record<string, number>
     ]
   >;
+  queryKeys?: Partial<QueryKeys>;
 }
 
-export function TestObjectsTable({ promises }: TestObjectsTableProps) {
+export function TestObjectsTable({
+  promises,
+  queryKeys,
+}: TestObjectsTableProps) {
   const [{ data, total }, labelCounts] = React.use(promises);
   const { enableAdvancedFilter, filterFlag } = useFeatureFlags();
   const t = useTranslations();
@@ -51,18 +56,20 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
     );
   }, []);
 
-  const { table } = useDataTable({
+  const { table, shallow, debounceMs, throttleMs } = useDataTable({
     data,
     columns,
     pageCount,
     enableAdvancedFilter,
     initialState: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: 10,
-      },
+      sorting: [{ id: 'createdAt', desc: true }],
+      columnPinning: { right: ['actions'] },
       columnVisibility: savedColumnVisibility,
     },
+    queryKeys,
+    getRowId: (originalRow) => originalRow.id,
+    shallow: false,
+    clearOnDefault: true,
   });
 
   // Save column visibility to cookies when it changes
@@ -79,11 +86,26 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
       <DataTable table={table}>
         {enableAdvancedFilter ? (
           <DataTableAdvancedToolbar table={table}>
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              <DataTableFilterMenu table={table} />
-            </div>
-              <DataTableSortList table={table} align="start" />
+            {filterFlag === 'advancedFilters' ? (
+              <DataTableFilterList
+                table={table}
+                shallow={shallow}
+                debounceMs={debounceMs}
+                throttleMs={throttleMs}
+                align="start"
+              />
+            ) : (
+              <DataTableFilterMenu
+                table={table}
+                shallow={shallow}
+                debounceMs={debounceMs}
+                throttleMs={throttleMs}
+              />
+            )}
+            <div className="flex items-center gap-2">
+              <DataTableSortList table={table} align="end" />
               <TestObjectsTableToolbarActions table={table} />
+            </div>
           </DataTableAdvancedToolbar>
         ) : (
           <DataTableToolbar table={table}>
