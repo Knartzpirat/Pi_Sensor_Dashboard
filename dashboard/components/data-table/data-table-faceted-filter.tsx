@@ -152,10 +152,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                   >
                     <div
                       className={cn(
-                        "flex size-4 items-center justify-center rounded-sm border border-primary",
+                        'flex size-4 items-center justify-center rounded-sm border border-primary',
                         isSelected
-                          ? "bg-primary"
-                          : "opacity-50 [&_svg]:invisible",
+                          ? 'bg-primary'
+                          : 'opacity-50 [&_svg]:invisible'
                       )}
                     >
                       <Check />
@@ -179,7 +179,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     onSelect={() => onReset()}
                     className="justify-center text-center"
                   >
-                    Clear filters
+                    {t('table.clearFilter')}
                   </CommandItem>
                 </CommandGroup>
               </>
