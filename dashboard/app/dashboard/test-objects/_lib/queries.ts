@@ -7,6 +7,12 @@ import type {
   TestObjectWithLabel,
 } from '@/types/test-object';
 
+// Type for filter objects
+interface FilterItem {
+  id: string;
+  value: string | string[];
+}
+
 export async function getTestObjects(
   params: GetTestObjectsParams
 ): Promise<{ data: TestObjectsTableData[]; total: number }> {
@@ -43,7 +49,7 @@ export async function getTestObjects(
     // Apply filtering if filters are provided
     if (filters && Array.isArray(filters) && filters.length > 0) {
       transformedData = transformedData.filter((item) => {
-        return filters.every((filter: any) => {
+        return filters.every((filter: FilterItem) => {
           const value = item[filter.id as keyof TestObjectsTableData];
           const filterValue = filter.value;
 
