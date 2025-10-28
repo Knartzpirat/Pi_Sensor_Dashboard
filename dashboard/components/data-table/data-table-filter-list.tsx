@@ -289,7 +289,7 @@ export function DataTableFilterList<TData>({
               ref={addButtonRef}
               onClick={onFilterAdd}
             >
-              Add filter
+              {t('table.addFilter')}
             </Button>
             {filters.length > 0 ? (
               <Button
@@ -298,7 +298,7 @@ export function DataTableFilterList<TData>({
                 className="rounded"
                 onClick={onFiltersReset}
               >
-                Reset filters
+                {t('common.reset')}
               </Button>
             ) : null}
           </div>
@@ -660,7 +660,6 @@ function onFilterInputRender<TData>({
     case "select":
     case "multiSelect": {
       const inputListboxId = `${inputId}-listbox`;
-
       const multiple = filter.variant === "multiSelect";
       const selectedValues = multiple
         ? Array.isArray(filter.value)
@@ -706,7 +705,7 @@ function onFilterInputRender<TData>({
               placeholder={columnMeta?.placeholder ?? "Search options..."}
             />
             <FacetedList>
-              <FacetedEmpty>No options found.</FacetedEmpty>
+              <FacetedEmpty> No options found.</FacetedEmpty>
               <FacetedGroup>
                 {columnMeta?.options?.map((option) => (
                   <FacetedItem key={option.value} value={option.value}>
