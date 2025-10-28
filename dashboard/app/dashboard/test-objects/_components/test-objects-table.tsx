@@ -13,7 +13,7 @@ import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
 import {
   loadTableViewFromCookie,
-  saveTableViewToCookie
+  saveTableViewToCookie,
 } from '@/lib/tableView-cookies';
 import { useTranslations } from 'next-intl';
 
@@ -33,7 +33,7 @@ interface TestObjectsTableProps {
 
 export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   const [{ data, total }, labelCounts] = React.use(promises);
-  const { enableAdvancedFilter } = useFeatureFlags();
+  const { enableAdvancedFilter, filterFlag } = useFeatureFlags();
   const t = useTranslations();
 
   const columns = React.useMemo(
@@ -46,7 +46,9 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
   // Load column visibility from cookies
   const savedColumnVisibility = React.useMemo(() => {
     if (typeof window === 'undefined') return {};
-    return loadTableViewFromCookie<Record<string, boolean>>(TABLE_VIEW_KEY) ?? {};
+    return (
+      loadTableViewFromCookie<Record<string, boolean>>(TABLE_VIEW_KEY) ?? {}
+    );
   }, []);
 
   const { table } = useDataTable({
@@ -77,15 +79,17 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
       <DataTable table={table}>
         {enableAdvancedFilter ? (
           <DataTableAdvancedToolbar table={table}>
-            <DataTableSortList table={table} align="start" />
-            <DataTableFilterMenu table={table} />
-            <TestObjectsTableToolbarActions table={table} />
+            <div className="flex flex-1 flex-wrap items-center gap-2">
+              <DataTableFilterMenu table={table} />
+            </div>
+              <DataTableSortList table={table} align="start" />
+              <TestObjectsTableToolbarActions table={table} />
           </DataTableAdvancedToolbar>
         ) : (
-        <DataTableToolbar table={table}>
+          <DataTableToolbar table={table}>
             <DataTableSortList table={table} align="end" />
-          <TestObjectsTableToolbarActions table={table} />
-        </DataTableToolbar>
+            <TestObjectsTableToolbarActions table={table} />
+          </DataTableToolbar>
         )}
       </DataTable>
     </div>
