@@ -528,6 +528,7 @@ function DataTableFilterItem<TData>({
             onFilterUpdate,
             showValueSelector,
             setShowValueSelector,
+            t,
           })}
         </div>
         <Button
@@ -557,6 +558,7 @@ function onFilterInputRender<TData>({
   onFilterUpdate,
   showValueSelector,
   setShowValueSelector,
+  t,
 }: {
   filter: ExtendedColumnFilter<TData>;
   inputId: string;
@@ -568,6 +570,7 @@ function onFilterInputRender<TData>({
   ) => void;
   showValueSelector: boolean;
   setShowValueSelector: (value: boolean) => void;
+  t: (key: string) => string;
 }) {
   if (filter.operator === "isEmpty" || filter.operator === "isNotEmpty") {
     return (
