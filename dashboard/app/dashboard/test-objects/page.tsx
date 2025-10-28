@@ -60,21 +60,18 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   const columnFilters: any[] = [];
 
   // Check for title filter
-  if (searchParams.title) {
+  if (search.title) {
     columnFilters.push({
       id: 'title',
-      value: searchParams.title,
+      value: search.title,
     });
   }
 
   // Check for label filter (can be multiple values)
-  if (searchParams.label) {
-    const labelValues = Array.isArray(searchParams.label)
-      ? searchParams.label
-      : [searchParams.label];
+  if (search.label) {
     columnFilters.push({
       id: 'label',
-      value: labelValues,
+      value: search.label, // Already parsed as array by searchParamsCache
     });
   }
 
