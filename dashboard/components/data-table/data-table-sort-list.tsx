@@ -333,9 +333,9 @@ function DataTableSortItem({
             className="w-(--radix-popover-trigger-width) p-0"
           >
             <Command>
-              <CommandInput placeholder="Search fields..." />
+              <CommandInput placeholder={t('common.search')} />
               <CommandList>
-                <CommandEmpty>{t('common.nofieldsfound')}</CommandEmpty>
+                <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                 <CommandGroup>
                   {columns.map((column) => (
                     <CommandItem
@@ -372,7 +372,7 @@ function DataTableSortItem({
           >
             {dataTableConfig.sortOrders.map((order) => (
               <SelectItem key={order.value} value={order.value}>
-                {order.label}
+                {t(order.label)}
               </SelectItem>
             ))}
           </SelectContent>
