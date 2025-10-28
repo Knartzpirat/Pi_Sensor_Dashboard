@@ -97,7 +97,8 @@
     "selectionInfo": "{selectedCount, plural, =0 {Keine Zeilen ausgewählt} one {{selectedCount} von {totalCount} Zeile ausgewählt} other {{selectedCount} von {totalCount} Zeilen ausgewählt}}",
     "pageInfo": "Seite {currentPage} von {totalPages}",
     "rowsPerPage": "Zeilen pro Seite",
-    "Filter": "Filter"
+    "Filter": "Filter",
+    "addFilter": "Filter hinzufügen"
   },
 
   "FeatureFlags": {
