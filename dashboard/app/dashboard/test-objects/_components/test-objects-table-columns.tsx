@@ -63,7 +63,7 @@ export function getColumns(
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'title',
+        label: t('testObjects.table.title'),
         variant: 'text',
       },
     },
@@ -84,7 +84,7 @@ export function getColumns(
       enableColumnFilter: false,
       enableSorting: false,
       meta: {
-        label: 'description',
+        label: t('testObjects.table.description'),
         variant: 'text',
       },
     },
@@ -120,7 +120,7 @@ export function getColumns(
         return value.includes(row.getValue(id));
       },
       meta: {
-        label: 'label',
+        label: t('testObjects.table.label'),
         variant: 'multiSelect',
         options: Object.entries(labelCounts).map(([label, count]) => ({
           label,
@@ -144,7 +144,7 @@ export function getColumns(
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'createdAt',
+        label: t('testObjects.table.createdAt'),
         variant: 'date',
       },
     },
@@ -162,7 +162,7 @@ export function getColumns(
       enableColumnFilter: true,
       enableSorting: true,
       meta: {
-        label: 'updatedAt',
+        label: t('testObjects.table.updatedAt'),
         variant: 'date',
       },
     },
