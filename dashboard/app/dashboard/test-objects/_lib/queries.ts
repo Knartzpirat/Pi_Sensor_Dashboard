@@ -35,7 +35,7 @@ export async function getTestObjects(
       createdAt: new Date(item.createdAt),
       updatedAt: new Date(item.updatedAt),
       labelId: item.labelId,
-      label: item.label?.name || null,
+      label: item.label?.name || 'No Label',
       labelColor: item.label?.color || null,
       })
     );
@@ -43,7 +43,7 @@ export async function getTestObjects(
     // Apply filtering if filters are provided
     if (filters && Array.isArray(filters) && filters.length > 0) {
       transformedData = transformedData.filter((item) => {
-        return filters.every((filter: any) => {
+        return filters.every((filter: { id: string; value: string | string[] }) => {
           const value = item[filter.id as keyof TestObjectsTableData];
           const filterValue = filter.value;
 
