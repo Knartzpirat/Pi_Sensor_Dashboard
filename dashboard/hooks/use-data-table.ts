@@ -79,7 +79,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     clearOnDefault = false,
     enableAdvancedFilter = false,
     scroll = false,
-    shallow = true,
+    shallow = false,
     startTransition,
     ...tableProps
   } = props;
