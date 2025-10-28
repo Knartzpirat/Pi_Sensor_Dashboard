@@ -100,6 +100,29 @@
     "Filter": "Filter"
   },
 
+  "filters": {
+    "title": "Filter",
+    "noFiltersApplied": "Keine Filter angewendet",
+    "modifyDescription": "Filter ändern um Ihre Zeilen zu verfeinern.",
+    "addDescription": "Filter hinzufügen um Ihre Zeilen zu verfeinern.",
+    "addFilter": "Filter hinzufügen",
+    "resetFilters": "Filter zurücksetzen",
+    "where": "Wo",
+    "selectField": "Feld auswählen",
+    "enterValue": "Wert eingeben...",
+    "searchOptions": "Optionen durchsuchen...",
+    "noOptionsFound": "Keine Optionen gefunden.",
+    "pickDate": "Datum wählen",
+    "selectJoinOperator": "Verknüpfungsoperator auswählen",
+    "searchFields": "Felder durchsuchen...",
+    "noFieldsFound": "Keine Felder gefunden."
+  },
+
+  "boolean": {
+    "true": "Wahr",
+    "false": "Falsch"
+  },
+
   "FeatureFlags": {
     "advancedFilters": {
       "label": "Erweiterte Filter",
@@ -237,9 +260,9 @@
     "isOnOrAfter": "Ist am oder nach",
     "isOnOrBefore": "Ist am oder vor",
     "isLessThan": "Ist kleiner als",
-    "isLessThanOrEqual": "Ist kleiner oder gleich",
+    "isLessThanOrEqualTo": "Ist kleiner oder gleich",
     "isGreaterThan": "Ist größer als",
-    "isGreaterThanOrEqual": "Ist größer oder gleich",
+    "isGreaterThanOrEqualTo": "Ist größer oder gleich",
     "isBetween": "Liegt zwischen",
     "isRelativeToToday": "Bezieht sich auf heute",
     "hasAnyOf": "Hat eines von",
