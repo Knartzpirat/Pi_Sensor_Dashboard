@@ -176,18 +176,16 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   );
 
   const filterableColumns = React.useMemo(() => {
-    if (enableAdvancedFilter) return [];
-
-    const filtered = columns.filter((column) => column.enableColumnFilter);
-    console.log('[useDataTable] filterableColumns:', filtered.map(c => c.id));
-    return filtered;
-  }, [columns, enableAdvancedFilter]);
+    // IMPORTANT: Always get filterable columns, regardless of mode
+    // This ensures stable parser definitions for useQueryStates
+    return columns.filter((column) => column.enableColumnFilter);
+  }, [columns]);
 
   const filterParsers = React.useMemo(() => {
-    if (enableAdvancedFilter) return {};
+    // IMPORTANT: Always create parsers, even in advanced mode
+    // useQueryStates needs stable parser definitions to work correctly
+    // Switching between {} and {title: ..., label: ...} breaks the hook
 
-    // Create separate options for filter parsers without debounce/throttle
-    // since we handle debouncing manually in debouncedSetFilterValues
     const filterQueryStateOptions = {
       history,
       scroll,
@@ -196,7 +194,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       startTransition,
     };
 
-    const parsers = filterableColumns.reduce<
+    return filterableColumns.reduce<
       Record<string, SingleParser<string> | SingleParser<string[]>>
     >((acc, column) => {
       if (column.meta?.options) {
@@ -209,21 +207,14 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       }
       return acc;
     }, {});
-
-    console.log('[useDataTable] filterParsers:', Object.keys(parsers));
-    return parsers;
-  }, [filterableColumns, enableAdvancedFilter, history, scroll, shallow, clearOnDefault, startTransition]);
+  }, [filterableColumns, history, scroll, shallow, clearOnDefault, startTransition]);
 
   const [filterValues, setFilterValues] = useQueryStates(filterParsers);
 
-  console.log('[useDataTable] filterValues:', filterValues);
-
   const debouncedSetFilterValues = useDebouncedCallback(
     async (values: typeof filterValues) => {
-      console.log('[useDataTable] debouncedSetFilterValues called with:', values);
       await setPage(1);
       await setFilterValues(values);
-      console.log('[useDataTable] setFilterValues completed');
     },
     debounceMs
   );
@@ -256,7 +247,6 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const onColumnFiltersChange = React.useCallback(
     (updaterOrValue: Updater<ColumnFiltersState>) => {
-      console.log('[useDataTable] onColumnFiltersChange called, enableAdvancedFilter:', enableAdvancedFilter);
       if (enableAdvancedFilter) return;
 
       setColumnFilters((prev) => {
@@ -264,8 +254,6 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           typeof updaterOrValue === 'function'
             ? updaterOrValue(prev)
             : updaterOrValue;
-
-        console.log('[useDataTable] onColumnFiltersChange - next filters:', next);
 
         const filterUpdates = next.reduce<
           Record<string, string | string[] | null>
@@ -295,7 +283,6 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           }
         }
 
-        console.log('[useDataTable] onColumnFiltersChange - filterUpdates:', filterUpdates);
         debouncedSetFilterValues(filterUpdates);
         return next;
       });
