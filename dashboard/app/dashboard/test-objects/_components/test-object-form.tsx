@@ -147,6 +147,7 @@ export function TestObjectForm({
                     <SelectValue placeholder={t('testObjects.table.label_placeholder')} />
                   </SelectTrigger>
                 </FormControl>
+
                 <SelectContent>
                   {labels.map((label) => (
                     <SelectItem key={label.id} value={label.id}>
@@ -154,6 +155,7 @@ export function TestObjectForm({
                     </SelectItem>
                   ))}
                 </SelectContent>
+                
               </Select>
               <FormMessage />
             </FormItem>
