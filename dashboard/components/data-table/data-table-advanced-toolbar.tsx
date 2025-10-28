@@ -22,12 +22,14 @@ export function DataTableAdvancedToolbar<TData>({
       role="toolbar"
       aria-orientation="horizontal"
       className={cn(
-        "flex w-full items-center justify-end gap-2 p-1",
-        className,
+        'flex w-full items-center justify-end gap-2 p-1',
+        className
       )}
       {...props}
     >
-      <div className="flex flex-1 flex-wrap items-center gap-2">{children}</div>
+      <div className="flex flex-1 flex-wrap justify-between items-center gap-2">
+        {children}
+      </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} align="end" />
       </div>
