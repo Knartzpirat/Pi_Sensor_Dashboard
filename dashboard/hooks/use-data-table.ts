@@ -194,7 +194,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       startTransition,
     };
 
-    return filterableColumns.reduce<
+    const parsers = filterableColumns.reduce<
       Record<string, SingleParser<string> | SingleParser<string[]>>
     >((acc, column) => {
       if (column.meta?.options) {
@@ -207,14 +207,22 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       }
       return acc;
     }, {});
+
+    console.log('[useDataTable] filterParsers keys:', Object.keys(parsers));
+    console.log('[useDataTable] filterableColumns:', filterableColumns.map(c => ({ id: c.id, enableColumnFilter: c.enableColumnFilter })));
+    return parsers;
   }, [filterableColumns, history, scroll, shallow, clearOnDefault, startTransition]);
 
   const [filterValues, setFilterValues] = useQueryStates(filterParsers);
 
   const debouncedSetFilterValues = useDebouncedCallback(
     async (values: typeof filterValues) => {
+      console.log('[useDataTable] debouncedSetFilterValues executing with:', values);
+      console.log('[useDataTable] Current filterValues before update:', filterValues);
       await setPage(1);
+      console.log('[useDataTable] setPage(1) complete');
       await setFilterValues(values);
+      console.log('[useDataTable] setFilterValues complete');
     },
     debounceMs
   );
@@ -247,13 +255,20 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const onColumnFiltersChange = React.useCallback(
     (updaterOrValue: Updater<ColumnFiltersState>) => {
-      if (enableAdvancedFilter) return;
+      console.log('[useDataTable] onColumnFiltersChange CALLED! enableAdvancedFilter:', enableAdvancedFilter);
+
+      if (enableAdvancedFilter) {
+        console.log('[useDataTable] Early return - advanced filter enabled');
+        return;
+      }
 
       setColumnFilters((prev) => {
         const next =
           typeof updaterOrValue === 'function'
             ? updaterOrValue(prev)
             : updaterOrValue;
+
+        console.log('[useDataTable] Column filters changed:', { prev, next });
 
         const filterUpdates = next.reduce<
           Record<string, string | string[] | null>
@@ -268,11 +283,15 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
             if (!column.meta?.options) {
               // Not a multi-select, should be a single string value
               if (Array.isArray(urlValue)) {
+                console.log('[useDataTable] Extracting string from array:', urlValue);
                 urlValue = urlValue[0] ?? '';
               }
             }
 
+            console.log('[useDataTable] Filter update:', { id: filter.id, urlValue });
             acc[filter.id] = urlValue;
+          } else {
+            console.log('[useDataTable] Column not found for filter:', filter.id);
           }
           return acc;
         }, {});
@@ -283,6 +302,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           }
         }
 
+        console.log('[useDataTable] Calling debouncedSetFilterValues with:', filterUpdates);
         debouncedSetFilterValues(filterUpdates);
         return next;
       });
