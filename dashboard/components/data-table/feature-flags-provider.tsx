@@ -41,7 +41,7 @@ export function FeatureFlagsProvider({
   children,
   tableId,
 }: FeatureFlagsProviderProps) {
-  const t = useTranslations('FeatureFlags');
+  const t = useTranslations();
   const queryParamKey = `${tableId}FilterFlag`;
 
   const [filterFlag, setFilterFlag] = useQueryState<FilterFlag | null>(
@@ -98,7 +98,7 @@ export function FeatureFlagsProvider({
               >
                 <TooltipTrigger>
                   <flag.icon className="size-3.5 shrink-0" />
-                  {t(`${flag.key}.label`)}
+                  {t(`FeatureFlags.${flag.key}.label`)}
                 </TooltipTrigger>
               </ToggleGroupItem>
               <TooltipContent
@@ -107,9 +107,9 @@ export function FeatureFlagsProvider({
                 sideOffset={6}
                 className="flex flex-col gap-1.5 border bg-background py-2 font-semibold text-foreground [&>span]:hidden"
               >
-                <div>{t(`${flag.key}.tooltipTitle`)}</div>
+                <div>{t(`FeatureFlags.${flag.key}.tooltipTitle`)}</div>
                 <p className="text-balance text-muted-foreground text-xs">
-                  {t(`${flag.key}.tooltipDescription`)}
+                  {t(`FeatureFlags.${flag.key}.tooltipDescription`)}
                 </p>
               </TooltipContent>
             </Tooltip>
