@@ -44,6 +44,7 @@ export function getColumns(
       enableHiding: false,
     },
     {
+      id: 'title',
       accessorKey: 'title',
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -89,6 +90,7 @@ export function getColumns(
       },
     },
     {
+      id: 'label',
       accessorKey: 'label',
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -131,6 +133,7 @@ export function getColumns(
       },
     },
     {
+      id: 'createdAt',
       accessorKey: 'createdAt',
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -149,6 +152,7 @@ export function getColumns(
       },
     },
     {
+      id: 'updatedAt',
       accessorKey: 'updatedAt',
       header: ({ column }) => (
         <DataTableColumnHeader
