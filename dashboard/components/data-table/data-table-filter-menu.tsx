@@ -61,7 +61,7 @@ export function DataTableFilterMenu<TData>({
   table,
   debounceMs = DEBOUNCE_MS,
   throttleMs = THROTTLE_MS,
-  shallow = true,
+  shallow = false,
   align = "start",
   ...props
 }: DataTableFilterMenuProps<TData>) {
