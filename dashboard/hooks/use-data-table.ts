@@ -197,13 +197,22 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     const parsers = filterableColumns.reduce<
       Record<string, SingleParser<string> | SingleParser<string[]>>
     >((acc, column) => {
+      // CRITICAL: Use column.id if available, otherwise undefined
+      // TanStack Table will have set column.id from accessorKey by this point
+      const columnId = column.id;
+
+      if (!columnId) {
+        console.warn('[useDataTable] Column has no id:', column);
+        return acc;
+      }
+
       if (column.meta?.options) {
-        acc[column.id ?? ''] = parseAsArrayOf(
+        acc[columnId] = parseAsArrayOf(
           parseAsString,
           ARRAY_SEPARATOR
         ).withOptions(filterQueryStateOptions);
       } else {
-        acc[column.id ?? ''] = parseAsString.withOptions(filterQueryStateOptions);
+        acc[columnId] = parseAsString.withOptions(filterQueryStateOptions);
       }
       return acc;
     }, {});
