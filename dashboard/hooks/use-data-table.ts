@@ -258,8 +258,21 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
         const filterUpdates = next.reduce<
           Record<string, string | string[] | null>
         >((acc, filter) => {
-          if (filterableColumns.find((column) => column.id === filter.id)) {
-            acc[filter.id] = filter.value as string | string[];
+          const column = filterableColumns.find((col) => col.id === filter.id);
+          if (column) {
+            // Extract the actual filter value:
+            // For multi-select (options present), keep as array
+            // For text/other filters, extract string from array if needed
+            let urlValue: string | string[] = filter.value as string | string[];
+
+            if (!column.meta?.options) {
+              // Not a multi-select, should be a single string value
+              if (Array.isArray(urlValue)) {
+                urlValue = urlValue[0] ?? '';
+              }
+            }
+
+            acc[filter.id] = urlValue;
           }
           return acc;
         }, {});
