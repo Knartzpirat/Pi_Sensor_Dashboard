@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import type { TestObjectsTableData } from '@/types/test-object';
 import { CreateTestObjectSheet } from './create-test-object-sheet';
 import { DeleteTestObjectsDialog } from './delete-test-objects-dialog';
+import { useTranslations } from 'next-intl';
 
 interface TestObjectsTableToolbarActionsProps {
   table: Table<TestObjectsTableData>;
@@ -16,6 +17,7 @@ interface TestObjectsTableToolbarActionsProps {
 export function TestObjectsTableToolbarActions({
   table,
 }: TestObjectsTableToolbarActionsProps) {
+  const t = useTranslations();
   return (
     <div className="flex items-center gap-2">
       {table.getFilteredSelectedRowModel().rows.length > 0 ? (
@@ -38,7 +40,7 @@ export function TestObjectsTableToolbarActions({
         }
       >
         <Download className="mr-2 size-4" aria-hidden="true" />
-        Export
+        {t("buttons.download")}
       </Button>
     </div>
   );
