@@ -35,7 +35,7 @@ export async function getTestObjects(
       createdAt: new Date(item.createdAt),
       updatedAt: new Date(item.updatedAt),
       labelId: item.labelId,
-      label: item.label?.name || null,
+      label: item.label?.name || 'No Label',
       labelColor: item.label?.color || null,
       })
     );

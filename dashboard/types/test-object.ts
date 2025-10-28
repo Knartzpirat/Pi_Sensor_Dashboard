@@ -13,7 +13,7 @@ export interface TestObjectsTableData {
   createdAt: Date;
   updatedAt: Date;
   labelId: string | null;
-  label: string | null;
+  label: string; // Always has a value, either label name or 'No Label'
   labelColor: string | null;
 }
 

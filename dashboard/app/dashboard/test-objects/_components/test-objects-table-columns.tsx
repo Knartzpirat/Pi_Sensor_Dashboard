@@ -99,10 +99,12 @@ export function getColumns(
         />
       ),
       cell: ({ row }) => {
-        const label = row.getValue('label') as string | null;
+        const label = row.getValue('label') as string;
         const labelColor = row.original.labelColor;
 
-        if (!label) return <span className="text-muted-foreground">-</span>;
+        if (label === 'No Label') {
+          return <span className="text-muted-foreground">-</span>;
+        }
 
         return (
           <Badge
