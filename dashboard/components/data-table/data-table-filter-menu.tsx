@@ -341,7 +341,6 @@ function DataTableFilterItem<TData>({
   onFilterUpdate,
   onFilterRemove,
 }: DataTableFilterItemProps<TData>) {
-  {
     const t = useTranslations();
     const [showFieldSelector, setShowFieldSelector] = React.useState(false);
     const [showOperatorSelector, setShowOperatorSelector] =
@@ -500,7 +499,6 @@ function DataTableFilterItem<TData>({
       </div>
     );
   }
-}
 
 interface FilterValueSelectorProps<TData> {
   column: Column<TData>;
