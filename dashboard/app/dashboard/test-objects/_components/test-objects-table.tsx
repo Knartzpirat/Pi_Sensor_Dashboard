@@ -4,7 +4,7 @@ import * as React from 'react';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar';
-import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-menu';
+import { DataTableFilterList } from '@/components/data-table/data-table-filter-list';
 import { DataTableSortList } from '@/components/data-table/data-table-sort-list';
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
@@ -79,11 +79,9 @@ export function TestObjectsTable({ promises }: TestObjectsTableProps) {
       <DataTable table={table}>
         {enableAdvancedFilter ? (
           <DataTableAdvancedToolbar table={table}>
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              <DataTableFilterMenu table={table} />
-            </div>
-              <DataTableSortList table={table} align="start" />
-              <TestObjectsTableToolbarActions table={table} />
+            <DataTableFilterList table={table} />
+            <DataTableSortList table={table} align="start" />
+            <TestObjectsTableToolbarActions table={table} />
           </DataTableAdvancedToolbar>
         ) : (
           <DataTableToolbar table={table}>
