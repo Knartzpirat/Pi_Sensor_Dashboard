@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useQueryState } from "nuqs";
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { DataTableRangeFilter } from "@/components/data-table/data-table-range-filter";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export function DataTableFilterMenu<TData>({
   align = "start",
   ...props
 }: DataTableFilterMenuProps<TData>) {
+  const t = useTranslations();
   const id = React.useId();
 
   const columns = React.useMemo(() => {
@@ -268,7 +270,7 @@ export function DataTableFilterMenu<TData>({
               placeholder={
                 selectedColumn
                   ? (selectedColumn.columnDef.meta?.label ?? selectedColumn.id)
-                  : "Search fields..."
+                  : t('common.search')
               }
               value={inputValue}
               onValueChange={setInputValue}
@@ -278,7 +280,7 @@ export function DataTableFilterMenu<TData>({
               {selectedColumn ? (
                 <>
                   {selectedColumn.columnDef.meta?.options && (
-                    <CommandEmpty>No options found.</CommandEmpty>
+                    <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                   )}
                   <FilterValueSelector
                     column={selectedColumn}
@@ -288,7 +290,7 @@ export function DataTableFilterMenu<TData>({
                 </>
               ) : (
                 <>
-                  <CommandEmpty>No fields found.</CommandEmpty>
+                  <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                   <CommandGroup>
                     {columns.map((column) => (
                       <CommandItem
@@ -340,6 +342,7 @@ function DataTableFilterItem<TData>({
   onFilterRemove,
 }: DataTableFilterItemProps<TData>) {
   {
+    const t = useTranslations();
     const [showFieldSelector, setShowFieldSelector] = React.useState(false);
     const [showOperatorSelector, setShowOperatorSelector] =
       React.useState(false);
@@ -472,7 +475,7 @@ function DataTableFilterItem<TData>({
                 className="lowercase"
                 value={operator.value}
               >
-                {operator.label}
+                {t(operator.label)}
               </SelectItem>
             ))}
           </SelectContent>
