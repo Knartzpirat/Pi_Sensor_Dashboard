@@ -43,21 +43,168 @@ export async function getTestObjects(
     // Apply filtering if filters are provided
     if (filters && Array.isArray(filters) && filters.length > 0) {
       transformedData = transformedData.filter((item) => {
-        return filters.every((filter: { id: string; value: string | string[] }) => {
+        return filters.every((filter: { id: string; value: unknown; operator?: string; variant?: string }) => {
           const value = item[filter.id as keyof TestObjectsTableData];
           const filterValue = filter.value;
+          const operator = filter.operator || 'iLike';
+          const variant = filter.variant || 'text';
 
-          if (value === null || value === undefined) return false;
-
-          // Handle different filter types
-          if (Array.isArray(filterValue)) {
-            // Multi-select filter
-            return filterValue.includes(String(value));
-          } else if (typeof value === 'string' && typeof filterValue === 'string') {
-            // Text filter
-            return value.toLowerCase().includes(filterValue.toLowerCase());
+          // Handle isEmpty and isNotEmpty operators
+          if (operator === 'isEmpty') {
+            return value === null || value === undefined || value === '';
+          }
+          if (operator === 'isNotEmpty') {
+            return value !== null && value !== undefined && value !== '';
           }
 
+          // If value is null/undefined and not checking for empty, filter out
+          if (value === null || value === undefined) return false;
+
+          // Handle date filters
+          if (variant === 'date' || variant === 'dateRange') {
+            if (!(value instanceof Date)) return false;
+
+            const itemDate = value.getTime();
+
+            // Handle array of dates for isBetween
+            if (operator === 'isBetween' && Array.isArray(filterValue) && filterValue.length === 2) {
+              const fromDate = Number(filterValue[0]);
+              const toDate = Number(filterValue[1]);
+              return itemDate >= fromDate && itemDate <= toDate;
+            }
+
+            // Handle single date comparisons
+            const filterDate = Array.isArray(filterValue) ? Number(filterValue[0]) : Number(filterValue);
+
+            if (isNaN(filterDate)) return false;
+
+            switch (operator) {
+              case 'eq':
+              case 'is':
+                // Compare dates at day level (ignore time)
+                const itemDay = new Date(itemDate).setHours(0, 0, 0, 0);
+                const filterDay = new Date(filterDate).setHours(0, 0, 0, 0);
+                return itemDay === filterDay;
+              case 'ne':
+              case 'isNot':
+                const itemDay2 = new Date(itemDate).setHours(0, 0, 0, 0);
+                const filterDay2 = new Date(filterDate).setHours(0, 0, 0, 0);
+                return itemDay2 !== filterDay2;
+              case 'lt':
+              case 'isBefore':
+                return itemDate < filterDate;
+              case 'lte':
+              case 'isOnOrBefore':
+                return itemDate <= filterDate;
+              case 'gt':
+              case 'isAfter':
+                return itemDate > filterDate;
+              case 'gte':
+              case 'isOnOrAfter':
+                return itemDate >= filterDate;
+              default:
+                return true;
+            }
+          }
+
+          // Handle number/range filters
+          if (variant === 'number' || variant === 'range') {
+            const numValue = typeof value === 'number' ? value : Number(value);
+
+            if (isNaN(numValue)) return false;
+
+            // Handle isBetween for ranges
+            if (operator === 'isBetween' && Array.isArray(filterValue) && filterValue.length === 2) {
+              const min = Number(filterValue[0]);
+              const max = Number(filterValue[1]);
+              return numValue >= min && numValue <= max;
+            }
+
+            const filterNum = Number(filterValue);
+
+            if (isNaN(filterNum)) return false;
+
+            switch (operator) {
+              case 'eq':
+              case 'is':
+                return numValue === filterNum;
+              case 'ne':
+              case 'isNot':
+                return numValue !== filterNum;
+              case 'lt':
+              case 'isLessThan':
+                return numValue < filterNum;
+              case 'lte':
+              case 'isLessThanOrEqualTo':
+                return numValue <= filterNum;
+              case 'gt':
+              case 'isGreaterThan':
+                return numValue > filterNum;
+              case 'gte':
+              case 'isGreaterThanOrEqualTo':
+                return numValue >= filterNum;
+              default:
+                return true;
+            }
+          }
+
+          // Handle multi-select filters
+          if (variant === 'multiSelect' && Array.isArray(filterValue)) {
+            const strValue = String(value);
+
+            switch (operator) {
+              case 'inArray':
+              case 'hasAnyOf':
+                return filterValue.includes(strValue);
+              case 'notInArray':
+              case 'hasNoneOf':
+                return !filterValue.includes(strValue);
+              default:
+                return filterValue.includes(strValue);
+            }
+          }
+
+          // Handle text filters
+          if (typeof value === 'string' && typeof filterValue === 'string') {
+            const lowerValue = value.toLowerCase();
+            const lowerFilter = filterValue.toLowerCase();
+
+            switch (operator) {
+              case 'iLike':
+              case 'contains':
+                return lowerValue.includes(lowerFilter);
+              case 'notILike':
+              case 'doesNotContain':
+                return !lowerValue.includes(lowerFilter);
+              case 'eq':
+              case 'is':
+                return lowerValue === lowerFilter;
+              case 'ne':
+              case 'isNot':
+                return lowerValue !== lowerFilter;
+              default:
+                return lowerValue.includes(lowerFilter);
+            }
+          }
+
+          // Handle select filters
+          if (variant === 'select') {
+            const strValue = String(value);
+            const strFilter = String(filterValue);
+
+            switch (operator) {
+              case 'eq':
+              case 'is':
+                return strValue === strFilter;
+              case 'ne':
+              case 'isNot':
+                return strValue !== strFilter;
+              default:
+                return strValue === strFilter;
+            }
+          }
+
+          // Fallback: simple string comparison
           return String(value) === String(filterValue);
         });
       });

@@ -144,7 +144,7 @@ export function getColumns(
         />
       ),
       cell: ({ row }) => {
-        return formatDate(row.getValue('createdAt'));
+        return formatDate(row.getValue('createdAt'), 'short');
       },
       enableColumnFilter: true,
       enableSorting: true,
@@ -163,7 +163,7 @@ export function getColumns(
         />
       ),
       cell: ({ row }) => {
-        return formatDate(row.getValue('updatedAt'));
+        return formatDate(row.getValue('updatedAt'), 'short');
       },
       enableColumnFilter: true,
       enableSorting: true,
