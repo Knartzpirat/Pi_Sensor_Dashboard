@@ -101,6 +101,17 @@
     "addFilter": "Filter hinzufügen"
   },
 
+  "filters": {
+    "title": "Filter",
+    "addFilter": "Filter hinzufügen",
+    "noFiltersApplied": "Keine Filter angewendet",
+    "addDescription": "Filter hinzufügen um Ihre Zeilen zu verfeinern.",
+    "noOptionsFound": "Keine Optionen gefunden.",
+    "modifyDescription": "Filter ändern um Ihre Zeilen zu verfeinern.",
+    "where": "wo",
+    "resetFilters": "Filter zurücksetzen"
+  },
+
   "FeatureFlags": {
     "advancedFilters": {
       "label": "Erweiterte Filter",
@@ -238,9 +249,9 @@
     "isOnOrAfter": "Ist am oder nach",
     "isOnOrBefore": "Ist am oder vor",
     "isLessThan": "Ist kleiner als",
-    "isLessThanOrEqual": "Ist kleiner oder gleich",
+    "isLessThanOrEqualTo": "Ist kleiner oder gleich",
     "isGreaterThan": "Ist größer als",
-    "isGreaterThanOrEqual": "Ist größer oder gleich",
+    "isGreaterThanOrEqualTo": "Ist größer oder gleich",
     "isBetween": "Liegt zwischen",
     "isRelativeToToday": "Bezieht sich auf heute",
     "hasAnyOf": "Hat eines von",

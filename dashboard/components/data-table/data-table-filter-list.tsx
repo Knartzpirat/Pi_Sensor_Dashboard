@@ -249,7 +249,7 @@ export function DataTableFilterList<TData>({
         >
           <div className="flex flex-col gap-1">
             <h4 id={labelId} className="font-medium leading-none">
-              {filters.length > 0 ? "Filters" : "No filters applied"}
+              {filters.length > 0 ? t('filters.title') : t('filters.noFiltersApplied')}
             </h4>
             <p
               id={descriptionId}
@@ -259,8 +259,8 @@ export function DataTableFilterList<TData>({
               )}
             >
               {filters.length > 0
-                ? "Modify filters to refine your rows."
-                : "Add filters to refine your rows."}
+                ? t('filters.modifyDescription')
+                : t('filters.addDescription')}
             </p>
           </div>
           {filters.length > 0 ? (
@@ -289,7 +289,7 @@ export function DataTableFilterList<TData>({
               ref={addButtonRef}
               onClick={onFilterAdd}
             >
-              {t('table.addFilter')}
+              {t('filters.addFilter')}
             </Button>
             {filters.length > 0 ? (
               <Button
@@ -298,7 +298,7 @@ export function DataTableFilterList<TData>({
                 className="rounded"
                 onClick={onFiltersReset}
               >
-                {t('common.reset')}
+                {t('filters.resetFilters')}
               </Button>
             ) : null}
           </div>
@@ -396,14 +396,14 @@ function DataTableFilterItem<TData>({
       >
         <div className="min-w-[72px] text-center">
           {index === 0 ? (
-            <span className="text-muted-foreground text-sm">Where</span>
+            <span className="text-muted-foreground text-sm">{t('filters.where')}</span>
           ) : index === 1 ? (
             <Select
               value={joinOperator}
               onValueChange={(value: JoinOperator) => setJoinOperator(value)}
             >
               <SelectTrigger
-                aria-label="Select join operator"
+                aria-label={t('filters.selectJoinOperator')}
                 aria-controls={joinOperatorListboxId}
                 className="h-8 rounded lowercase data-size:h-8"
               >
@@ -437,7 +437,7 @@ function DataTableFilterItem<TData>({
             >
               <span className="truncate">
                 {columns.find((column) => column.id === filter.id)?.columnDef
-                  .meta?.label ?? "Select field"}
+                  .meta?.label ?? t('filters.selectField')}
               </span>
               <ChevronsUpDown className="opacity-50" />
             </Button>
@@ -514,7 +514,7 @@ function DataTableFilterItem<TData>({
                 value={operator.value}
                 className="lowercase"
               >
-                {operator.label}
+                {t(operator.label)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -611,7 +611,7 @@ function onFilterInputRender<TData>({
           aria-label={`${columnMeta?.label} filter value`}
           aria-describedby={`${inputId}-description`}
           inputMode={isNumber ? "numeric" : undefined}
-          placeholder={columnMeta?.placeholder ?? "Enter a value..."}
+          placeholder={columnMeta?.placeholder ?? t('filters.enterValue')}
           className="h-8 w-full rounded"
           defaultValue={
             typeof filter.value === "string" ? filter.value : undefined
@@ -647,11 +647,11 @@ function onFilterInputRender<TData>({
             aria-label={`${columnMeta?.label} boolean filter`}
             className="h-8 w-full rounded data-size:h-8"
           >
-            <SelectValue placeholder={filter.value ? "True" : "False"} />
+            <SelectValue placeholder={filter.value ? t('boolean.true') : t('boolean.false')} />
           </SelectTrigger>
           <SelectContent id={inputListboxId}>
-            <SelectItem value="true">True</SelectItem>
-            <SelectItem value="false">False</SelectItem>
+            <SelectItem value="true">{t('boolean.true')}</SelectItem>
+            <SelectItem value="false">{t('boolean.false')}</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -660,6 +660,7 @@ function onFilterInputRender<TData>({
     case "select":
     case "multiSelect": {
       const inputListboxId = `${inputId}-listbox`;
+
       const multiple = filter.variant === "multiSelect";
       const selectedValues = multiple
         ? Array.isArray(filter.value)
@@ -702,10 +703,10 @@ function onFilterInputRender<TData>({
           <FacetedContent id={inputListboxId} className="w-[200px]">
             <FacetedInput
               aria-label={`Search ${columnMeta?.label} options`}
-              placeholder={columnMeta?.placeholder ?? "Search options..."}
+              placeholder={columnMeta?.placeholder ?? t('filters.searchOptions')}
             />
             <FacetedList>
-              <FacetedEmpty> No options found.</FacetedEmpty>
+              <FacetedEmpty>{t('filters.noOptionsFound')}</FacetedEmpty>
               <FacetedGroup>
                 {columnMeta?.options?.map((option) => (
                   <FacetedItem key={option.value} value={option.value}>
@@ -740,7 +741,7 @@ function onFilterInputRender<TData>({
             )}`
           : dateValue[0]
             ? formatDate(new Date(Number(dateValue[0])))
-            : "Pick a date";
+            : t('filters.pickDate');
 
       return (
         <Popover open={showValueSelector} onOpenChange={setShowValueSelector}>
