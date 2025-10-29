@@ -108,8 +108,11 @@
     "addDescription": "Filter hinzufügen um Ihre Zeilen zu verfeinern.",
     "noOptionsFound": "Keine Optionen gefunden.",
     "modifyDescription": "Filter ändern um Ihre Zeilen zu verfeinern.",
-    "where": "wo",
-    "resetFilters": "Filter zurücksetzen"
+    "where": "Wo",
+    "resetFilters": "Filter zurücksetzen",
+    "enterValue": "Wert eingeben",
+    "searchOptions": "Optionen suchen...",
+    "pickDate": "Datum auswählen"
   },
 
   "FeatureFlags": {
