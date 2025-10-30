@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import * as z from 'zod';
 import { useTranslations } from 'next-intl';
 
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Form,
   FormControl,
@@ -115,71 +114,69 @@ export const TestObjectForm = React.forwardRef<
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn('space-y-4 overflow-y-auto', className)}
       >
-        
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('testObjects.table.title')}</FormLabel>
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('testObjects.table.title')}</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={t('testObjects.table.title_description')}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('testObjects.table.description')}</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t('testObjects.table.description_placeholder')}
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="labelId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('testObjects.table.label')}</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || undefined}
+              >
                 <FormControl>
-                  <Input
-                    placeholder={t('testObjects.table.title_description')}
-                    {...field}
-                  />
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t('testObjects.table.label_placeholder')}
+                    />
+                  </SelectTrigger>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('testObjects.table.description')}</FormLabel>
-                <FormControl>
-                  <Textarea
-        
-                    placeholder={t('testObjects.table.description_placeholder')}
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="labelId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('testObjects.table.label')}</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value || undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={t('testObjects.table.label_placeholder')}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
 
-                  <SelectContent>
-                    {labels.map((label) => (
-                      <SelectItem key={label.id} value={label.id}>
-                        {label.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <SelectContent>
+                  {labels.map((label) => (
+                    <SelectItem key={label.id} value={label.id}>
+                      {label.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </form>
     </Form>
   );
