@@ -136,6 +136,7 @@
     "title": "Testobjekte",
     "description": "Beschreiben Sie Ihre Testobjekte und deren Eigenschaften. Sie können diese Sensoren zuweisen, um Messungen zu organisieren und ihre Berichte zu erstellen.",
     "table": {
+      "thumbnail": "Vorschaubild",
       "title": "Titel",
       "title_description": "Titel des Testobjekts",
       "description": "Beschreibung",
