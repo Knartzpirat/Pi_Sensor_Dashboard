@@ -72,6 +72,10 @@
     "addsensor": "Sensor hinzufügen"
   },
 
+  "loading": {
+    "creating": "Wird erstellt..."
+  },
+
   "table": {
     "title": "Titel",
     "description": "Beschreibung",
