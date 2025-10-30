@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Sheet,
   SheetClose,
@@ -49,13 +48,11 @@ export function CreateTestObjectSheet() {
           </SheetDescription>
         </SheetHeader>
 
-        
-          <TestObjectForm
-            ref={formRef}
-            className="  mx-4"
-            onSuccess={() => setOpen(false)}
-          />
-        
+        <TestObjectForm
+          ref={formRef}
+          className="  mx-4"
+          onSuccess={() => setOpen(false)}
+        />
 
         <SheetFooter className="gap-2 pt-2 sm:space-x-0">
           <Button

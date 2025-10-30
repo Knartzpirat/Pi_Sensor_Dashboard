@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, EntityType } from '@prisma/client';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           size: file.size,
           url: `/uploads/images/${filename}`,
           order: imageOrders[i.toString()] ?? i,
-          entityType: entityType as any,
+          entityType: entityType as EntityType,
           entityId,
         },
       });
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
           size: file.size,
           url: `/uploads/documents/${filename}`,
           order: documentOrders[i.toString()] ?? i,
-          entityType: entityType as any,
+          entityType: entityType as EntityType,
           entityId,
         },
       });

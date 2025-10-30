@@ -8,7 +8,6 @@ import * as z from 'zod';
 import { useTranslations } from 'next-intl';
 import { GripVertical, Image as ImageIcon, FileText, X } from 'lucide-react';
 
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Form,
   FormControl,
