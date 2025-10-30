@@ -294,7 +294,6 @@ export const TestObjectForm = React.forwardRef<
                 </FileUploadTrigger>
               </div>
             </FileUploadDropzone>
-          </FileUpload>
 
           {/* Bilder Liste */}
             {images.length > 0 && (
@@ -441,6 +440,7 @@ export const TestObjectForm = React.forwardRef<
               </Sortable>
             </div>
             )}
+          </FileUpload>
         </div>
       </form>
     </Form>
