@@ -73,8 +73,33 @@ export const TestObjectForm = React.forwardRef<
   const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
     []
   );
-  const [images, setImages] = React.useState<File[]>([]);
-  const [pdfs, setPdfs] = React.useState<File[]>([]);
+  const [allFiles, setAllFiles] = React.useState<File[]>([]);
+
+  // Dateien nach Typ filtern
+  const images = React.useMemo(
+    () => allFiles.filter((file) => file.type.startsWith('image/')),
+    [allFiles]
+  );
+
+  const pdfs = React.useMemo(
+    () => allFiles.filter((file) => file.type === 'application/pdf'),
+    [allFiles]
+  );
+
+  // Setter für separate Listen, die den gemeinsamen State aktualisieren
+  const setImages = React.useCallback((newImages: File[]) => {
+    setAllFiles((current) => [
+      ...newImages,
+      ...current.filter((f) => f.type === 'application/pdf'),
+    ]);
+  }, []);
+
+  const setPdfs = React.useCallback((newPdfs: File[]) => {
+    setAllFiles((current) => [
+      ...current.filter((f) => f.type.startsWith('image/')),
+      ...newPdfs,
+    ]);
+  }, []);
 
   const form = useForm<TestObjectFormValues>({
     resolver: zodResolver(testObjectSchema),
@@ -142,8 +167,7 @@ export const TestObjectForm = React.forwardRef<
 
       toast.success('Test-Objekt erfolgreich erstellt');
       form.reset();
-      setImages([]);
-      setPdfs([]);
+      setAllFiles([]);
       onSuccess?.();
 
       // Reload page to show new data
@@ -232,32 +256,35 @@ export const TestObjectForm = React.forwardRef<
           )}
         />
 
-        {/* Bilder Upload mit Sortierung */}
-        <div className="space-y-2">
-          <FormLabel>
-            <ImageIcon className="mr-2 inline-block h-4 w-4" />
-            {t('testObjects.form.images')}
-          </FormLabel>
-          <p className="text-muted-foreground text-sm">
-            {t('testObjects.form.images_description')}
-          </p>
+        {/* Gemeinsame Datei-Upload Dropzone */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <FormLabel>{t('testObjects.form.files')}</FormLabel>
+            <p className="text-muted-foreground text-sm">
+              {t('testObjects.form.files_description')}
+            </p>
+          </div>
+
           <FileUpload
-            value={images}
-            onValueChange={setImages}
-            accept="image/*"
+            value={allFiles}
+            onValueChange={setAllFiles}
+            accept="image/*,application/pdf"
             multiple
-            maxFiles={10}
-            maxSize={5 * 1024 * 1024} // 5MB
+            maxFiles={30}
+            maxSize={10 * 1024 * 1024} // 10MB
           >
             <FileUploadDropzone>
-              <div className="flex flex-col items-center gap-2">
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+              <div className="flex flex-col items-center gap-2 py-6">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </div>
                 <div className="text-center">
                   <p className="font-medium text-sm">
-                    {t('testObjects.form.dropzone_title')}
+                    {t('testObjects.form.dropzone_combined_title')}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {t('testObjects.form.dropzone_description')}
+                    {t('testObjects.form.dropzone_combined_description')}
                   </p>
                 </div>
                 <FileUploadTrigger asChild>
@@ -267,8 +294,18 @@ export const TestObjectForm = React.forwardRef<
                 </FileUploadTrigger>
               </div>
             </FileUploadDropzone>
+          </FileUpload>
 
-            {images.length > 0 && (
+          {/* Bilder Liste */}
+          {images.length > 0 && (
+            <div className="space-y-2">
+              <FormLabel>
+                <ImageIcon className="mr-2 inline-block h-4 w-4" />
+                {t('testObjects.form.images')} ({images.length})
+              </FormLabel>
+              <p className="text-muted-foreground text-xs">
+                {t('testObjects.form.images_description')}
+              </p>
               <Sortable
                 value={images}
                 onValueChange={setImages}
@@ -301,6 +338,11 @@ export const TestObjectForm = React.forwardRef<
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              onClick={() => {
+                                setAllFiles((current) =>
+                                  current.filter((f) => f !== file)
+                                );
+                              }}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -324,47 +366,19 @@ export const TestObjectForm = React.forwardRef<
                   }}
                 </SortableOverlay>
               </Sortable>
-            )}
-          </FileUpload>
-        </div>
+            </div>
+          )}
 
-        {/* PDF Upload mit Sortierung */}
-        <div className="space-y-2">
-          <FormLabel>
-            <FileText className="mr-2 inline-block h-4 w-4" />
-            {t('testObjects.form.documents')}
-          </FormLabel>
-          <p className="text-muted-foreground text-sm">
-            {t('testObjects.form.documents_description')}
-          </p>
-          <FileUpload
-            value={pdfs}
-            onValueChange={setPdfs}
-            accept="application/pdf"
-            multiple
-            maxFiles={20}
-            maxSize={10 * 1024 * 1024} // 10MB
-          >
-            <FileUploadDropzone>
-              <div className="flex flex-col items-center gap-2">
-                <FileText className="h-8 w-8 text-muted-foreground" />
-                <div className="text-center">
-                  <p className="font-medium text-sm">
-                    {t('testObjects.form.dropzone_pdf_title')}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {t('testObjects.form.dropzone_pdf_description')}
-                  </p>
-                </div>
-                <FileUploadTrigger asChild>
-                  <Button type="button" variant="outline" size="sm">
-                    {t('testObjects.form.select_files')}
-                  </Button>
-                </FileUploadTrigger>
-              </div>
-            </FileUploadDropzone>
-
-            {pdfs.length > 0 && (
+          {/* PDF/Dokumente Liste */}
+          {pdfs.length > 0 && (
+            <div className="space-y-2">
+              <FormLabel>
+                <FileText className="mr-2 inline-block h-4 w-4" />
+                {t('testObjects.form.documents')} ({pdfs.length})
+              </FormLabel>
+              <p className="text-muted-foreground text-xs">
+                {t('testObjects.form.documents_description')}
+              </p>
               <Sortable
                 value={pdfs}
                 onValueChange={setPdfs}
@@ -397,6 +411,11 @@ export const TestObjectForm = React.forwardRef<
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              onClick={() => {
+                                setAllFiles((current) =>
+                                  current.filter((f) => f !== file)
+                                );
+                              }}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -420,8 +439,8 @@ export const TestObjectForm = React.forwardRef<
                   }}
                 </SortableOverlay>
               </Sortable>
-            )}
-          </FileUpload>
+            </div>
+          )}
         </div>
       </form>
     </Form>

@@ -171,10 +171,14 @@
       "actions": "Aktionen"
     },
     "form": {
+      "files": "Dateien",
+      "files_description": "Laden Sie Bilder und PDF-Dokumente hoch. Dateien werden automatisch nach Typ sortiert.",
       "images": "Bilder",
       "images_description": "Das erste Bild wird als Vorschaubild verwendet. Sortieren Sie die Bilder per Drag & Drop.",
       "documents": "Dokumente (PDF)",
       "documents_description": "PDFs werden in der Reihenfolge als Anhänge in Berichten exportiert. Sortieren Sie per Drag & Drop.",
+      "dropzone_combined_title": "Bilder und PDFs per Drag & Drop oder Klick hinzufügen",
+      "dropzone_combined_description": "Bis zu 30 Dateien, max. 10MB pro Datei",
       "dropzone_title": "Bilder per Drag & Drop oder Klick hinzufügen",
       "dropzone_description": "Bis zu 10 Bilder, max. 5MB pro Datei",
       "dropzone_pdf_title": "PDF-Dateien per Drag & Drop oder Klick hinzufügen",
