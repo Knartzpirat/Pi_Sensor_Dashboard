@@ -294,153 +294,153 @@ export const TestObjectForm = React.forwardRef<
                 </FileUploadTrigger>
               </div>
             </FileUploadDropzone>
+
+            {/* Bilder Liste */}
+            {images.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel>
+                  <ImageIcon className="mr-2 inline-block h-4 w-4" />
+                  {t('testObjects.form.images')} ({images.length})
+                </FormLabel>
+                <p className="text-muted-foreground text-xs">
+                  {t('testObjects.form.images_description')}
+                </p>
+                <Sortable
+                  value={images}
+                  onValueChange={setImages}
+                  getItemValue={(file) => file.name + file.size}
+                >
+                  <SortableContent>
+                    <FileUploadList>
+                      {images.map((file) => (
+                        <SortableItem
+                          key={file.name + file.size}
+                          value={file.name + file.size}
+                          asChild
+                        >
+                          <FileUploadItem value={file}>
+                            <SortableItemHandle asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-6 cursor-grab active:cursor-grabbing"
+                              >
+                                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            </SortableItemHandle>
+                            <FileUploadItemPreview />
+                            <FileUploadItemMetadata />
+                            <FileUploadItemDelete asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => {
+                                  setAllFiles((current) =>
+                                    current.filter((f) => f !== file)
+                                  );
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </FileUploadItemDelete>
+                          </FileUploadItem>
+                        </SortableItem>
+                      ))}
+                    </FileUploadList>
+                  </SortableContent>
+                  <SortableOverlay>
+                    {({ value }) => {
+                      const file = images.find(
+                        (f) => f.name + f.size === value
+                      );
+                      return file ? (
+                        <FileUploadItem value={file} className="opacity-50">
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                        </FileUploadItem>
+                      ) : null;
+                    }}
+                  </SortableOverlay>
+                </Sortable>
+              </div>
+            )}
+
+            {/* PDF/Dokumente Liste */}
+            {pdfs.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel>
+                  <FileText className="mr-2 inline-block h-4 w-4" />
+                  {t('testObjects.form.documents')} ({pdfs.length})
+                </FormLabel>
+                <p className="text-muted-foreground text-xs">
+                  {t('testObjects.form.documents_description')}
+                </p>
+                <Sortable
+                  value={pdfs}
+                  onValueChange={setPdfs}
+                  getItemValue={(file) => file.name + file.size}
+                >
+                  <SortableContent>
+                    <FileUploadList>
+                      {pdfs.map((file) => (
+                        <SortableItem
+                          key={file.name + file.size}
+                          value={file.name + file.size}
+                          asChild
+                        >
+                          <FileUploadItem value={file}>
+                            <SortableItemHandle asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-6 cursor-grab active:cursor-grabbing"
+                              >
+                                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            </SortableItemHandle>
+                            <FileUploadItemPreview />
+                            <FileUploadItemMetadata />
+                            <FileUploadItemDelete asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => {
+                                  setAllFiles((current) =>
+                                    current.filter((f) => f !== file)
+                                  );
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </FileUploadItemDelete>
+                          </FileUploadItem>
+                        </SortableItem>
+                      ))}
+                    </FileUploadList>
+                  </SortableContent>
+                  <SortableOverlay>
+                    {({ value }) => {
+                      const file = pdfs.find(
+                        (f) => f.name + f.size === value
+                      );
+                      return file ? (
+                        <FileUploadItem value={file} className="opacity-50">
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                        </FileUploadItem>
+                      ) : null;
+                    }}
+                  </SortableOverlay>
+                </Sortable>
+              </div>
+            )}
           </FileUpload>
-
-          {/* Bilder Liste */}
-          {images.length > 0 && (
-            <div className="space-y-2">
-              <FormLabel>
-                <ImageIcon className="mr-2 inline-block h-4 w-4" />
-                {t('testObjects.form.images')} ({images.length})
-              </FormLabel>
-              <p className="text-muted-foreground text-xs">
-                {t('testObjects.form.images_description')}
-              </p>
-              <Sortable
-                value={images}
-                onValueChange={setImages}
-                getItemValue={(file) => file.name + file.size}
-              >
-                <SortableContent>
-                  <FileUploadList>
-                    {images.map((file) => (
-                      <SortableItem
-                        key={file.name + file.size}
-                        value={file.name + file.size}
-                        asChild
-                      >
-                        <FileUploadItem value={file}>
-                          <SortableItemHandle asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
-                            >
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          </SortableItemHandle>
-                          <FileUploadItemPreview />
-                          <FileUploadItemMetadata />
-                          <FileUploadItemDelete asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setAllFiles((current) =>
-                                  current.filter((f) => f !== file)
-                                );
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </FileUploadItemDelete>
-                        </FileUploadItem>
-                      </SortableItem>
-                    ))}
-                  </FileUploadList>
-                </SortableContent>
-                <SortableOverlay>
-                  {({ value }) => {
-                    const file = images.find(
-                      (f) => f.name + f.size === value
-                    );
-                    return file ? (
-                      <FileUploadItem value={file} className="opacity-50">
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                      </FileUploadItem>
-                    ) : null;
-                  }}
-                </SortableOverlay>
-              </Sortable>
-            </div>
-          )}
-
-          {/* PDF/Dokumente Liste */}
-          {pdfs.length > 0 && (
-            <div className="space-y-2">
-              <FormLabel>
-                <FileText className="mr-2 inline-block h-4 w-4" />
-                {t('testObjects.form.documents')} ({pdfs.length})
-              </FormLabel>
-              <p className="text-muted-foreground text-xs">
-                {t('testObjects.form.documents_description')}
-              </p>
-              <Sortable
-                value={pdfs}
-                onValueChange={setPdfs}
-                getItemValue={(file) => file.name + file.size}
-              >
-                <SortableContent>
-                  <FileUploadList>
-                    {pdfs.map((file) => (
-                      <SortableItem
-                        key={file.name + file.size}
-                        value={file.name + file.size}
-                        asChild
-                      >
-                        <FileUploadItem value={file}>
-                          <SortableItemHandle asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
-                            >
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          </SortableItemHandle>
-                          <FileUploadItemPreview />
-                          <FileUploadItemMetadata />
-                          <FileUploadItemDelete asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setAllFiles((current) =>
-                                  current.filter((f) => f !== file)
-                                );
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </FileUploadItemDelete>
-                        </FileUploadItem>
-                      </SortableItem>
-                    ))}
-                  </FileUploadList>
-                </SortableContent>
-                <SortableOverlay>
-                  {({ value }) => {
-                    const file = pdfs.find(
-                      (f) => f.name + f.size === value
-                    );
-                    return file ? (
-                      <FileUploadItem value={file} className="opacity-50">
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                      </FileUploadItem>
-                    ) : null;
-                  }}
-                </SortableOverlay>
-              </Sortable>
-            </div>
-          )}
         </div>
       </form>
     </Form>
