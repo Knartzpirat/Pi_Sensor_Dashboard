@@ -142,6 +142,18 @@ export function SetupForm() {
               }
 
               if (data.step === 'complete') {
+                // Recovery Codes zuerst speichern
+                if (data.recoveryCodes && data.recoveryCodes.length > 0) {
+                  sessionStorage.setItem(
+                    'recoveryCodes',
+                    JSON.stringify(data.recoveryCodes)
+                  );
+                  console.log('Recovery codes saved to sessionStorage:', data.recoveryCodes.length);
+                } else {
+                  console.error('No recovery codes received from server');
+                }
+
+                // Dann Refresh Token Cookie setzen
                 if (data.refreshToken && data.refreshTokenExpiresAt) {
                   // Berechne maxAge in Sekunden
                   const maxAge = Math.floor(
@@ -155,25 +167,22 @@ export function SetupForm() {
                   }; path=/; max-age=${maxAge}; SameSite=Strict${
                     process.env.NODE_ENV === 'production' ? '; Secure' : ''
                   }`;
-                }
 
-                // Recovery Codes speichern
-                if (data.recoveryCodes) {
-                  sessionStorage.setItem(
-                    'recoveryCodes',
-                    JSON.stringify(data.recoveryCodes)
-                  );
+                  console.log('Refresh token cookie set, maxAge:', maxAge);
+                } else {
+                  console.error('No refresh token received from server');
                 }
 
                 toast.dismiss(toastId);
-                toast.success('Setup completed!', {
-                  description: 'Redirecting to recovery-codes...',
+                toast.success(t('setup.Success'), {
+                  description: 'Redirecting to recovery codes page...',
+                  duration: 2000,
                 });
 
-                // Redirect nach kurzer Verzögerung
+                // Redirect mit etwas längerer Verzögerung, um sicherzustellen dass alles gespeichert ist
                 setTimeout(() => {
                   window.location.href = '/setup/recovery-codes';
-                }, 2000);
+                }, 1500);
               }
             }
           }
