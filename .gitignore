@@ -300,3 +300,7 @@ coverage/
 
 *.sql.bak
 *.sql~
+
+### Uploads ###
+# User uploaded files
+dashboard/public/uploads/
