@@ -97,7 +97,22 @@
     "selectionInfo": "{selectedCount, plural, =0 {Keine Zeilen ausgewählt} one {{selectedCount} von {totalCount} Zeile ausgewählt} other {{selectedCount} von {totalCount} Zeilen ausgewählt}}",
     "pageInfo": "Seite {currentPage} von {totalPages}",
     "rowsPerPage": "Zeilen pro Seite",
-    "Filter": "Filter"
+    "Filter": "Filter",
+    "addFilter": "Filter hinzufügen"
+  },
+
+  "filters": {
+    "title": "Filter",
+    "addFilter": "Filter hinzufügen",
+    "noFiltersApplied": "Keine Filter angewendet",
+    "addDescription": "Filter hinzufügen um Ihre Zeilen zu verfeinern.",
+    "noOptionsFound": "Keine Optionen gefunden.",
+    "modifyDescription": "Filter ändern um Ihre Zeilen zu verfeinern.",
+    "where": "Wo",
+    "resetFilters": "Filter zurücksetzen",
+    "enterValue": "Wert eingeben",
+    "searchOptions": "Optionen suchen...",
+    "pickDate": "Datum auswählen"
   },
 
   "filters": {

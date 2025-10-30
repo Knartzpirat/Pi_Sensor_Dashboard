@@ -1,5 +1,13 @@
 import type { TestObject, Label } from '@prisma/client';
 
+export interface QueryKeys {
+  page: string;
+  perPage: string;
+  sort: string;
+  filters: string;
+  joinOperator: string;
+}
+
 // Prisma type with relations for API responses
 export type TestObjectWithLabel = TestObject & {
   label: Label | null;

@@ -43,7 +43,7 @@ export async function getTestObjects(
     // Apply filtering if filters are provided
     if (filters && Array.isArray(filters) && filters.length > 0) {
       transformedData = transformedData.filter((item) => {
-        return filters.every((filter: any) => {
+        return filters.every((filter: { id: string; value: unknown; operator?: string; variant?: string }) => {
           const value = item[filter.id as keyof TestObjectsTableData];
           const filterValue = filter.value;
           const operator = filter.operator || 'iLike';

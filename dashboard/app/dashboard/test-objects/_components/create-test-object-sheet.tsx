@@ -15,12 +15,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { TestObjectForm } from './test-object-form';
+import { TestObjectForm, TestObjectFormRef } from './test-object-form';
 import { useTranslations } from 'next-intl';
 
 export function CreateTestObjectSheet() {
   const t = useTranslations();
   const [open, setOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const formRef = React.useRef<TestObjectFormRef>(null);
+
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      if (formRef.current?.isLoading !== isLoading) {
+        setIsLoading(formRef.current?.isLoading ?? false);
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, [isLoading]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -31,22 +42,40 @@ export function CreateTestObjectSheet() {
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col gap-6 sm:max-w-md">
-        <ScrollArea className="h-screen">
-          <SheetHeader className="text-left">
-            <SheetTitle>{t('testObjects.createTestObject.title')}</SheetTitle>
-            <SheetDescription>
-              {t('testObjects.createTestObject.description')}
-            </SheetDescription>
-          </SheetHeader>
-          <TestObjectForm className="mx-4" onSuccess={() => setOpen(false)} />
-          <SheetFooter className="gap-2 pt-2 sm:space-x-0">
-            <SheetClose asChild>
-              <Button type="button" variant="outline">
-                {t('buttons.cancel')}
-              </Button>
-            </SheetClose>
-          </SheetFooter>
-        </ScrollArea>
+        <SheetHeader className="text-left">
+          <SheetTitle>{t('testObjects.createTestObject.title')}</SheetTitle>
+          <SheetDescription>
+            {t('testObjects.createTestObject.description')}
+          </SheetDescription>
+        </SheetHeader>
+
+        
+          <TestObjectForm
+            ref={formRef}
+            className="  mx-4"
+            onSuccess={() => setOpen(false)}
+          />
+        
+
+        <SheetFooter className="gap-2 pt-2 sm:space-x-0">
+          <Button
+            type="button"
+            className="w-full"
+            disabled={isLoading}
+            onClick={() => formRef.current?.submit()}
+          >
+            {isLoading
+              ? t('loading.creating', { defaultValue: 'Erstellen…' })
+              : t('testObjects.createTestObject.title', {
+                  defaultValue: 'Test-Objekt erstellen',
+                })}
+          </Button>
+          <SheetClose asChild>
+            <Button type="button" variant="outline">
+              {t('buttons.cancel')}
+            </Button>
+          </SheetClose>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
