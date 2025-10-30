@@ -11,6 +11,7 @@ export interface QueryKeys {
 // Prisma type with relations for API responses
 export type TestObjectWithLabel = TestObject & {
   label: Label | null;
+  pictures?: Array<{ id: string; url: string; order: number }>;
 };
 
 // Transformed type for table display
@@ -23,6 +24,7 @@ export interface TestObjectsTableData {
   labelId: string | null;
   label: string; // Always has a value, either label name or 'No Label'
   labelColor: string | null;
+  thumbnailUrl: string | null; // URL of the first image, or null if no images
 }
 
 // Query parameters for fetching test objects

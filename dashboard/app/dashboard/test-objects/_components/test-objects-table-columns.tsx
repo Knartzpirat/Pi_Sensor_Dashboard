@@ -6,7 +6,8 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import type { TestObjectsTableData } from '@/types/test-object';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
-import { Tag } from 'lucide-react';
+import { Tag, ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 
 
@@ -42,6 +43,38 @@ export function getColumns(
       ),
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      id: 'thumbnail',
+      accessorKey: 'thumbnailUrl',
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          label={t('testObjects.table.thumbnail')}
+        />
+      ),
+      cell: ({ row }) => {
+        const thumbnailUrl = row.getValue('thumbnail') as string | null;
+
+        return (
+          <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
+                alt={row.getValue('title')}
+                width={48}
+                height={48}
+                className="h-full w-full rounded-md object-cover"
+              />
+            ) : (
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+            )}
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: true,
+      enableColumnFilter: false,
     },
     {
       id: 'title',
