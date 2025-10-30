@@ -21,17 +21,20 @@ export default function RecoveryCodesPage() {
       const response = await fetch('/api/setup/recovery-codes');
 
       if (!response.ok) {
-        const error = await response.json();
-        console.error('Token validation failed:', error);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Token validation failed:', errorData);
 
         if (response.status === 401) {
           toast.error(t('setup.recoverycode.sessionexpired'));
           sessionStorage.removeItem('recoveryCodes');
-          router.push('/login');
+          // Verzögerung vor Weiterleitung, damit Benutzer die Meldung sehen kann
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
         }
       } else {
         const data = await response.json();
-        console.log('Token validated:', {
+        console.log('Token validated successfully:', {
           username: data.username,
           totalCodes: data.totalCodes,
           available: data.codesAvailable,
@@ -39,6 +42,7 @@ export default function RecoveryCodesPage() {
       }
     } catch (error) {
       console.error('Error validating token:', error);
+      // Fehler nicht als kritisch behandeln, da die Codes bereits angezeigt werden
     } finally {
       setIsValidating(false);
     }
@@ -50,19 +54,34 @@ export default function RecoveryCodesPage() {
     if (storedCodes) {
       try {
         const parsedCodes = JSON.parse(storedCodes);
-        setCodes(parsedCodes);
-        setIsLoading(false);
-        validateRefreshToken();
+        if (Array.isArray(parsedCodes) && parsedCodes.length > 0) {
+          setCodes(parsedCodes);
+          setIsLoading(false);
+          // Token-Validierung optional durchführen
+          validateRefreshToken();
+        } else {
+          console.error('Invalid recovery codes format:', parsedCodes);
+          toast.error(t('setup.recoverycode.invalidformat'));
+          setTimeout(() => {
+            router.push('/setup');
+          }, 2000);
+        }
       } catch (error) {
         console.error('Error parsing recovery codes:', error);
         toast.error(t('setup.recoverycode.invalidformat'));
-        router.push('/setup');
+        setTimeout(() => {
+          router.push('/setup');
+        }, 2000);
       }
     } else {
+      console.warn('No recovery codes found in sessionStorage');
       toast.error(t('setup.recoverycode.nocodefound'));
-      router.push('/setup');
+      setTimeout(() => {
+        router.push('/setup');
+      }, 2000);
     }
-  }, [router, validateRefreshToken, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Nur einmal beim Mount ausführen
 
   const handleCopyAll = () => {
     const allCodes = codes.join('\n');
@@ -83,7 +102,8 @@ export default function RecoveryCodesPage() {
 
   const handleContinue = () => {
     sessionStorage.removeItem('recoveryCodes');
-    router.push('/');
+    // Nach dem Setup zum Login weiterleiten
+    router.push('/login');
   };
 
   if (isLoading) {
