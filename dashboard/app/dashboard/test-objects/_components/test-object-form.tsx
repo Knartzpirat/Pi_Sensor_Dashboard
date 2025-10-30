@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { useTranslations } from 'next-intl';
+import { GripVertical, Image as ImageIcon, FileText, X } from 'lucide-react';
 
 import {
   Form,
@@ -24,6 +25,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadList,
+  FileUploadItem,
+  FileUploadItemPreview,
+  FileUploadItemMetadata,
+  FileUploadItemDelete,
+  FileUploadTrigger,
+} from '@/components/ui/file-upload';
+import {
+  Sortable,
+  SortableContent,
+  SortableItem,
+  SortableItemHandle,
+  SortableOverlay,
+} from '@/components/ui/sortable';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const testObjectSchema = z.object({
@@ -54,6 +73,8 @@ export const TestObjectForm = React.forwardRef<
   const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
     []
   );
+  const [images, setImages] = React.useState<File[]>([]);
+  const [pdfs, setPdfs] = React.useState<File[]>([]);
 
   const form = useForm<TestObjectFormValues>({
     resolver: zodResolver(testObjectSchema),
@@ -76,6 +97,7 @@ export const TestObjectForm = React.forwardRef<
     setIsLoading(true);
 
     try {
+      // Zuerst das Test-Objekt erstellen
       const response = await fetch('/api/test-objects', {
         method: 'POST',
         headers: {
@@ -88,8 +110,40 @@ export const TestObjectForm = React.forwardRef<
         throw new Error('Failed to create test object');
       }
 
+      const testObject = await response.json();
+
+      // Dann Dateien hochladen (falls vorhanden)
+      if (images.length > 0 || pdfs.length > 0) {
+        const formData = new FormData();
+        formData.append('entityId', testObject.id);
+        formData.append('entityType', 'TEST_OBJECT');
+
+        // Bilder mit ihrer Reihenfolge
+        images.forEach((file, index) => {
+          formData.append('images', file);
+          formData.append(`imageOrder_${index}`, index.toString());
+        });
+
+        // PDFs mit ihrer Reihenfolge
+        pdfs.forEach((file, index) => {
+          formData.append('documents', file);
+          formData.append(`documentOrder_${index}`, index.toString());
+        });
+
+        const uploadResponse = await fetch('/api/uploads', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload files');
+        }
+      }
+
       toast.success('Test-Objekt erfolgreich erstellt');
       form.reset();
+      setImages([]);
+      setPdfs([]);
       onSuccess?.();
 
       // Reload page to show new data
@@ -177,6 +231,198 @@ export const TestObjectForm = React.forwardRef<
             </FormItem>
           )}
         />
+
+        {/* Bilder Upload mit Sortierung */}
+        <div className="space-y-2">
+          <FormLabel>
+            <ImageIcon className="mr-2 inline-block h-4 w-4" />
+            {t('testObjects.form.images')}
+          </FormLabel>
+          <p className="text-muted-foreground text-sm">
+            {t('testObjects.form.images_description')}
+          </p>
+          <FileUpload
+            value={images}
+            onValueChange={setImages}
+            accept="image/*"
+            multiple
+            maxFiles={10}
+            maxSize={5 * 1024 * 1024} // 5MB
+          >
+            <FileUploadDropzone>
+              <div className="flex flex-col items-center gap-2">
+                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                <div className="text-center">
+                  <p className="font-medium text-sm">
+                    {t('testObjects.form.dropzone_title')}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {t('testObjects.form.dropzone_description')}
+                  </p>
+                </div>
+                <FileUploadTrigger asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    {t('testObjects.form.select_files')}
+                  </Button>
+                </FileUploadTrigger>
+              </div>
+            </FileUploadDropzone>
+
+            {images.length > 0 && (
+              <Sortable
+                value={images}
+                onValueChange={setImages}
+                getItemValue={(file) => file.name + file.size}
+              >
+                <SortableContent>
+                  <FileUploadList>
+                    {images.map((file) => (
+                      <SortableItem
+                        key={file.name + file.size}
+                        value={file.name + file.size}
+                        asChild
+                      >
+                        <FileUploadItem value={file}>
+                          <SortableItemHandle asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
+                            >
+                              <GripVertical className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </SortableItemHandle>
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                          <FileUploadItemDelete asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </FileUploadItemDelete>
+                        </FileUploadItem>
+                      </SortableItem>
+                    ))}
+                  </FileUploadList>
+                </SortableContent>
+                <SortableOverlay>
+                  {({ value }) => {
+                    const file = images.find(
+                      (f) => f.name + f.size === value
+                    );
+                    return file ? (
+                      <FileUploadItem value={file} className="opacity-50">
+                        <FileUploadItemPreview />
+                        <FileUploadItemMetadata />
+                      </FileUploadItem>
+                    ) : null;
+                  }}
+                </SortableOverlay>
+              </Sortable>
+            )}
+          </FileUpload>
+        </div>
+
+        {/* PDF Upload mit Sortierung */}
+        <div className="space-y-2">
+          <FormLabel>
+            <FileText className="mr-2 inline-block h-4 w-4" />
+            {t('testObjects.form.documents')}
+          </FormLabel>
+          <p className="text-muted-foreground text-sm">
+            {t('testObjects.form.documents_description')}
+          </p>
+          <FileUpload
+            value={pdfs}
+            onValueChange={setPdfs}
+            accept="application/pdf"
+            multiple
+            maxFiles={20}
+            maxSize={10 * 1024 * 1024} // 10MB
+          >
+            <FileUploadDropzone>
+              <div className="flex flex-col items-center gap-2">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+                <div className="text-center">
+                  <p className="font-medium text-sm">
+                    {t('testObjects.form.dropzone_pdf_title')}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {t('testObjects.form.dropzone_pdf_description')}
+                  </p>
+                </div>
+                <FileUploadTrigger asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    {t('testObjects.form.select_files')}
+                  </Button>
+                </FileUploadTrigger>
+              </div>
+            </FileUploadDropzone>
+
+            {pdfs.length > 0 && (
+              <Sortable
+                value={pdfs}
+                onValueChange={setPdfs}
+                getItemValue={(file) => file.name + file.size}
+              >
+                <SortableContent>
+                  <FileUploadList>
+                    {pdfs.map((file) => (
+                      <SortableItem
+                        key={file.name + file.size}
+                        value={file.name + file.size}
+                        asChild
+                      >
+                        <FileUploadItem value={file}>
+                          <SortableItemHandle asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
+                            >
+                              <GripVertical className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </SortableItemHandle>
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                          <FileUploadItemDelete asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </FileUploadItemDelete>
+                        </FileUploadItem>
+                      </SortableItem>
+                    ))}
+                  </FileUploadList>
+                </SortableContent>
+                <SortableOverlay>
+                  {({ value }) => {
+                    const file = pdfs.find(
+                      (f) => f.name + f.size === value
+                    );
+                    return file ? (
+                      <FileUploadItem value={file} className="opacity-50">
+                        <FileUploadItemPreview />
+                        <FileUploadItemMetadata />
+                      </FileUploadItem>
+                    ) : null;
+                  }}
+                </SortableOverlay>
+              </Sortable>
+            )}
+          </FileUpload>
+        </div>
       </form>
     </Form>
   );
