@@ -15,10 +15,39 @@ import {
   DialogTrigger,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from '@/components/ui/carousel';
 
 // Thumbnail component with preview dialog
-function ThumbnailPreview({ url, title }: { url: string | null; title: string }) {
-  if (!url) {
+function ThumbnailPreview({
+  images,
+  title
+}: {
+  images: Array<{ id: string; url: string; order: number }>;
+  title: string;
+}) {
+  const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
+  const [current, setCurrent] = React.useState(0);
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!carouselApi) return;
+
+    setCount(carouselApi.scrollSnapList().length);
+    setCurrent(carouselApi.selectedScrollSnap() + 1);
+
+    carouselApi.on('select', () => {
+      setCurrent(carouselApi.selectedScrollSnap() + 1);
+    });
+  }, [carouselApi]);
+
+  if (!images || images.length === 0) {
     return (
       <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
         <ImageIcon className="h-5 w-5 text-muted-foreground" />
@@ -26,12 +55,14 @@ function ThumbnailPreview({ url, title }: { url: string | null; title: string })
     );
   }
 
+  const thumbnailUrl = images[0].url;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
           <Image
-            src={url}
+            src={thumbnailUrl}
             alt={title}
             width={48}
             height={48}
@@ -40,18 +71,46 @@ function ThumbnailPreview({ url, title }: { url: string | null; title: string })
           />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className="flex items-center justify-center">
-          <Image
-            src={url}
-            alt={title}
-            width={600}
-            height={600}
-            className="rounded-md object-contain max-h-[70vh]"
-            unoptimized
-          />
-        </div>
+        {images.length === 1 ? (
+          <div className="flex items-center justify-center">
+            <Image
+              src={images[0].url}
+              alt={title}
+              width={800}
+              height={800}
+              className="rounded-md object-contain max-h-[70vh]"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <Carousel setApi={setCarouselApi} className="w-full">
+              <CarouselContent>
+                {images.map((image, index) => (
+                  <CarouselItem key={image.id}>
+                    <div className="flex items-center justify-center">
+                      <Image
+                        src={image.url}
+                        alt={`${title} - Bild ${index + 1}`}
+                        width={800}
+                        height={800}
+                        className="rounded-md object-contain max-h-[70vh]"
+                        unoptimized
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+            <div className="text-center text-sm text-muted-foreground">
+              Bild {current} von {count}
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -102,10 +161,10 @@ export function getColumns(
         />
       ),
       cell: ({ row }) => {
-        const thumbnailUrl = row.getValue('thumbnail') as string | null;
+        const images = row.original.images;
         const title = row.getValue('title') as string;
 
-        return <ThumbnailPreview url={thumbnailUrl} title={title} />;
+        return <ThumbnailPreview images={images} title={title} />;
       },
       enableSorting: false,
       enableHiding: true,
