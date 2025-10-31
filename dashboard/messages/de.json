@@ -27,7 +27,9 @@
     "reset": "Zurücksetzen",
     "clear": "Löschen",
     "save": "Speichern",
-    "search": "Suche..."
+    "search": "Suche...",
+    "cancel": "Abbrechen",
+    "delete": "Löschen"
   },
 
   "deleteDialog": {
@@ -202,7 +204,17 @@
       "documentNameUpdated": "Dokumentname erfolgreich aktualisiert",
       "documentNameError": "Fehler beim Aktualisieren des Dokumentnamens",
       "orderUpdated": "Reihenfolge erfolgreich aktualisiert",
-      "orderUpdateError": "Fehler beim Aktualisieren der Reihenfolge"
+      "orderUpdateError": "Fehler beim Aktualisieren der Reihenfolge",
+      "uploadNewFiles": "Weitere Dateien hochladen",
+      "filesSelected": "Datei(en) ausgewählt",
+      "uploading": "Wird hochgeladen...",
+      "upload": "Hochladen",
+      "uploadSuccess": "Dateien erfolgreich hochgeladen",
+      "uploadError": "Fehler beim Hochladen der Dateien",
+      "deleteTitle": "Datei löschen?",
+      "deleteDescription": "Möchten Sie '{name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteSuccess": "Datei erfolgreich gelöscht",
+      "deleteError": "Fehler beim Löschen der Datei"
     }
   },
 

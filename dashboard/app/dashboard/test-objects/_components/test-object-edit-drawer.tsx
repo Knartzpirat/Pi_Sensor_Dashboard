@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, FileText, Image as ImageIcon, GripVertical } from 'lucide-react';
+import { Loader2, FileText, Image as ImageIcon, GripVertical, Upload, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
 import {
@@ -27,7 +27,35 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Sortable } from '@/components/ui/sortable';
+import {
+  Sortable,
+  SortableContent,
+  SortableItem,
+  SortableItemHandle,
+  SortableOverlay,
+} from '@/components/ui/sortable';
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadTrigger,
+} from '@/components/ui/file-upload';
+import { Button } from '@/components/ui/button';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 interface Picture {
@@ -77,6 +105,9 @@ export function TestObjectEditDrawer({
   const [pictures, setPictures] = React.useState<Picture[]>([]);
   const [documents, setDocuments] = React.useState<Document[]>([]);
   const [labels, setLabels] = React.useState<Label[]>([]);
+  const [newFiles, setNewFiles] = React.useState<File[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [deleteItem, setDeleteItem] = React.useState<{ type: 'picture' | 'document'; id: string; name: string } | null>(null);
 
   // Load test object data
   React.useEffect(() => {
@@ -255,7 +286,98 @@ export function TestObjectEditDrawer({
     }
   };
 
+  const handleUploadNewFiles = async () => {
+    if (!testObjectId || newFiles.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('entityId', testObjectId);
+      formData.append('entityType', 'TEST_OBJECT');
+
+      // Separate images and documents
+      const images = newFiles.filter((file) => file.type.startsWith('image/'));
+      const docs = newFiles.filter((file) => file.type === 'application/pdf');
+
+      // Add images with order
+      images.forEach((file, index) => {
+        formData.append('images', file);
+        formData.append(`imageOrder_${index}`, (pictures.length + index).toString());
+      });
+
+      // Add documents with order
+      docs.forEach((file, index) => {
+        formData.append('documents', file);
+        formData.append(`documentOrder_${index}`, (documents.length + index).toString());
+      });
+
+      const response = await fetch('/api/uploads', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload files');
+
+      const result = await response.json();
+
+      // Update local state with new files
+      if (result.pictures) {
+        setPictures((prev) => [...prev, ...result.pictures]);
+      }
+      if (result.documents) {
+        setDocuments((prev) => [...prev, ...result.documents]);
+      }
+
+      toast.success(t('testObjects.edit.uploadSuccess'));
+      setNewFiles([]);
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      toast.error(t('testObjects.edit.uploadError'));
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Reset new files when drawer closes
+  React.useEffect(() => {
+    if (!open) {
+      setNewFiles([]);
+    }
+  }, [open]);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteItem) return;
+
+    try {
+      const endpoint = deleteItem.type === 'picture'
+        ? `/api/pictures/${deleteItem.id}`
+        : `/api/documents/${deleteItem.id}`;
+
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete');
+
+      // Update local state
+      if (deleteItem.type === 'picture') {
+        setPictures((prev) => prev.filter((p) => p.id !== deleteItem.id));
+      } else {
+        setDocuments((prev) => prev.filter((d) => d.id !== deleteItem.id));
+      }
+
+      toast.success(t('testObjects.edit.deleteSuccess'));
+      setDeleteItem(null);
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast.error(t('testObjects.edit.deleteError'));
+    }
+  };
+
   return (
+    <>
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
@@ -269,73 +391,6 @@ export function TestObjectEditDrawer({
           </div>
         ) : (
           <div className="space-y-6 py-6">
-            {/* Images Section */}
-            {pictures.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <ImageIcon className="h-4 w-4" />
-                    {t('testObjects.form.images')} ({pictures.length})
-                  </h3>
-                <Sortable value={pictures} onValueChange={handlePicturesReorder} getItemValue={(pic) => pic.id}>
-                  <div className="grid grid-cols-4 gap-2">
-                    {pictures.map((picture) => (
-                      <div key={picture.id} className="relative aspect-square group">
-                        <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="p-1 bg-black/50 rounded cursor-grab active:cursor-grabbing">
-                            <GripVertical className="h-4 w-4 text-white" />
-                          </div>
-                        </div>
-                        <Image
-                          src={picture.url}
-                          alt={picture.originalName}
-                          fill
-                          className="rounded-md object-cover"
-                          unoptimized
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </Sortable>
-                </div>
-            )}
-
-            {/* Documents Section */}
-            {documents.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <FileText className="h-4 w-4" />
-                    {t('testObjects.form.documents')} ({documents.length})
-                  </h3>
-                <Sortable value={documents} onValueChange={handleDocumentsReorder} getItemValue={(doc) => doc.id}>
-                  <div className="space-y-2">
-                    {documents.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center gap-2 rounded-md border p-2 group"
-                      >
-                        <div className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
-                          <GripVertical className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <Editable
-                          value={doc.originalName}
-                          onSubmit={(value) => handleDocumentNameChange(doc.id, value)}
-                          className="flex-1"
-                        >
-                          <EditableArea className="w-full">
-                            <EditablePreview className="w-full" />
-                            <EditableInput className="w-full" />
-                          </EditableArea>
-                        </Editable>
-                      </div>
-                    ))}
-                  </div>
-                </Sortable>
-                </div>
-            )}
-
-            {(pictures.length > 0 || documents.length > 0) && <Separator />}
-
             {/* Basic Info Section */}
             <div className="space-y-4">
               <Editable
@@ -391,9 +446,234 @@ export function TestObjectEditDrawer({
                 </Select>
               </div>
             </div>
+
+            {(pictures.length > 0 || documents.length > 0) && <Separator />}
+
+            {/* Images Section */}
+            {pictures.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-sm font-medium">
+                    <ImageIcon className="h-4 w-4" />
+                    {t('testObjects.form.images')} ({pictures.length})
+                  </h3>
+                <Sortable value={pictures} onValueChange={handlePicturesReorder} getItemValue={(pic) => pic.id} orientation="mixed">
+                  <SortableContent className="grid grid-cols-4 gap-2">
+                    {pictures.map((picture) => (
+                      <SortableItem key={picture.id} value={picture.id} asChild>
+                        <ContextMenu>
+                          <ContextMenuTrigger asChild>
+                            <div className="relative aspect-square group">
+                              <SortableItemHandle asChild>
+                                <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+                                  <div className="p-1 bg-black/50 rounded">
+                                    <GripVertical className="h-4 w-4 text-white" />
+                                  </div>
+                                </div>
+                              </SortableItemHandle>
+                              <Image
+                                src={picture.url}
+                                alt={picture.originalName}
+                                fill
+                                className="rounded-md object-cover"
+                                unoptimized
+                              />
+                            </div>
+                          </ContextMenuTrigger>
+                          <ContextMenuContent>
+                            <ContextMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteItem({ type: 'picture', id: picture.id, name: picture.originalName })}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              {t('common.delete')}
+                            </ContextMenuItem>
+                          </ContextMenuContent>
+                        </ContextMenu>
+                      </SortableItem>
+                    ))}
+                  </SortableContent>
+                  <SortableOverlay>
+                    {({ value }) => {
+                      const picture = pictures.find((p) => p.id === value);
+                      return picture ? (
+                        <div className="relative aspect-square w-24 h-24 opacity-50">
+                          <Image
+                            src={picture.url}
+                            alt={picture.originalName}
+                            fill
+                            className="rounded-md object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null;
+                    }}
+                  </SortableOverlay>
+                </Sortable>
+                </div>
+            )}
+
+            {/* Documents Section */}
+            {documents.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-sm font-medium">
+                    <FileText className="h-4 w-4" />
+                    {t('testObjects.form.documents')} ({documents.length})
+                  </h3>
+                <Sortable value={documents} onValueChange={handleDocumentsReorder} getItemValue={(doc) => doc.id}>
+                  <SortableContent className="space-y-2">
+                    {documents.map((doc) => (
+                      <SortableItem
+                        key={doc.id}
+                        value={doc.id}
+                        asChild
+                      >
+                        <ContextMenu>
+                          <ContextMenuTrigger asChild>
+                            <div className="flex items-center gap-2 rounded-md border p-2 group">
+                              <SortableItemHandle asChild>
+                                <div className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </SortableItemHandle>
+                              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                              <Editable
+                                value={doc.originalName}
+                                onSubmit={(value) => handleDocumentNameChange(doc.id, value)}
+                                className="flex-1"
+                              >
+                                <EditableArea className="w-full">
+                                  <EditablePreview className="w-full" />
+                                  <EditableInput className="w-full" />
+                                </EditableArea>
+                              </Editable>
+                            </div>
+                          </ContextMenuTrigger>
+                          <ContextMenuContent>
+                            <ContextMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteItem({ type: 'document', id: doc.id, name: doc.originalName })}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              {t('common.delete')}
+                            </ContextMenuItem>
+                          </ContextMenuContent>
+                        </ContextMenu>
+                      </SortableItem>
+                    ))}
+                  </SortableContent>
+                  <SortableOverlay>
+                    {({ value }) => {
+                      const doc = documents.find((d) => d.id === value);
+                      return doc ? (
+                        <div className="flex items-center gap-2 rounded-md border p-2 bg-background opacity-50">
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="text-sm">{doc.originalName}</span>
+                        </div>
+                      ) : null;
+                    }}
+                  </SortableOverlay>
+                </Sortable>
+                </div>
+            )}
+
+            {/* Upload New Files Section */}
+            <div className="space-y-3">
+              <h3 className="flex items-center gap-2 text-sm font-medium">
+                <Upload className="h-4 w-4" />
+                {t('testObjects.edit.uploadNewFiles')}
+              </h3>
+              <FileUpload
+                value={newFiles}
+                onValueChange={setNewFiles}
+                accept="image/*,application/pdf"
+                multiple
+                maxFiles={20}
+                maxSize={10 * 1024 * 1024}
+              >
+                <FileUploadDropzone>
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      <FileText className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">
+                        {t('testObjects.form.dropzone_combined_title')}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {t('testObjects.form.dropzone_combined_description')}
+                      </p>
+                    </div>
+                    <FileUploadTrigger asChild>
+                      <Button type="button" variant="outline" size="sm">
+                        {t('testObjects.form.select_files')}
+                      </Button>
+                    </FileUploadTrigger>
+                  </div>
+                </FileUploadDropzone>
+              </FileUpload>
+
+              {newFiles.length > 0 && (
+                <div className="flex items-center justify-between p-3 bg-muted rounded-md">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      {newFiles.length} {t('testObjects.edit.filesSelected')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setNewFiles([])}
+                      disabled={isUploading}
+                    >
+                      {t('common.cancel')}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleUploadNewFiles}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {t('testObjects.edit.uploading')}
+                        </>
+                      ) : (
+                        t('testObjects.edit.upload')
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </SheetContent>
     </Sheet>
+
+    <AlertDialog open={!!deleteItem} onOpenChange={() => setDeleteItem(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('testObjects.edit.deleteTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('testObjects.edit.deleteDescription', { name: deleteItem?.name || '' })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {t('common.delete')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }
