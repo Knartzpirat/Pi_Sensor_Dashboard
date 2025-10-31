@@ -82,6 +82,7 @@ function DescriptionTextarea({
   const [isEditing, setIsEditing] = React.useState(false);
   const [localValue, setLocalValue] = React.useState(value);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   React.useEffect(() => {
     setLocalValue(value);
@@ -96,16 +97,45 @@ function DescriptionTextarea({
     }
   }, [isEditing]);
 
-  const handleSave = () => {
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSave = React.useCallback(() => {
     if (localValue !== value) {
       onSubmit(localValue);
     }
     setIsEditing(false);
-  };
+  }, [localValue, value, onSubmit]);
 
   const handleCancel = () => {
     setLocalValue(value);
     setIsEditing(false);
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout to save after 1 second of no typing
+    saveTimeoutRef.current = setTimeout(() => {
+      if (newValue !== value) {
+        onSubmit(newValue);
+      }
+    }, 1000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -131,7 +161,7 @@ function DescriptionTextarea({
       <Textarea
         ref={textareaRef}
         value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
+        onChange={handleChange}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
