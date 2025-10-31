@@ -7,7 +7,8 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import type { TestObjectsTableData } from '@/types/test-object';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
-import { Tag, ImageIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tag, ImageIcon, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import {
   Dialog,
@@ -24,6 +25,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import AutoHeight from 'embla-carousel-auto-height';
+import { TestObjectEditDrawer } from './test-object-edit-drawer';
 
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
@@ -325,6 +327,32 @@ export function getColumns(
         label: t('testObjects.table.updatedAt'),
         variant: 'date',
       },
+    },
+    {
+      id: 'actions',
+      cell: function Cell({ row }) {
+        const [isEditDrawerOpen, setIsEditDrawerOpen] = React.useState(false);
+
+        return (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditDrawerOpen(true)}
+            >
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
+            </Button>
+            <TestObjectEditDrawer
+              testObjectId={row.original.id}
+              open={isEditDrawerOpen}
+              onOpenChange={setIsEditDrawerOpen}
+            />
+          </>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
     },
   ];
 }
