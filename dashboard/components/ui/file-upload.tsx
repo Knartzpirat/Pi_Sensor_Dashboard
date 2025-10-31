@@ -48,10 +48,11 @@ interface FileState {
   progress: number;
   error?: string;
   status: "idle" | "uploading" | "error" | "success";
+  id: string; // Unique identifier for the file
 }
 
 interface StoreState {
-  files: Map<File, FileState>;
+  files: Map<string, FileState>; // Changed from Map<File, FileState> to Map<string, FileState>
   dragOver: boolean;
   invalid: boolean;
 }
@@ -59,17 +60,17 @@ interface StoreState {
 type StoreAction =
   | { type: "ADD_FILES"; files: File[] }
   | { type: "SET_FILES"; files: File[] }
-  | { type: "SET_PROGRESS"; file: File; progress: number }
-  | { type: "SET_SUCCESS"; file: File }
-  | { type: "SET_ERROR"; file: File; error: string }
-  | { type: "REMOVE_FILE"; file: File }
+  | { type: "SET_PROGRESS"; fileId: string; progress: number }
+  | { type: "SET_SUCCESS"; fileId: string }
+  | { type: "SET_ERROR"; fileId: string; error: string }
+  | { type: "REMOVE_FILE"; fileId: string }
   | { type: "SET_DRAG_OVER"; dragOver: boolean }
   | { type: "SET_INVALID"; invalid: boolean }
   | { type: "CLEAR" };
 
 function createStore(
   listeners: Set<() => void>,
-  files: Map<File, FileState>,
+  files: Map<string, FileState>,
   urlCache: WeakMap<File, string>,
   invalid: boolean,
   onValueChange?: (files: File[]) => void,
@@ -84,10 +85,13 @@ function createStore(
     switch (action.type) {
       case "ADD_FILES": {
         for (const file of action.files) {
-          files.set(file, {
+          // Generate unique ID for each file (timestamp + random + filename)
+          const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${file.name}`;
+          files.set(id, {
             file,
             progress: 0,
             status: "idle",
+            id,
           });
         }
 
@@ -101,30 +105,26 @@ function createStore(
       }
 
       case "SET_FILES": {
-        const newFileSet = new Set(action.files);
-        for (const existingFile of files.keys()) {
-          if (!newFileSet.has(existingFile)) {
-            files.delete(existingFile);
-          }
-        }
+        // Clear all existing files
+        files.clear();
 
+        // Add all new files with unique IDs
         for (const file of action.files) {
-          const existingState = files.get(file);
-          if (!existingState) {
-            files.set(file, {
-              file,
-              progress: 0,
-              status: "idle",
-            });
-          }
+          const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${file.name}`;
+          files.set(id, {
+            file,
+            progress: 0,
+            status: "idle",
+            id,
+          });
         }
         return { ...state, files };
       }
 
       case "SET_PROGRESS": {
-        const fileState = files.get(action.file);
+        const fileState = files.get(action.fileId);
         if (fileState) {
-          files.set(action.file, {
+          files.set(action.fileId, {
             ...fileState,
             progress: action.progress,
             status: "uploading",
@@ -134,9 +134,9 @@ function createStore(
       }
 
       case "SET_SUCCESS": {
-        const fileState = files.get(action.file);
+        const fileState = files.get(action.fileId);
         if (fileState) {
-          files.set(action.file, {
+          files.set(action.fileId, {
             ...fileState,
             progress: 100,
             status: "success",
@@ -146,9 +146,9 @@ function createStore(
       }
 
       case "SET_ERROR": {
-        const fileState = files.get(action.file);
+        const fileState = files.get(action.fileId);
         if (fileState) {
-          files.set(action.file, {
+          files.set(action.fileId, {
             ...fileState,
             error: action.error,
             status: "error",
@@ -158,15 +158,16 @@ function createStore(
       }
 
       case "REMOVE_FILE": {
-        if (urlCache) {
-          const cachedUrl = urlCache.get(action.file);
+        const fileState = files.get(action.fileId);
+        if (fileState && urlCache) {
+          const cachedUrl = urlCache.get(fileState.file);
           if (cachedUrl) {
             URL.revokeObjectURL(cachedUrl);
-            urlCache.delete(action.file);
+            urlCache.delete(fileState.file);
           }
         }
 
-        files.delete(action.file);
+        files.delete(action.fileId);
 
         if (onValueChange) {
           const fileList = Array.from(files.values()).map(
@@ -187,11 +188,11 @@ function createStore(
 
       case "CLEAR": {
         if (urlCache) {
-          for (const file of files.keys()) {
-            const cachedUrl = urlCache.get(file);
+          for (const fileState of files.values()) {
+            const cachedUrl = urlCache.get(fileState.file);
             if (cachedUrl) {
               URL.revokeObjectURL(cachedUrl);
-              urlCache.delete(file);
+              urlCache.delete(fileState.file);
             }
           }
         }
@@ -348,7 +349,7 @@ function FileUploadRoot(props: FileUploadRootProps) {
 
   const dir = useDirection(dirProp);
   const listeners = useLazyRef(() => new Set<() => void>()).current;
-  const files = useLazyRef<Map<File, FileState>>(() => new Map()).current;
+  const files = useLazyRef<Map<string, FileState>>(() => new Map()).current;
   const urlCache = useLazyRef(() => new WeakMap<File, string>()).current;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const isControlled = value !== undefined;
@@ -369,11 +370,17 @@ function FileUploadRoot(props: FileUploadRootProps) {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        store.dispatch({
-          type: "SET_PROGRESS",
-          file,
-          progress: Math.min(Math.max(0, progress), 100),
-        });
+        // Find the file ID for this file
+        const fileId = Array.from(files.entries()).find(
+          ([_, state]) => state.file === file
+        )?.[0];
+        if (fileId) {
+          store.dispatch({
+            type: "SET_PROGRESS",
+            fileId,
+            progress: Math.min(Math.max(0, progress), 100),
+          });
+        }
       });
     };
   }).current;
@@ -392,8 +399,8 @@ function FileUploadRoot(props: FileUploadRootProps) {
 
   React.useEffect(() => {
     return () => {
-      for (const file of files.keys()) {
-        const cachedUrl = urlCache.get(file);
+      for (const fileState of files.values()) {
+        const cachedUrl = urlCache.get(fileState.file);
         if (cachedUrl) {
           URL.revokeObjectURL(cachedUrl);
         }
@@ -402,44 +409,70 @@ function FileUploadRoot(props: FileUploadRootProps) {
   }, [files, urlCache]);
 
   const onFilesUpload = React.useCallback(
-    async (files: File[]) => {
+    async (filesToUpload: File[]) => {
       try {
-        for (const file of files) {
-          store.dispatch({ type: "SET_PROGRESS", file, progress: 0 });
+        // Set initial progress for all files
+        for (const file of filesToUpload) {
+          const fileId = Array.from(files.entries()).find(
+            ([_, state]) => state.file === file
+          )?.[0];
+          if (fileId) {
+            store.dispatch({ type: "SET_PROGRESS", fileId, progress: 0 });
+          }
         }
 
         if (onUpload) {
-          await onUpload(files, {
+          await onUpload(filesToUpload, {
             onProgress,
             onSuccess: (file) => {
-              store.dispatch({ type: "SET_SUCCESS", file });
+              const fileId = Array.from(files.entries()).find(
+                ([_, state]) => state.file === file
+              )?.[0];
+              if (fileId) {
+                store.dispatch({ type: "SET_SUCCESS", fileId });
+              }
             },
             onError: (file, error) => {
-              store.dispatch({
-                type: "SET_ERROR",
-                file,
-                error: error.message ?? "Upload failed",
-              });
+              const fileId = Array.from(files.entries()).find(
+                ([_, state]) => state.file === file
+              )?.[0];
+              if (fileId) {
+                store.dispatch({
+                  type: "SET_ERROR",
+                  fileId,
+                  error: error.message ?? "Upload failed",
+                });
+              }
             },
           });
         } else {
-          for (const file of files) {
-            store.dispatch({ type: "SET_SUCCESS", file });
+          for (const file of filesToUpload) {
+            const fileId = Array.from(files.entries()).find(
+              ([_, state]) => state.file === file
+            )?.[0];
+            if (fileId) {
+              store.dispatch({ type: "SET_SUCCESS", fileId });
+            }
           }
         }
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Upload failed";
-        for (const file of files) {
-          store.dispatch({
-            type: "SET_ERROR",
-            file,
-            error: errorMessage,
-          });
+        for (const file of filesToUpload) {
+          const fileId = Array.from(files.entries()).find(
+            ([_, state]) => state.file === file
+          )?.[0];
+          if (fileId) {
+            store.dispatch({
+              type: "SET_ERROR",
+              fileId,
+              error: errorMessage,
+            });
+          }
         }
       }
     },
-    [store, onUpload, onProgress],
+    [store, onUpload, onProgress, files],
   );
 
   const onFilesChange = React.useCallback(
@@ -942,11 +975,17 @@ function FileUploadItem(props: FileUploadItemProps) {
   const messageId = `${id}-message`;
 
   const context = useFileUploadContext(ITEM_NAME);
-  const fileState = useStore((state) => state.files.get(value));
+  const fileState = useStore((state) => {
+    // Find the file state by matching the file object
+    const entry = Array.from(state.files.entries()).find(
+      ([_, fileState]) => fileState.file === value
+    );
+    return entry?.[1];
+  });
   const fileCount = useStore((state) => state.files.size);
   const fileIndex = useStore((state) => {
-    const files = Array.from(state.files.keys());
-    return files.indexOf(value) + 1;
+    const filesArray = Array.from(state.files.values());
+    return filesArray.findIndex(fs => fs.file === value) + 1;
   });
 
   const itemContext = React.useMemo(
@@ -1334,7 +1373,7 @@ function FileUploadItemDelete(props: FileUploadItemDeleteProps) {
 
       store.dispatch({
         type: "REMOVE_FILE",
-        file: itemContext.fileState.file,
+        fileId: itemContext.fileState.id,
       });
     },
     [store, itemContext.fileState, onClickProp],
