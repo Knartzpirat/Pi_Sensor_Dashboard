@@ -15,6 +15,7 @@ import Image from 'next/image';
 
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 import {
   Sortable,
@@ -67,6 +68,108 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+
+// Textarea component that looks like text until clicked
+function DescriptionTextarea({
+  value,
+  onSubmit,
+  placeholder,
+}: {
+  value: string;
+  onSubmit: (value: string) => void;
+  placeholder?: string;
+}) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [localValue, setLocalValue] = React.useState(value);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout>();
+
+  React.useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  React.useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      // Set cursor to end
+      const len = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(len, len);
+    }
+  }, [isEditing]);
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSave = React.useCallback(() => {
+    if (localValue !== value) {
+      onSubmit(localValue);
+    }
+    setIsEditing(false);
+  }, [localValue, value, onSubmit]);
+
+  const handleCancel = () => {
+    setLocalValue(value);
+    setIsEditing(false);
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout to save after 1 second of no typing
+    saveTimeoutRef.current = setTimeout(() => {
+      if (newValue !== value) {
+        onSubmit(newValue);
+      }
+    }, 1000);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Escape') {
+      handleCancel();
+    }
+    // Don't submit on Enter, allow newlines
+  };
+
+  if (!isEditing) {
+    return (
+      <div
+        onClick={() => setIsEditing(true)}
+        className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text hover:border-ring transition-colors whitespace-pre-wrap"
+      >
+        {value || <span className="text-muted-foreground">{placeholder}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Textarea
+        ref={textareaRef}
+        value={localValue}
+        onChange={handleChange}
+        onBlur={handleSave}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className="min-h-[80px] resize-y"
+      />
+    </div>
+  );
+}
 
 interface Picture {
   id: string;
@@ -457,19 +560,16 @@ export function TestObjectEditDrawer({
                   </EditableArea>
                 </Editable>
 
-                <Editable
-                  value={testObject?.description || ''}
-                  onSubmit={handleDescriptionChange}
-                  placeholder={t('testObjects.table.description_placeholder')}
-                >
-                  <EditableLabel>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
                     {t('testObjects.table.description')}
-                  </EditableLabel>
-                  <EditableArea>
-                    <EditablePreview />
-                    <EditableInput />
-                  </EditableArea>
-                </Editable>
+                  </label>
+                  <DescriptionTextarea
+                    value={testObject?.description || ''}
+                    onSubmit={handleDescriptionChange}
+                    placeholder={t('testObjects.table.description_placeholder')}
+                  />
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">

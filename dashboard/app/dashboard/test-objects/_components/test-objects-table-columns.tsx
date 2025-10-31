@@ -26,6 +26,12 @@ import {
 } from '@/components/ui/carousel';
 import AutoHeight from 'embla-carousel-auto-height';
 import { TestObjectEditDrawer } from './test-object-edit-drawer';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { useRouter } from 'next/navigation';
 
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
@@ -235,10 +241,35 @@ export function getColumns(
           label={t('testObjects.table.description')}
         />
       ),
-      cell: ({ row }) => {
+      cell: function DescriptionCell({ row }) {
         const description = row.getValue('description') as string | null;
+
+        if (!description) {
+          return <div className="text-muted-foreground">-</div>;
+        }
+
+        const shouldTruncate = description.length > 50;
+
+        if (!shouldTruncate) {
+          return <div className="max-w-[300px]">{description}</div>;
+        }
+
         return (
-          <div className="max-w-[300px] truncate">{description || '-'}</div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="max-w-[300px] truncate text-left hover:text-primary transition-colors cursor-pointer text-sm"
+                type="button"
+              >
+                {description}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-96 max-w-[500px]" align="start">
+              <div className="whitespace-pre-wrap break-words text-sm">
+                {description}
+              </div>
+            </PopoverContent>
+          </Popover>
         );
       },
       enableColumnFilter: false,
@@ -333,8 +364,24 @@ export function getColumns(
     },
     {
       id: 'actions',
-      cell: function Cell({ row }) {
+      cell: function Cell({ row, table }) {
         const [isEditDrawerOpen, setIsEditDrawerOpen] = React.useState(false);
+        const router = useRouter();
+        const hasChangesRef = React.useRef(false);
+
+        const handleSuccess = React.useCallback(() => {
+          // Mark that changes were made
+          hasChangesRef.current = true;
+        }, []);
+
+        const handleOpenChange = React.useCallback((open: boolean) => {
+          setIsEditDrawerOpen(open);
+          // When drawer closes, refresh if there were changes
+          if (!open && hasChangesRef.current) {
+            router.refresh();
+            hasChangesRef.current = false;
+          }
+        }, [router]);
 
         return (
           <>
@@ -349,7 +396,8 @@ export function getColumns(
             <TestObjectEditDrawer
               testObjectId={row.original.id}
               open={isEditDrawerOpen}
-              onOpenChange={setIsEditDrawerOpen}
+              onOpenChange={handleOpenChange}
+              onSuccess={handleSuccess}
             />
           </>
         );
