@@ -23,6 +23,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
+import AutoHeight from 'embla-carousel-auto-height';
 
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
@@ -86,7 +87,11 @@ function ThumbnailPreview({
           </div>
         ) : (
           <div className="space-y-4">
-            <Carousel setApi={setCarouselApi} className="w-full">
+            <Carousel
+              setApi={setCarouselApi}
+              className="w-full"
+              plugins={[AutoHeight()]}
+            >
               <CarouselContent>
                 {images.map((image, index) => (
                   <CarouselItem key={image.id}>
@@ -96,7 +101,7 @@ function ThumbnailPreview({
                         alt={`${title} - Bild ${index + 1}`}
                         width={800}
                         height={800}
-                        className="rounded-md object-contain max-h-[70vh]"
+                        className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
                         unoptimized
                       />
                     </div>
