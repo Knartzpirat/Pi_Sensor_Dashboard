@@ -3,27 +3,30 @@ import { getPrismaClient } from '@/lib/prisma';
 
 const prisma = getPrismaClient();
 
-// PATCH - Update document name
+// PATCH - Update document name or order
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const { originalName } = await request.json();
+    const body = await request.json();
+    const { originalName, order } = body;
 
-    if (!originalName || typeof originalName !== 'string') {
+    if (!originalName && order === undefined) {
       return NextResponse.json(
-        { error: 'originalName is required and must be a string' },
+        { error: 'originalName or order is required' },
         { status: 400 }
       );
     }
 
+    const updateData: { originalName?: string; order?: number } = {};
+    if (originalName) updateData.originalName = originalName;
+    if (order !== undefined) updateData.order = order;
+
     const document = await prisma.document.update({
       where: { id },
-      data: {
-        originalName,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(document);

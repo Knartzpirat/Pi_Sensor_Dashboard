@@ -32,24 +32,29 @@ export async function GET(
   }
 }
 
-// PATCH - Bild umbenennen
+// PATCH - Bild umbenennen oder Order ändern
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { originalName } = await request.json();
+    const body = await request.json();
+    const { originalName, order } = body;
 
-    if (!originalName) {
+    if (!originalName && order === undefined) {
       return NextResponse.json(
-        { error: 'originalName is required' },
+        { error: 'originalName or order is required' },
         { status: 400 }
       );
     }
 
+    const updateData: { originalName?: string; order?: number } = {};
+    if (originalName) updateData.originalName = originalName;
+    if (order !== undefined) updateData.order = order;
+
     const picture = await prisma.picture.update({
       where: { id: params.id },
-      data: { originalName },
+      data: updateData,
     });
 
     return NextResponse.json(picture);

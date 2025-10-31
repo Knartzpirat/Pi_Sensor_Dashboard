@@ -200,7 +200,9 @@
       "error": "Fehler beim Aktualisieren des Testobjekts",
       "loadError": "Fehler beim Laden des Testobjekts",
       "documentNameUpdated": "Dokumentname erfolgreich aktualisiert",
-      "documentNameError": "Fehler beim Aktualisieren des Dokumentnamens"
+      "documentNameError": "Fehler beim Aktualisieren des Dokumentnamens",
+      "orderUpdated": "Reihenfolge erfolgreich aktualisiert",
+      "orderUpdateError": "Fehler beim Aktualisieren der Reihenfolge"
     }
   },
 

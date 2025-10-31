@@ -2,10 +2,7 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { Loader2, Pencil, FileText, Image as ImageIcon, X } from 'lucide-react';
+import { Loader2, FileText, Image as ImageIcon, GripVertical } from 'lucide-react';
 import Image from 'next/image';
 
 import {
@@ -14,20 +11,14 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-  SheetFooter,
 } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+  Editable,
+  EditableArea,
+  EditableInput,
+  EditablePreview,
+  EditableLabel,
+} from '@/components/ui/editable';
 import {
   Select,
   SelectContent,
@@ -36,15 +27,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Sortable } from '@/components/ui/sortable';
 import { toast } from 'sonner';
-
-const testObjectFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  labelId: z.string().optional(),
-});
-
-type TestObjectFormValues = z.infer<typeof testObjectFormSchema>;
 
 interface Picture {
   id: string;
@@ -89,22 +73,10 @@ export function TestObjectEditDrawer({
 }: TestObjectEditDrawerProps) {
   const t = useTranslations();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
   const [testObject, setTestObject] = React.useState<TestObject | null>(null);
   const [pictures, setPictures] = React.useState<Picture[]>([]);
   const [documents, setDocuments] = React.useState<Document[]>([]);
   const [labels, setLabels] = React.useState<Label[]>([]);
-  const [editingDocumentId, setEditingDocumentId] = React.useState<string | null>(null);
-  const [editingDocumentName, setEditingDocumentName] = React.useState('');
-
-  const form = useForm<TestObjectFormValues>({
-    resolver: zodResolver(testObjectFormSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      labelId: undefined,
-    },
-  });
 
   // Load test object data
   React.useEffect(() => {
@@ -129,13 +101,6 @@ export function TestObjectEditDrawer({
           const labelsData = await labelsRes.json();
           setLabels(labelsData);
         }
-
-        // Set form values
-        form.reset({
-          title: testObjectData.title,
-          description: testObjectData.description || '',
-          labelId: testObjectData.labelId || undefined,
-        });
       } catch (error) {
         console.error('Error loading test object:', error);
         toast.error(t('testObjects.edit.loadError'));
@@ -145,43 +110,92 @@ export function TestObjectEditDrawer({
     };
 
     loadData();
-  }, [open, testObjectId, form, t]);
+  }, [open, testObjectId, t]);
 
-  const onSubmit = async (data: TestObjectFormValues) => {
-    if (!testObjectId) return;
+  const handleTitleChange = async (newTitle: string) => {
+    if (!testObjectId || !newTitle.trim()) return;
 
-    setIsSaving(true);
     try {
       const response = await fetch(`/api/test-objects/${testObjectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          title: newTitle,
+          description: testObject?.description,
+          labelId: testObject?.labelId,
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to update test object');
+      if (!response.ok) throw new Error('Failed to update title');
 
+      setTestObject((prev) => prev ? { ...prev, title: newTitle } : null);
       toast.success(t('testObjects.edit.success'));
-      onOpenChange(false);
       onSuccess?.();
     } catch (error) {
-      console.error('Error updating test object:', error);
+      console.error('Error updating title:', error);
       toast.error(t('testObjects.edit.error'));
-    } finally {
-      setIsSaving(false);
     }
   };
 
-  const handleDocumentNameEdit = (doc: Document) => {
-    setEditingDocumentId(doc.id);
-    setEditingDocumentName(doc.originalName);
+  const handleDescriptionChange = async (newDescription: string) => {
+    if (!testObjectId) return;
+
+    try {
+      const response = await fetch(`/api/test-objects/${testObjectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: testObject?.title,
+          description: newDescription || null,
+          labelId: testObject?.labelId,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update description');
+
+      setTestObject((prev) => prev ? { ...prev, description: newDescription || null } : null);
+      toast.success(t('testObjects.edit.success'));
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error updating description:', error);
+      toast.error(t('testObjects.edit.error'));
+    }
   };
 
-  const handleDocumentNameSave = async (documentId: string) => {
+  const handleLabelChange = async (newLabelId: string) => {
+    if (!testObjectId) return;
+
+    try {
+      const response = await fetch(`/api/test-objects/${testObjectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: testObject?.title,
+          description: testObject?.description,
+          labelId: newLabelId || null,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update label');
+
+      const selectedLabel = labels.find((l) => l.id === newLabelId) || null;
+      setTestObject((prev) => prev ? { ...prev, labelId: newLabelId, label: selectedLabel } : null);
+      toast.success(t('testObjects.edit.success'));
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error updating label:', error);
+      toast.error(t('testObjects.edit.error'));
+    }
+  };
+
+  const handleDocumentNameChange = async (documentId: string, newName: string) => {
+    if (!newName.trim()) return;
+
     try {
       const response = await fetch(`/api/documents/${documentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalName: editingDocumentName }),
+        body: JSON.stringify({ originalName: newName }),
       });
 
       if (!response.ok) throw new Error('Failed to update document name');
@@ -190,11 +204,54 @@ export function TestObjectEditDrawer({
       setDocuments((prev) =>
         prev.map((doc) => (doc.id === documentId ? { ...doc, originalName: updatedDoc.originalName } : doc))
       );
-      setEditingDocumentId(null);
       toast.success(t('testObjects.edit.documentNameUpdated'));
     } catch (error) {
       console.error('Error updating document name:', error);
       toast.error(t('testObjects.edit.documentNameError'));
+    }
+  };
+
+  const handlePicturesReorder = async (newPictures: Picture[]) => {
+    setPictures(newPictures);
+
+    // Update order in database
+    try {
+      await Promise.all(
+        newPictures.map((pic, index) =>
+          fetch(`/api/pictures/${pic.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: index }),
+          })
+        )
+      );
+      toast.success(t('testObjects.edit.orderUpdated'));
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error updating picture order:', error);
+      toast.error(t('testObjects.edit.orderUpdateError'));
+    }
+  };
+
+  const handleDocumentsReorder = async (newDocuments: Document[]) => {
+    setDocuments(newDocuments);
+
+    // Update order in database
+    try {
+      await Promise.all(
+        newDocuments.map((doc, index) =>
+          fetch(`/api/documents/${doc.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: index }),
+          })
+        )
+      );
+      toast.success(t('testObjects.edit.orderUpdated'));
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error updating document order:', error);
+      toast.error(t('testObjects.edit.orderUpdateError'));
     }
   };
 
@@ -212,92 +269,22 @@ export function TestObjectEditDrawer({
           </div>
         ) : (
           <div className="space-y-6 py-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('testObjects.table.title')}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('testObjects.table.description')}</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} rows={3} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="labelId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('testObjects.table.label')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('testObjects.table.label_placeholder')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {labels.map((label) => (
-                            <SelectItem key={label.id} value={label.id}>
-                              <div className="flex items-center gap-2">
-                                {label.color && (
-                                  <div
-                                    className="h-3 w-3 rounded-full"
-                                    style={{ backgroundColor: label.color }}
-                                  />
-                                )}
-                                {label.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <SheetFooter className="gap-2">
-                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                    {t('buttons.cancel')}
-                  </Button>
-                  <Button type="submit" disabled={isSaving}>
-                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {t('common.save')}
-                  </Button>
-                </SheetFooter>
-              </form>
-            </Form>
-
+            {/* Images Section */}
             {pictures.length > 0 && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <ImageIcon className="h-4 w-4" />
-                    {t('testObjects.form.images')} ({pictures.length})
-                  </h3>
+              <div className="space-y-3">
+                <h3 className="flex items-center gap-2 text-sm font-medium">
+                  <ImageIcon className="h-4 w-4" />
+                  {t('testObjects.form.images')} ({pictures.length})
+                </h3>
+                <Sortable value={pictures} onValueChange={handlePicturesReorder}>
                   <div className="grid grid-cols-4 gap-2">
                     {pictures.map((picture) => (
-                      <div key={picture.id} className="relative aspect-square">
+                      <div key={picture.id} className="relative aspect-square group">
+                        <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="p-1 bg-black/50 rounded cursor-grab active:cursor-grabbing">
+                            <GripVertical className="h-4 w-4 text-white" />
+                          </div>
+                        </div>
                         <Image
                           src={picture.url}
                           alt={picture.originalName}
@@ -308,66 +295,102 @@ export function TestObjectEditDrawer({
                       </div>
                     ))}
                   </div>
-                </div>
-              </>
+                </Sortable>
+              </div>
             )}
 
+            {/* Documents Section */}
             {documents.length > 0 && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <FileText className="h-4 w-4" />
-                    {t('testObjects.form.documents')} ({documents.length})
-                  </h3>
+              <div className="space-y-3">
+                <h3 className="flex items-center gap-2 text-sm font-medium">
+                  <FileText className="h-4 w-4" />
+                  {t('testObjects.form.documents')} ({documents.length})
+                </h3>
+                <Sortable value={documents} onValueChange={handleDocumentsReorder}>
                   <div className="space-y-2">
                     {documents.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center gap-2 rounded-md border p-2"
+                        className="flex items-center gap-2 rounded-md border p-2 group"
                       >
+                        <div className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                          <GripVertical className="h-4 w-4 text-muted-foreground" />
+                        </div>
                         <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        {editingDocumentId === doc.id ? (
-                          <>
-                            <Input
-                              value={editingDocumentName}
-                              onChange={(e) => setEditingDocumentName(e.target.value)}
-                              className="h-8 flex-1"
-                              autoFocus
-                            />
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDocumentNameSave(doc.id)}
-                            >
-                              {t('common.save')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setEditingDocumentId(null)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <span className="flex-1 text-sm truncate">{doc.originalName}</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDocumentNameEdit(doc)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <Editable
+                          value={doc.originalName}
+                          onSubmit={(value) => handleDocumentNameChange(doc.id, value)}
+                          className="flex-1"
+                        >
+                          <EditableArea className="w-full">
+                            <EditablePreview className="w-full" />
+                            <EditableInput className="w-full" />
+                          </EditableArea>
+                        </Editable>
                       </div>
                     ))}
                   </div>
-                </div>
-              </>
+                </Sortable>
+              </div>
             )}
+
+            {(pictures.length > 0 || documents.length > 0) && <Separator />}
+
+            {/* Basic Info Section */}
+            <div className="space-y-4">
+              <Editable
+                value={testObject?.title || ''}
+                onSubmit={handleTitleChange}
+                required
+              >
+                <EditableLabel>{t('testObjects.table.title')}</EditableLabel>
+                <EditableArea>
+                  <EditablePreview />
+                  <EditableInput />
+                </EditableArea>
+              </Editable>
+
+              <Editable
+                value={testObject?.description || ''}
+                onSubmit={handleDescriptionChange}
+                placeholder={t('testObjects.table.description_placeholder')}
+              >
+                <EditableLabel>{t('testObjects.table.description')}</EditableLabel>
+                <EditableArea>
+                  <EditablePreview />
+                  <EditableInput />
+                </EditableArea>
+              </Editable>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t('testObjects.table.label')}
+                </label>
+                <Select
+                  value={testObject?.labelId || undefined}
+                  onValueChange={handleLabelChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('testObjects.table.label_placeholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {labels.map((label) => (
+                      <SelectItem key={label.id} value={label.id}>
+                        <div className="flex items-center gap-2">
+                          {label.color && (
+                            <div
+                              className="h-3 w-3 rounded-full"
+                              style={{ backgroundColor: label.color }}
+                            />
+                          )}
+                          {label.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         )}
       </SheetContent>
