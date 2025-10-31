@@ -13,6 +13,7 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
 } from '@/components/ui/dialog';
 
 // Thumbnail component with preview dialog
@@ -40,6 +41,7 @@ function ThumbnailPreview({ url, title }: { url: string | null; title: string })
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
+        <DialogTitle className="sr-only">{title}</DialogTitle>
         <div className="flex items-center justify-center">
           <Image
             src={url}
