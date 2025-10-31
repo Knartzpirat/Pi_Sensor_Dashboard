@@ -198,6 +198,9 @@ export function getColumns(
       enableSorting: false,
       enableHiding: true,
       enableColumnFilter: false,
+      meta: {
+        label: t('testObjects.table.thumbnail'),
+      },
     },
     {
       id: 'title',

@@ -271,12 +271,12 @@ export function TestObjectEditDrawer({
           <div className="space-y-6 py-6">
             {/* Images Section */}
             {pictures.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 text-sm font-medium">
-                  <ImageIcon className="h-4 w-4" />
-                  {t('testObjects.form.images')} ({pictures.length})
-                </h3>
-                <Sortable value={pictures} onValueChange={handlePicturesReorder}>
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-sm font-medium">
+                    <ImageIcon className="h-4 w-4" />
+                    {t('testObjects.form.images')} ({pictures.length})
+                  </h3>
+                <Sortable value={pictures} onValueChange={handlePicturesReorder} getItemValue={(pic) => pic.id}>
                   <div className="grid grid-cols-4 gap-2">
                     {pictures.map((picture) => (
                       <div key={picture.id} className="relative aspect-square group">
@@ -296,17 +296,17 @@ export function TestObjectEditDrawer({
                     ))}
                   </div>
                 </Sortable>
-              </div>
+                </div>
             )}
 
             {/* Documents Section */}
             {documents.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 text-sm font-medium">
-                  <FileText className="h-4 w-4" />
-                  {t('testObjects.form.documents')} ({documents.length})
-                </h3>
-                <Sortable value={documents} onValueChange={handleDocumentsReorder}>
+                <div className="space-y-3">
+                  <h3 className="flex items-center gap-2 text-sm font-medium">
+                    <FileText className="h-4 w-4" />
+                    {t('testObjects.form.documents')} ({documents.length})
+                  </h3>
+                <Sortable value={documents} onValueChange={handleDocumentsReorder} getItemValue={(doc) => doc.id}>
                   <div className="space-y-2">
                     {documents.map((doc) => (
                       <div
@@ -316,7 +316,7 @@ export function TestObjectEditDrawer({
                         <div className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
                           <GripVertical className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                         <Editable
                           value={doc.originalName}
                           onSubmit={(value) => handleDocumentNameChange(doc.id, value)}
@@ -331,7 +331,7 @@ export function TestObjectEditDrawer({
                     ))}
                   </div>
                 </Sortable>
-              </div>
+                </div>
             )}
 
             {(pictures.length > 0 || documents.length > 0) && <Separator />}
