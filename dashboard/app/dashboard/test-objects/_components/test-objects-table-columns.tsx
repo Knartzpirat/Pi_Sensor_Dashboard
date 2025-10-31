@@ -23,6 +23,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
+import AutoHeight from 'embla-carousel-auto-height';
 
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
