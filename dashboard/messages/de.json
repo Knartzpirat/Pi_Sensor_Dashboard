@@ -169,6 +169,17 @@
     },
     "deleteDialog": {
       "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht."
+    },
+    "edit": {
+      "title": "Testobjekt bearbeiten",
+      "description": "Bearbeiten Sie die Details des Testobjekts und verwalten Sie hochgeladene Dateien.",
+      "success": "Testobjekt erfolgreich aktualisiert",
+      "error": "Fehler beim Aktualisieren des Testobjekts",
+      "loadError": "Fehler beim Laden des Testobjekts",
+      "documentNameUpdated": "Dokumentname erfolgreich aktualisiert",
+      "documentNameError": "Fehler beim Aktualisieren des Dokumentnamens",
+      "orderUpdated": "Reihenfolge erfolgreich aktualisiert",
+      "orderUpdateError": "Fehler beim Aktualisieren der Reihenfolge"
     }
   },
 
