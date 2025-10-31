@@ -30,6 +30,8 @@ jspm_packages/
 bower_components/
 web_modules/
 
+CLAUDE.md
+.claude/
 
 **/prisma/migrations/
 
