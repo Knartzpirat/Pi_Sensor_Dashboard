@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
@@ -8,6 +9,51 @@ import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Tag, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+// Thumbnail component with preview dialog
+function ThumbnailPreview({ url, title }: { url: string | null; title: string }) {
+  if (!url) {
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
+        <ImageIcon className="h-5 w-5 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
+          <Image
+            src={url}
+            alt={title}
+            width={48}
+            height={48}
+            className="h-full w-full rounded-md object-cover"
+            unoptimized
+          />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <div className="flex items-center justify-center">
+          <Image
+            src={url}
+            alt={title}
+            width={600}
+            height={600}
+            className="rounded-md object-contain max-h-[70vh]"
+            unoptimized
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 
 
@@ -55,23 +101,9 @@ export function getColumns(
       ),
       cell: ({ row }) => {
         const thumbnailUrl = row.getValue('thumbnail') as string | null;
+        const title = row.getValue('title') as string;
 
-        return (
-          <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
-            {thumbnailUrl ? (
-              <Image
-                src={thumbnailUrl}
-                alt={row.getValue('title')}
-                width={48}
-                height={48}
-                className="h-full w-full rounded-md object-cover"
-                unoptimized
-              />
-            ) : (
-              <ImageIcon className="h-5 w-5 text-muted-foreground" />
-            )}
-          </div>
-        );
+        return <ThumbnailPreview url={thumbnailUrl} title={title} />;
       },
       enableSorting: false,
       enableHiding: true,
