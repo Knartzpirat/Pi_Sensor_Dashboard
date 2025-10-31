@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
     const entityId = formData.get('entityId') as string;
     const entityType = formData.get('entityType') as string;
 
+    console.log('Upload API called with:', { entityId, entityType });
+
     if (!entityId || !entityType) {
       return NextResponse.json(
         { error: 'entityId and entityType are required' },
@@ -48,10 +50,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('Processing images:', images.length, 'files');
+
     const savedImages = [];
     for (let i = 0; i < images.length; i++) {
       const file = images[i];
-      if (!file || file.size === 0) continue;
+      console.log('Image file:', { name: file?.name, size: file?.size, type: file?.type });
+
+      // Skip if not a File object
+      if (!file || typeof file !== 'object' || !('arrayBuffer' in file)) {
+        console.log('Skipping invalid file object');
+        continue;
+      }
+
+      if (file.size === 0) {
+        console.log('Skipping empty or invalid image file');
+        continue;
+      }
 
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
@@ -94,10 +109,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('Processing documents:', documents.length, 'files');
+
     const savedDocuments = [];
     for (let i = 0; i < documents.length; i++) {
       const file = documents[i];
-      if (!file || file.size === 0) continue;
+      console.log('Document file:', { name: file?.name, size: file?.size, type: file?.type });
+
+      // Skip if not a File object
+      if (!file || typeof file !== 'object' || !('arrayBuffer' in file)) {
+        console.log('Skipping invalid file object');
+        continue;
+      }
+
+      if (file.size === 0) {
+        console.log('Skipping empty or invalid document file');
+        continue;
+      }
 
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
