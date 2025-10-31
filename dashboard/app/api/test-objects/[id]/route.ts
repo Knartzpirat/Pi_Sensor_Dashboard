@@ -11,6 +11,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const includePictures = searchParams.get('includePictures') === 'true';
+    const includeDocuments = searchParams.get('includeDocuments') === 'true';
+
     const testObject = await prisma.testObject.findUnique({
       where: { id },
       include: {
@@ -25,7 +29,35 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(testObject);
+    // Load pictures if requested
+    let pictures = null;
+    if (includePictures) {
+      pictures = await prisma.picture.findMany({
+        where: {
+          entityType: 'TEST_OBJECT',
+          entityId: id,
+        },
+        orderBy: { order: 'asc' },
+      });
+    }
+
+    // Load documents if requested
+    let documents = null;
+    if (includeDocuments) {
+      documents = await prisma.document.findMany({
+        where: {
+          entityType: 'TEST_OBJECT',
+          entityId: id,
+        },
+        orderBy: { order: 'asc' },
+      });
+    }
+
+    return NextResponse.json({
+      ...testObject,
+      ...(pictures !== null && { pictures }),
+      ...(documents !== null && { documents }),
+    });
   } catch (error) {
     console.error('Error fetching test object:', error);
     return NextResponse.json(
