@@ -111,7 +111,7 @@ function ThumbnailPreview({
             <Carousel
               setApi={setCarouselApi}
               className="w-full"
-              plugins={[AutoHeight({ destroyHeight: 'auto' })]}
+              plugins={[AutoHeight()]}
               opts={{ watchDrag: true }}
             >
               <CarouselContent className="items-center">
