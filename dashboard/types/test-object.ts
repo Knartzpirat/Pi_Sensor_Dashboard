@@ -25,6 +25,7 @@ export interface TestObjectsTableData {
   label: string; // Always has a value, either label name or 'No Label'
   labelColor: string | null;
   thumbnailUrl: string | null; // URL of the first image, or null if no images
+  images: Array<{ id: string; url: string; order: number }>; // All images for carousel
 }
 
 // Query parameters for fetching test objects

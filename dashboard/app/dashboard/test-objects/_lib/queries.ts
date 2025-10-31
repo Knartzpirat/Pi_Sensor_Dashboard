@@ -16,7 +16,7 @@ export async function getTestObjects(
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/test-objects?includePictures=true&pictureLimit=1`, {
+    const response = await fetch(`${baseUrl}/api/test-objects?includePictures=true`, {
       cache: 'no-store',
     });
 
@@ -38,6 +38,7 @@ export async function getTestObjects(
       label: item.label?.name || 'No Label',
       labelColor: item.label?.color || null,
       thumbnailUrl: item.pictures?.[0]?.url || null,
+      images: item.pictures || [],
       })
     );
 
