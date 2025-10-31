@@ -90,21 +90,20 @@ function ThumbnailPreview({
             <Carousel
               setApi={setCarouselApi}
               className="w-full"
-              plugins={[AutoHeight()]}
+              plugins={[AutoHeight({ destroyHeight: 'auto' })]}
+              opts={{ watchDrag: true }}
             >
-              <CarouselContent>
+              <CarouselContent className="items-center">
                 {images.map((image, index) => (
-                  <CarouselItem key={image.id}>
-                    <div className="flex items-center justify-center">
-                      <Image
-                        src={image.url}
-                        alt={`${title} - Bild ${index + 1}`}
-                        width={800}
-                        height={800}
-                        className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
-                        unoptimized
-                      />
-                    </div>
+                  <CarouselItem key={image.id} className="flex items-center justify-center">
+                    <Image
+                      src={image.url}
+                      alt={`${title} - Bild ${index + 1}`}
+                      width={800}
+                      height={800}
+                      className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
+                      unoptimized
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
