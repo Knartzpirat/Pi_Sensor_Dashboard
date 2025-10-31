@@ -36,6 +36,8 @@ function ThumbnailPreview({
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [imagesLoaded, setImagesLoaded] = React.useState(0);
 
   React.useEffect(() => {
     if (!carouselApi) return;
@@ -48,6 +50,25 @@ function ThumbnailPreview({
     });
   }, [carouselApi]);
 
+  // Reinit carousel when images are loaded
+  React.useEffect(() => {
+    if (carouselApi && imagesLoaded > 0) {
+      carouselApi.reInit();
+    }
+  }, [carouselApi, imagesLoaded]);
+
+  // Reset state when dialog closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setImagesLoaded(0);
+      setCurrent(0);
+    }
+  }, [isOpen]);
+
+  const handleImageLoad = React.useCallback(() => {
+    setImagesLoaded((prev) => prev + 1);
+  }, []);
+
   if (!images || images.length === 0) {
     return (
       <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
@@ -59,7 +80,7 @@ function ThumbnailPreview({
   const thumbnailUrl = images[0].url;
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <button className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
           <Image
@@ -103,6 +124,8 @@ function ThumbnailPreview({
                       height={800}
                       className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
                       unoptimized
+                      onLoad={handleImageLoad}
+                      priority={index === 0}
                     />
                   </CarouselItem>
                 ))}
