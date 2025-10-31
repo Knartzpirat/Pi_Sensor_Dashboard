@@ -9,11 +9,12 @@ const prisma = new PrismaClient();
 // GET - Einzelnes Bild
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const picture = await prisma.picture.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!picture) {
@@ -35,9 +36,10 @@ export async function GET(
 // PATCH - Bild umbenennen oder Order ändern
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { originalName, order } = body;
 
@@ -53,7 +55,7 @@ export async function PATCH(
     if (order !== undefined) updateData.order = order;
 
     const picture = await prisma.picture.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     });
 
@@ -72,11 +74,12 @@ export async function PATCH(
 // DELETE - Bild löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const picture = await prisma.picture.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!picture) {
@@ -93,7 +96,7 @@ export async function DELETE(
 
     // Lösche aus DB
     await prisma.picture.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     // Reorder mit richtigem Typ

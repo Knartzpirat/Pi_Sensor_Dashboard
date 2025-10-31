@@ -519,7 +519,7 @@ export function TestObjectEditDrawer({
                     <FileText className="h-4 w-4" />
                     {t('testObjects.form.documents')} ({documents.length})
                   </h3>
-                <Sortable value={documents} onValueChange={handleDocumentsReorder} getItemValue={(doc) => doc.id}>
+                <Sortable value={documents} onValueChange={handleDocumentsReorder} getItemValue={(doc) => doc.id} orientation="vertical">
                   <SortableContent className="space-y-2">
                     {documents.map((doc) => (
                       <SortableItem
