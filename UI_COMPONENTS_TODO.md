@@ -163,21 +163,46 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/measurement-objects/measurement-scheduler.tsx` - Geplante Messungen
 - [ ] `components/measurement-objects/measurement-history.tsx` - Messungsverlauf
 
-## 🔐 Authentifizierung (Single-User System)
+## 🔐 Authentifizierung & Setup (Single-User System)
 
-### Login (`components/form/login-form.tsx`)
+### Login System (`app/login/page.tsx`)
 
-**APIs bereits vorhanden (✅):**
+**Bereits implementiert (✅):**
 
+- [x] ~~`components/form/login-form.tsx`~~ - ✅ Vollständiges Login-Formular
 - [x] ~~Login/Logout APIs~~ - `/api/auth/login`, `/api/auth/logout`
 - [x] ~~Password Reset API~~ - `/api/auth/reset-password`
 - [x] ~~Recovery Codes API~~ - `/api/auth/verify-recovery-code`
+- [x] ~~Recovery Code Form~~ - `components/form/recoverycode-form.tsx`
+- [x] ~~Reset Password Form~~ - `components/form/resetpassword-form.tsx`
 
 **UI Komponenten noch zu implementieren:**
 
 - [ ] `components/auth/session-management.tsx` - Sitzungsverwaltung und Auto-Logout
-- [ ] `components/auth/password-reset.tsx` - Passwort-Reset UI für lokalen Benutzer
+- [ ] `components/auth/password-reset-wizard.tsx` - Geführter Reset-Process
 - [ ] `components/auth/security-settings.tsx` - Lokale Sicherheitseinstellungen UI
+
+### Setup System (`app/setup/page.tsx`)
+
+**Bereits implementiert (✅):**
+
+- [x] ~~`components/form/setup-form.tsx`~~ - ✅ Vollständiges Setup-Formular mit DB-Konfiguration
+- [x] ~~Setup API~~ - `/api/setup` (Multi-Step Setup mit Progress)
+- [x] ~~Recovery Codes Page~~ - `app/setup/recovery-codes/page.tsx`
+
+**Setup-Erweiterungen für Raspberry Pi:**
+
+- [ ] `components/setup/hardware-detection-step.tsx` - Hardware-Erkennung während Setup
+- [ ] `components/setup/sensor-configuration-wizard.tsx` - Sensor-Setup im Initial-Setup
+- [ ] `components/setup/system-test-step.tsx` - System-Test (GPIO, FastAPI, Database)
+- [ ] `components/setup/setup-progress-tracker.tsx` - Erweiterte Progress-Anzeige
+- [ ] `components/setup/setup-summary.tsx` - Setup-Zusammenfassung vor Abschluss
+
+**Setup-APIs Erweiterungen:**
+
+- [ ] `/api/setup/hardware-detection` - Hardware-Scan während Setup
+- [ ] `/api/setup/test-connection` - FastAPI/GPIO/DB Connection Tests
+- [ ] `/api/setup/verify-system` - System-Readiness Check
 
 ## 🎨 UI Primitive Komponenten
 
