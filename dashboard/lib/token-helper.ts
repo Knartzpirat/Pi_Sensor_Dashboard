@@ -49,6 +49,8 @@ export async function verifyRefreshToken(
   token: string,
   rotate: boolean = false
 ): Promise<{ userId: string; token: string; expiresAt: Date; username: string; role: string } | null> {
+  console.log('[Token Helper] Verifying refresh token...');
+
   // Find token in database
     const refreshToken = await prisma.refreshToken.findUnique({
       where: { token },
@@ -57,17 +59,25 @@ export async function verifyRefreshToken(
 
   // Check if token exists
     if (!refreshToken) {
+      console.log('[Token Helper] Token not found in database');
       return null;
     }
 
+  console.log('[Token Helper] Token found, checking expiration...');
+  console.log('[Token Helper] Token expires at:', refreshToken.expiresAt);
+  console.log('[Token Helper] Current time:', new Date());
+
   // Check if token is expired
     if (refreshToken.expiresAt < new Date()) {
+    console.log('[Token Helper] Token is expired, deleting...');
     // Clean up expired token
       await prisma.refreshToken.delete({
         where: { id: refreshToken.id },
       });
       return null;
     }
+
+  console.log('[Token Helper] Token is valid for user:', refreshToken.user.username);
 
   // Token is valid
   const result = {
