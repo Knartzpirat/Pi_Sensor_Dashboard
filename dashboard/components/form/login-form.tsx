@@ -83,7 +83,7 @@ export default function LoginForm() {
        * - Extended "Remember me" functionality for Raspberry Pi
        * - Auto-logout after inactivity for security
        *
-       * - Create components/auth/password-reset.tsx  
+       * - Create components/auth/password-reset.tsx
        * - Local password reset without external dependencies
        * - Recovery codes for system access
        *
