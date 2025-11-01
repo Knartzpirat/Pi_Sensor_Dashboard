@@ -27,7 +27,7 @@ export function DataTable<TData>({
   ...props
 }: DataTableProps<TData>) {
   const t = useTranslations();
-  
+
   // TODO: Add Enhanced DataTable Features
   // - Create components/data-table/data-table-export.tsx for Excel/CSV/PDF export
   // - Create components/data-table/data-table-bulk-actions.tsx for batch operations
@@ -39,7 +39,7 @@ export function DataTable<TData>({
   // - Add drag-and-drop for row reordering
   // - Add keyboard navigation support
   // - Add cell-level editing (inline editing)
-  
+
   return (
     <div
       className={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}

@@ -1,38 +1,37 @@
-// TODO: Settings Page - System Configuration Dashboard
-// This page should display:
-// - User account settings and preferences
-// - System configuration options
-// - Database and backup settings
-// - Notification preferences
-// - Theme and appearance customization
-// - Security settings (2FA, sessions, API keys)
-// - Integration settings (webhooks, external services)
-// - Maintenance tools (logs, diagnostics, updates)
+// TODO: Raspberry Pi Settings Page - Hardware & System Configuration
+// This page should display Raspberry Pi specific settings:
+// - GPIO Pin Configuration and Mapping
+// - Sensor Hardware Settings (GPIO vs HAT sensors)
+// - FastAPI Backend Connection Settings
+// - Data Stream Configuration (WebSocket/SSE settings)
+// - Sampling Rates and Measurement Intervals
+// - Hardware Status and Diagnostics
+// - Database Storage Settings
+// - System Performance Monitoring
 //
-// Required Components to Create:
-// - components/settings/settings-navigation.tsx
-// - components/settings/user-profile-settings.tsx
-// - components/settings/system-settings.tsx
-// - components/settings/notification-settings.tsx
-// - components/settings/security-settings.tsx
-// - components/settings/backup-settings.tsx
-// - components/settings/integration-settings.tsx
-// - components/settings/maintenance-tools.tsx
-// - components/forms/settings-form.tsx
-// - components/settings/settings-card.tsx
+// Required Raspberry Pi Specific Components:
+// - components/settings/raspberry-pi/gpio-pin-configurator.tsx
+// - components/settings/raspberry-pi/sensor-hardware-settings.tsx
+// - components/settings/raspberry-pi/fastapi-connection.tsx
+// - components/settings/raspberry-pi/data-stream-config.tsx
+// - components/settings/raspberry-pi/sampling-settings.tsx
+// - components/settings/raspberry-pi/hardware-diagnostics.tsx
+// - components/settings/raspberry-pi/performance-monitor.tsx
+// - components/forms/gpio-pin-selector.tsx
+// - components/forms/sensor-type-selector.tsx
 
 import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
   const t = useTranslations();
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">{t('settings.title')}</h1>
         {/* TODO: Add save/reset buttons for unsaved changes */}
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* TODO: Add Settings Navigation Sidebar */}
         <div className="lg:col-span-1">
@@ -45,51 +44,73 @@ export default function SettingsPage() {
           {/* - Integrations */}
           {/* - Maintenance */}
         </div>
-        
+
         {/* TODO: Add Settings Content Area */}
         <div className="lg:col-span-3 space-y-6">
-          {/* User Profile Section */}
+          {/* GPIO Configuration Section */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">{t('settings.userProfile')}</h2>
-            {/* Username, email, password change */}
-            {/* Avatar upload */}
-            {/* Personal preferences */}
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.gpio')}
+            </h2>
+            {/* GPIO pin assignment interface */}
+            {/* Pin mode selection (Input/Output/PWM/SPI/I2C) */}
+            {/* Sensor-to-pin mapping configuration */}
+            {/* Pull-up/Pull-down resistor settings */}
           </div>
-          
-          {/* System Configuration Section */}
+
+          {/* Sensor Hardware Section */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">{t('settings.system')}</h2>
-            {/* Database connection settings */}
-            {/* Data retention policies */}
-            {/* System limits and thresholds */}
-            {/* Time zone settings */}
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.sensorHardware')}
+            </h2>
+            {/* Sensor type selection (GPIO vs HAT) */}
+            {/* HAT detection and configuration */}
+            {/* Sensor calibration settings */}
+            {/* Hardware-specific parameters */}
           </div>
-          
-          {/* Notification Settings Section */}
+
+          {/* FastAPI Backend Connection */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">{t('settings.notifications')}</h2>
-            {/* Email notifications */}
-            {/* Push notifications */}
-            {/* Alert thresholds */}
-            {/* Notification schedules */}
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.fastApiConnection')}
+            </h2>
+            {/* Backend endpoint configuration */}
+            {/* Authentication settings for API */}
+            {/* Connection timeout settings */}
+            {/* API health check configuration */}
           </div>
-          
-          {/* Security Settings Section */}
+
+          {/* Data Stream Configuration */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">{t('settings.security')}</h2>
-            {/* Two-factor authentication */}
-            {/* Active sessions management */}
-            {/* API key management */}
-            {/* Login history */}
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.dataStream')}
+            </h2>
+            {/* WebSocket/SSE connection settings */}
+            {/* Data transmission frequency */}
+            {/* Buffer size and retry logic */}
+            {/* Real-time streaming preferences */}
           </div>
-          
-          {/* Backup & Restore Section */}
+
+          {/* Sampling & Measurement Settings */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">{t('settings.backup')}</h2>
-            {/* Automatic backup configuration */}
-            {/* Manual backup/restore */}
-            {/* Backup history */}
-            {/* Export/import settings */}
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.sampling')}
+            </h2>
+            {/* Measurement intervals per sensor type */}
+            {/* Data aggregation settings */}
+            {/* Storage efficiency options */}
+            {/* Alert threshold configuration */}
+          </div>
+
+          {/* System Performance & Diagnostics */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">
+              {t('settings.systemDiagnostics')}
+            </h2>
+            {/* Raspberry Pi system stats (CPU, Memory, Temperature) */}
+            {/* Sensor health monitoring */}
+            {/* Network connectivity status */}
+            {/* Database performance metrics */}
           </div>
         </div>
       </div>

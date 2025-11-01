@@ -107,21 +107,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainItems} />
-        
+
         {/* TODO: Add Sidebar Widget Components
          * - Create components/sidebar/sensor-status-widget.tsx
          * - Show online/offline sensor count with indicators
          * - Real-time status updates
-         * 
+         *
          * - Create components/sidebar/recent-alerts-widget.tsx
          * - Show last 3-5 critical alerts in compact format
          * - Link to full alerts page
-         * 
-         * - Create components/sidebar/quick-stats-widget.tsx  
+         *
+         * - Create components/sidebar/quick-stats-widget.tsx
          * - Current temperature, humidity averages
          * - Mini charts or progress indicators
          */}
-        
+
         <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
     </Sidebar>

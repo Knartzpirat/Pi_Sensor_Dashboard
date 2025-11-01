@@ -22,7 +22,7 @@ import { useTranslations } from 'next-intl';
 
 export default function SensorsPage() {
   const t = useTranslations();
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -31,7 +31,7 @@ export default function SensorsPage() {
         {/* TODO: Add view toggle (grid/list) */}
         {/* TODO: Add bulk actions dropdown */}
       </div>
-      
+
       {/* TODO: Add Sensor Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Total Sensors Card */}
@@ -39,7 +39,7 @@ export default function SensorsPage() {
         {/* Offline Sensors Card */}
         {/* Sensors with Issues Card */}
       </div>
-      
+
       {/* TODO: Add Filters and Search */}
       <div className="flex gap-4 items-center">
         {/* Search input */}
@@ -48,7 +48,7 @@ export default function SensorsPage() {
         {/* Location filter */}
         {/* Sort options */}
       </div>
-      
+
       {/* TODO: Add Sensor Grid/List View */}
       <div>
         {/* Toggle between DataTable (list) and Grid view */}
@@ -59,7 +59,7 @@ export default function SensorsPage() {
         {/* - Current values (temp, humidity, etc.) */}
         {/* - Action buttons (edit, calibrate, diagnostics, delete) */}
       </div>
-      
+
       {/* TODO: Add Sensor Grouping Section */}
       <div>
         <h2 className="text-xl font-semibold mb-4">{t('sensors.groups')}</h2>

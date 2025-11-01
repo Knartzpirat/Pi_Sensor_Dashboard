@@ -82,7 +82,7 @@ function DescriptionTextarea({
   const [isEditing, setIsEditing] = React.useState(false);
   const [localValue, setLocalValue] = React.useState(value);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const saveTimeoutRef = React.useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     setLocalValue(value);
@@ -149,7 +149,7 @@ function DescriptionTextarea({
     return (
       <div
         onClick={() => setIsEditing(true)}
-        className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text hover:border-ring transition-colors whitespace-pre-wrap"
+        className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text hover:border-ring transition-colors whitespace-pre-wrap"
       >
         {value || <span className="text-muted-foreground">{placeholder}</span>}
       </div>
@@ -165,7 +165,7 @@ function DescriptionTextarea({
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="min-h-[80px] resize-y"
+        className="min-h-20 resize-y"
       />
     </div>
   );

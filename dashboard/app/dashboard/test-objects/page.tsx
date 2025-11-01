@@ -13,20 +13,21 @@ interface TestObjectsProps {
 export default function IndexPage(props: TestObjectsProps) {
   return (
     <div className="space-y-6">
-      {/* TODO: Add Test Objects Header with Actions
-       * - Create components/test-objects/test-objects-header.tsx
-       * - Add bulk import/export functionality
-       * - Add quick stats (total objects, by status, etc.)
-       * - Add view mode toggle (table/card/kanban)
+      {/* TODO: Add Environment Context Header
+       * - Create components/test-objects/environment-context-header.tsx
+       * - Quick stats: Total environments, assigned sensors, active measurements
+       * - Add new environment button with context wizard
+       * - Bulk operations: assign/unassign sensors, export contexts
        */}
-      
-      {/* TODO: Add Test Objects Analytics Cards
-       * - Create components/test-objects/analytics-cards.tsx  
-       * - Show test progress statistics
-       * - Success/failure rates
-       * - Recent test activity
+
+      {/* TODO: Add Environment Usage Analytics
+       * - Create components/test-objects/environment-analytics.tsx
+       * - Show sensor assignments per environment type
+       * - Temperature ranges by environment (Kühlkammer vs Draußen)
+       * - Speed measurements by context (Auto vs andere Fahrzeuge)
+       * - Most/least used environments
        */}
-      
+
       <Suspense
         fallback={
           <DataTableSkeleton
@@ -49,19 +50,22 @@ export default function IndexPage(props: TestObjectsProps) {
           <TestObjectsTableWrapper {...props} />
         </FeatureFlagsProvider>
       </Suspense>
-      
-      {/* TODO: Add Additional Test Objects Features
-       * - Create components/test-objects/batch-operations.tsx
-       * - Bulk edit/delete/duplicate functionality
-       * - Template management for common test objects
-       * 
-       * - Create components/test-objects/test-scheduler.tsx
-       * - Schedule recurring tests
-       * - Automated test execution
-       * 
-       * - Create components/test-objects/test-history.tsx
-       * - Track changes and versions of test objects
-       * - Show audit trail
+
+      {/* TODO: Add Environment Context Management Features
+       * - Create components/test-objects/environment-templates.tsx
+       * - Predefined environment templates (Innenraum, Außenbereich, Kühlkammer, Fahrzeug)
+       * - Custom environment creation with parameters
+       * - Environment categories and grouping
+       *
+       * - Create components/test-objects/sensor-assignment.tsx
+       * - Drag-and-drop sensor assignment to environments
+       * - Bulk sensor reassignment between environments
+       * - Assignment history and tracking
+       *
+       * - Create components/test-objects/environment-conditions.tsx
+       * - Define expected ranges for each environment type
+       * - Alert thresholds specific to environment context
+       * - Environmental parameter validation
        */}
     </div>
   );
@@ -75,9 +79,10 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   let parsedFilters: { id: string; value: unknown }[] = [];
   if (search.filters) {
     try {
-      parsedFilters = typeof search.filters === 'string'
-        ? JSON.parse(search.filters)
-        : search.filters;
+      parsedFilters =
+        typeof search.filters === 'string'
+          ? JSON.parse(search.filters)
+          : search.filters;
     } catch (e) {
       console.error('Error parsing filters:', e);
       parsedFilters = [];
@@ -111,7 +116,9 @@ async function TestObjectsTableWrapper(props: TestObjectsProps) {
   const validFilters = allFilters.filter((filter) => {
     if (!filter.value) return false;
     if (Array.isArray(filter.value)) return filter.value.length > 0;
-    return filter.value !== '' && filter.value !== null && filter.value !== undefined;
+    return (
+      filter.value !== '' && filter.value !== null && filter.value !== undefined
+    );
   });
 
   const promises = Promise.all([

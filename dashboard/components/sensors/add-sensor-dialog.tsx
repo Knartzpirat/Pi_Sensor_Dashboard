@@ -49,7 +49,7 @@ export function AddSensorDialog() {
       {/* Step 3: Advanced settings - thresholds, sampling */}
       {/* Step 4: Connection test and validation */}
       {/* Step 5: Review and confirm */}
-      
+
       {/* Navigation buttons (Back, Next, Cancel, Save) */}
     </div>
   );

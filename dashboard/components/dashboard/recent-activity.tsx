@@ -48,13 +48,13 @@ export function RecentActivity() {
         <h3 className="text-lg font-semibold">Recent Activity</h3>
         {/* Filter and refresh controls */}
       </div>
-      
+
       {/* Activity Timeline */}
       <div className="space-y-3">
         {/* Activity items grouped by time */}
         {/* Each item: icon, description, timestamp, actions */}
       </div>
-      
+
       {/* Load more or show all activities button */}
     </div>
   );

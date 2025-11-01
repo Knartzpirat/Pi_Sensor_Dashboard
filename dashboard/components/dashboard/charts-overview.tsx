@@ -1,4 +1,4 @@
-// TODO: Charts Overview Component  
+// TODO: Charts Overview Component
 // This component should display interactive charts showing
 // sensor data trends and analytics.
 //

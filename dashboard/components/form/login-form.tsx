@@ -82,10 +82,10 @@ export default function LoginForm() {
        * - Create components/auth/social-login-buttons.tsx
        * - Add OAuth providers (Google, GitHub, etc.)
        * - Add "Remember me" functionality with secure tokens
-       * 
+       *
        * - Create components/auth/captcha-component.tsx
        * - Add CAPTCHA for security after failed attempts
-       * 
+       *
        * - Create components/auth/login-activity.tsx
        * - Show recent login locations and devices
        * - Security notifications
@@ -175,23 +175,23 @@ export default function LoginForm() {
                 {/* Stay logged in */}
                 <form.Field name="stayLoggedIn">
                   {(field) => (
-                      <Field>
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="stayLoggedIn"
-                            name="stayLoggedIn"
-                            checked={field.state.value}
-                            onCheckedChange={(checked) =>
-                              field.handleChange(checked === true)
-                            }
-                            disabled={isLoading}
-                          />
-                          <Label htmlFor="stayLoggedIn">
-                            {t('login.stayedLoggedIn')}
-                          </Label>
-                        </div>
-                      </Field>
-                    )}
+                    <Field>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="stayLoggedIn"
+                          name="stayLoggedIn"
+                          checked={field.state.value}
+                          onCheckedChange={(checked) =>
+                            field.handleChange(checked === true)
+                          }
+                          disabled={isLoading}
+                        />
+                        <Label htmlFor="stayLoggedIn">
+                          {t('login.stayedLoggedIn')}
+                        </Label>
+                      </div>
+                    </Field>
+                  )}
                 </form.Field>
               </FieldGroup>
 

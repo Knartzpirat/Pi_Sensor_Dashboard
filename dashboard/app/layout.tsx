@@ -10,7 +10,6 @@ type Props = {
 };
 
 export default async function RootLayout({ children }: Props) {
-
   return (
     <html suppressHydrationWarning={true} data-lt-installed="true">
       <body>

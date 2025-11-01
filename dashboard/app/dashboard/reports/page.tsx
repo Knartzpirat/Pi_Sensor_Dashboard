@@ -21,14 +21,14 @@ import { useTranslations } from 'next-intl';
 
 export default function ReportsPage() {
   const t = useTranslations();
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">{t('reports.title')}</h1>
         {/* TODO: Add "New Report" button */}
       </div>
-      
+
       {/* TODO: Add Report Builder Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
@@ -39,7 +39,7 @@ export default function ReportsPage() {
           {/* - Filter options */}
           {/* - Template selection */}
         </div>
-        
+
         <div className="lg:col-span-2">
           {/* Report Preview Panel */}
           {/* - Live preview of report */}
@@ -47,10 +47,12 @@ export default function ReportsPage() {
           {/* - Export options */}
         </div>
       </div>
-      
+
       {/* TODO: Add Quick Report Templates */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">{t('reports.quickTemplates')}</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {t('reports.quickTemplates')}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Daily Summary Card */}
           {/* Weekly Trends Card */}
@@ -58,7 +60,7 @@ export default function ReportsPage() {
           {/* Custom Range Card */}
         </div>
       </div>
-      
+
       {/* TODO: Add Recent Reports Table */}
       <div>
         <h2 className="text-xl font-semibold mb-4">{t('reports.recent')}</h2>
