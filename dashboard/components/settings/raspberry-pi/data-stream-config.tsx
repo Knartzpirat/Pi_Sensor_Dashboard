@@ -14,7 +14,7 @@
 //
 // Stream Types:
 // - Real-time sensor readings (high frequency)
-// - System status updates (medium frequency)  
+// - System status updates (medium frequency)
 // - Alert notifications (event-driven)
 // - Bulk data synchronization (low frequency)
 //
@@ -57,7 +57,7 @@ export function DataStreamConfig() {
       {/* Connection Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Connection Settings</h3>
-        
+
         {/* Primary connection (WebSocket) */}
         <div>
           {/* WebSocket URL and port configuration */}
@@ -76,7 +76,7 @@ export function DataStreamConfig() {
       {/* Data Streaming Settings */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Streaming Configuration</h3>
-        
+
         {/* Sensor Data Frequency */}
         <div>
           {/* Frequency slider (1-100 Hz) */}
@@ -95,7 +95,7 @@ export function DataStreamConfig() {
       {/* Buffer & Performance */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Buffer & Performance</h3>
-        
+
         {/* Buffer configuration */}
         <div>
           {/* Buffer size settings */}
@@ -114,7 +114,7 @@ export function DataStreamConfig() {
       {/* Reliability & Recovery */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Reliability Settings</h3>
-        
+
         {/* Retry Logic */}
         <div>
           {/* Retry attempts configuration */}
@@ -133,7 +133,7 @@ export function DataStreamConfig() {
       {/* Test & Diagnostics */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Testing & Diagnostics</h3>
-        
+
         {/* Connection Testing */}
         {/* Stream Performance Test */}
         {/* Network Diagnostics */}

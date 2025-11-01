@@ -7,14 +7,16 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ## 🍓 Raspberry Pi Spezifische Komponenten
 
 ### Hardware Konfiguration (`components/settings/raspberry-pi/`)
+
 - [ ] `gpio-pin-configurator.tsx` - Interaktive GPIO-Pinout Konfiguration
 - [ ] `sensor-hardware-settings.tsx` - GPIO vs HAT Sensor-Setup
-- [ ] `fastapi-connection.tsx` - Backend-Verbindungseinstellungen  
+- [ ] `fastapi-connection.tsx` - Backend-Verbindungseinstellungen
 - [ ] `data-stream-config.tsx` - WebSocket/SSE Streaming-Konfiguration
 - [ ] `sampling-settings.tsx` - Messintervalle und Datensammlung
 - [ ] `hardware-diagnostics.tsx` - System- und Hardware-Diagnose
 
 ### Dashboard Komponenten (`components/dashboard/`)
+
 - [ ] `raspberry-pi-system-status.tsx` - Pi Hardware-Status und Metriken
 - [ ] `live-sensor-charts.tsx` - Echtzeit-Sensordaten Visualisierung
 - [ ] `gpio-status-widget.tsx` - GPIO-Pin Status Übersicht
@@ -22,6 +24,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ## 🏠 Dashboard Komponenten
 
 ### Haupt-Dashboard (`app/dashboard/page.tsx`)
+
 - [ ] `components/dashboard/raspberry-pi-stats.tsx` - Pi Hardware-Status, GPIO Nutzung, System-Metriken
 - [ ] `components/dashboard/live-sensor-charts.tsx` - Echtzeit-Sensordaten mit Umgebungskontext
 - [ ] `components/dashboard/raspberry-pi-system-status.tsx` - Hardware-Info, GPIO Status, FastAPI Health
@@ -29,6 +32,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ## 🏢 Umgebungskontext Management (Test Objects)
 
 ### Environment Context (`components/test-objects/`)
+
 - [ ] `environment-context-manager.tsx` - Hauptinterface für Umgebungsverwaltung
 - [ ] `create-environment-dialog.tsx` - Dialog zum Erstellen neuer Umgebungen
 - [ ] `sensor-environment-assignment.tsx` - Drag & Drop Sensor-zu-Umgebung Zuordnung
@@ -37,6 +41,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `environment-analytics.tsx` - Umgebungsspezifische Analysen und Vergleiche
 
 ### Umgebungstyp-Beispiele:
+
 **Temperatur-Kontexte:** Kühlkammer (-20°C bis 5°C), Innenraum (18°C bis 25°C), Draußen (-30°C bis 50°C)
 **Geschwindigkeits-Kontexte:** Auto (0-200 km/h), Fahrrad (0-50 km/h), Fußgänger (0-15 km/h)  
 **Druck-Kontexte:** Meereshöhe (1013 hPa), Berge (< 1013 hPa), Druckkammer (> 1013 hPa)

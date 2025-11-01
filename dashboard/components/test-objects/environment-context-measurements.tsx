@@ -62,7 +62,7 @@ export function EnvironmentContextMeasurements() {
           <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground">
             Alle Umgebungen
           </button>
-          
+
           {/* Temperature Environment Tabs */}
           <button className="px-4 py-2 rounded-md border hover:bg-accent">
             🧊 Kühlkammer
@@ -73,7 +73,7 @@ export function EnvironmentContextMeasurements() {
           <button className="px-4 py-2 rounded-md border hover:bg-accent">
             🌤️ Draußen
           </button>
-          
+
           {/* Speed Environment Tabs */}
           <button className="px-4 py-2 rounded-md border hover:bg-accent">
             🚗 Auto
@@ -86,7 +86,6 @@ export function EnvironmentContextMeasurements() {
 
       {/* Environment-Specific Measurements */}
       <div className="space-y-6">
-        
         {/* Kühlkammer Measurements */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -107,7 +106,9 @@ export function EnvironmentContextMeasurements() {
                 <div>
                   <h4 className="font-medium">Aktuelle Temperatur</h4>
                   <div className="text-2xl font-bold text-blue-600">-5.2°C</div>
-                  <div className="text-sm text-muted-foreground">DHT22 - GPIO 4</div>
+                  <div className="text-sm text-muted-foreground">
+                    DHT22 - GPIO 4
+                  </div>
                 </div>
                 {/* Status badge - within range */}
                 <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
@@ -121,7 +122,9 @@ export function EnvironmentContextMeasurements() {
             <div className="p-4 border rounded-lg">
               <h4 className="font-medium">Temperatur Stabilität</h4>
               <div className="text-2xl font-bold">±0.5°C</div>
-              <div className="text-sm text-muted-foreground">Letzte 24h Schwankung</div>
+              <div className="text-sm text-muted-foreground">
+                Letzte 24h Schwankung
+              </div>
               {/* Stability indicator */}
             </div>
 
@@ -129,7 +132,9 @@ export function EnvironmentContextMeasurements() {
             <div className="p-4 border rounded-lg">
               <h4 className="font-medium">Kühl-Effizienz</h4>
               <div className="text-2xl font-bold text-green-600">94%</div>
-              <div className="text-sm text-muted-foreground">Zieltemperatur erreicht</div>
+              <div className="text-sm text-muted-foreground">
+                Zieltemperatur erreicht
+              </div>
             </div>
           </div>
 
@@ -166,7 +171,9 @@ export function EnvironmentContextMeasurements() {
             <div className="p-4 border rounded-lg">
               <h4 className="font-medium">Höchstgeschwindigkeit</h4>
               <div className="text-2xl font-bold">142 km/h</div>
-              <div className="text-sm text-muted-foreground">Heute erreicht</div>
+              <div className="text-sm text-muted-foreground">
+                Heute erreicht
+              </div>
             </div>
 
             {/* Average Speed Card */}
@@ -179,7 +186,9 @@ export function EnvironmentContextMeasurements() {
             {/* Acceleration Card */}
             <div className="p-4 border rounded-lg">
               <h4 className="font-medium">Beschleunigung</h4>
-              <div className="text-2xl font-bold text-orange-600">+2.1 m/s²</div>
+              <div className="text-2xl font-bold text-orange-600">
+                +2.1 m/s²
+              </div>
               <div className="text-sm text-muted-foreground">Aktuell</div>
             </div>
           </div>
@@ -196,19 +205,23 @@ export function EnvironmentContextMeasurements() {
       {/* Cross-Environment Comparison */}
       <div className="space-y-4">
         <h3 className="text-xl font-semibold">Umgebungsvergleich</h3>
-        
+
         {/* Comparison Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Temperature Environments Comparison */}
           <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-4">Temperatur-Umgebungen Vergleich</h4>
+            <h4 className="font-medium mb-4">
+              Temperatur-Umgebungen Vergleich
+            </h4>
             {/* Side-by-side comparison of temperature ranges */}
             {/* Box plot or range comparison chart */}
           </div>
 
           {/* Performance Metrics Comparison */}
           <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-4">Sensor-Performance nach Umgebung</h4>
+            <h4 className="font-medium mb-4">
+              Sensor-Performance nach Umgebung
+            </h4>
             {/* Sensor accuracy and reliability by environment */}
             {/* Data quality metrics */}
           </div>
@@ -220,12 +233,20 @@ export function EnvironmentContextMeasurements() {
         <h4 className="font-medium mb-3">Umgebungskontext Erkenntnisse</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <h5 className="font-medium text-blue-600">Kühlkammer Optimierung</h5>
-            <p>Sensor DHT22-GPIO4 zeigt konstante Werte. Kalibrierung empfohlen für bessere Genauigkeit.</p>
+            <h5 className="font-medium text-blue-600">
+              Kühlkammer Optimierung
+            </h5>
+            <p>
+              Sensor DHT22-GPIO4 zeigt konstante Werte. Kalibrierung empfohlen
+              für bessere Genauigkeit.
+            </p>
           </div>
           <div>
             <h5 className="font-medium text-red-600">Auto Fahrstil Analyse</h5>
-            <p>Häufige Beschleunigungsspitzen über 3 m/s². Sanfteres Fahren könnte Kraftstoff sparen.</p>
+            <p>
+              Häufige Beschleunigungsspitzen über 3 m/s². Sanfteres Fahren
+              könnte Kraftstoff sparen.
+            </p>
           </div>
         </div>
       </div>

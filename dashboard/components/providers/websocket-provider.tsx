@@ -38,23 +38,33 @@
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 
 // TODO: Implement WebSocket context and provider
 const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   // TODO: Implement WebSocket provider logic
-  
+
   // Connection state management
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connecting' | 'connected' | 'disconnected' | 'error'
+  >('disconnected');
   const [sensorData, setSensorData] = useState<Map<string, any>>(new Map());
   const [systemStatus, setSystemStatus] = useState<any>({});
-  
+
   // WebSocket reference and management
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
-  const subscriptionsRef = useRef<Map<string, Set<(data: any) => void>>>(new Map());
+  const subscriptionsRef = useRef<Map<string, Set<(data: any) => void>>>(
+    new Map()
+  );
 
   // Connection management functions
   const connect = () => {

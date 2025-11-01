@@ -14,7 +14,7 @@
 //
 // Assignment Logic Examples:
 // Temperature Sensors (DHT22, DS18B20) -> Temperature Environments
-// Speed Sensors (GPS, Accelerometer) -> Movement Environments  
+// Speed Sensors (GPS, Accelerometer) -> Movement Environments
 // Pressure Sensors (BMP280) -> Atmospheric Environments
 // Multiple assignments allowed with time-based switching
 //
@@ -86,19 +86,20 @@ export function SensorEnvironmentAssignment() {
 
       {/* Main Assignment Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Available Sensors Panel */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Verfügbare Sensoren</h3>
             {/* Bulk selection controls */}
           </div>
-          
+
           {/* Sensor Categories */}
           <div className="space-y-3">
             {/* Temperature Sensors Group */}
             <div>
-              <h4 className="font-medium text-sm text-muted-foreground mb-2">Temperatur Sensoren</h4>
+              <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                Temperatur Sensoren
+              </h4>
               <div className="space-y-2">
                 {/* DHT22 sensors */}
                 {/* DS18B20 sensors */}
@@ -108,15 +109,17 @@ export function SensorEnvironmentAssignment() {
 
             {/* Pressure Sensors Group */}
             <div>
-              <h4 className="font-medium text-sm text-muted-foreground mb-2">Druck Sensoren</h4>
-              <div className="space-y-2">
-                {/* BMP280, BME280 sensors */}
-              </div>
+              <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                Druck Sensoren
+              </h4>
+              <div className="space-y-2">{/* BMP280, BME280 sensors */}</div>
             </div>
 
             {/* Analog Sensors Group */}
             <div>
-              <h4 className="font-medium text-sm text-muted-foreground mb-2">Analog Sensoren</h4>
+              <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                Analog Sensoren
+              </h4>
               <div className="space-y-2">
                 {/* MCP3008 connected sensors */}
                 {/* Speed, light, moisture sensors */}
@@ -125,7 +128,9 @@ export function SensorEnvironmentAssignment() {
 
             {/* Unassigned Sensors Group */}
             <div>
-              <h4 className="font-medium text-sm text-muted-foreground mb-2">Nicht zugeordnet</h4>
+              <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                Nicht zugeordnet
+              </h4>
               <div className="space-y-2">
                 {/* Sensors without environment assignment */}
               </div>
@@ -136,19 +141,20 @@ export function SensorEnvironmentAssignment() {
         {/* Environment Assignment Areas */}
         <div className="lg:col-span-2 space-y-4">
           <h3 className="text-lg font-semibold">Umgebungszuordnung</h3>
-          
+
           {/* Environment Drop Zones */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             {/* Temperature Environments */}
             <div className="space-y-3">
               <h4 className="font-medium">Temperatur Umgebungen</h4>
-              
+
               {/* Kühlkammer Drop Zone */}
               <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 min-h-24">
                 <div className="flex items-center gap-2 mb-2">
                   {/* Snowflake icon */}
-                  <span className="font-medium">Kühlkammer (-20°C bis 5°C)</span>
+                  <span className="font-medium">
+                    Kühlkammer (-20°C bis 5°C)
+                  </span>
                 </div>
                 {/* Assigned sensors display */}
                 {/* Drop zone for new assignments */}
@@ -176,7 +182,7 @@ export function SensorEnvironmentAssignment() {
             {/* Speed/Movement Environments */}
             <div className="space-y-3">
               <h4 className="font-medium">Geschwindigkeit Umgebungen</h4>
-              
+
               {/* Auto Drop Zone */}
               <div className="border-2 border-dashed border-red-300 rounded-lg p-4 min-h-24">
                 <div className="flex items-center gap-2 mb-2">

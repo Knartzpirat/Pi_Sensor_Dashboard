@@ -57,7 +57,7 @@ export function SensorHardwareSettings() {
       {/* GPIO Sensors Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">GPIO Connected Sensors</h3>
-        
+
         {/* Available GPIO Sensor Types */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* DHT22 Temperature/Humidity Card */}
@@ -72,7 +72,7 @@ export function SensorHardwareSettings() {
       {/* HAT Sensors Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">HAT Connected Sensors</h3>
-        
+
         {/* HAT Detection */}
         <div>
           {/* Auto-detect connected HATs button */}

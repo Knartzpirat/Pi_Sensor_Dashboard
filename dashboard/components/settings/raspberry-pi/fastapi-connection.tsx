@@ -1,4 +1,4 @@
-// TODO: FastAPI Connection Configuration Component  
+// TODO: FastAPI Connection Configuration Component
 // Settings interface for managing the connection between Next.js and FastAPI backend
 // Handles API endpoints, authentication, and real-time data streaming
 //
@@ -55,7 +55,7 @@ export function FastAPIConnection() {
       {/* API Endpoints Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">API Endpoints</h3>
-        
+
         {/* REST API Endpoint */}
         <div className="space-y-2">
           {/* URL input with test button */}
@@ -74,7 +74,7 @@ export function FastAPIConnection() {
       {/* Authentication Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Authentication</h3>
-        
+
         {/* Authentication method selector */}
         {/* API key configuration */}
         {/* JWT token settings */}
@@ -84,7 +84,7 @@ export function FastAPIConnection() {
       {/* Connection Settings */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Connection Settings</h3>
-        
+
         {/* Timeout settings */}
         {/* Retry configuration */}
         {/* Keep-alive settings */}
@@ -94,7 +94,7 @@ export function FastAPIConnection() {
       {/* Advanced Settings */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Advanced Settings</h3>
-        
+
         {/* CORS configuration */}
         {/* Rate limiting */}
         {/* Compression settings */}

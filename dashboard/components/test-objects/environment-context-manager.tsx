@@ -14,7 +14,7 @@
 // Environment Types Examples:
 // Temperature Contexts:
 // - Kühlkammer (-20°C bis 5°C)
-// - Innenraum (18°C bis 25°C) 
+// - Innenraum (18°C bis 25°C)
 // - Draußen (-30°C bis 50°C)
 // - Ofen (50°C bis 300°C)
 //
@@ -64,10 +64,11 @@ export function EnvironmentContextManager() {
       <div>
         <h3 className="text-lg font-semibold mb-4">Vordefinierte Umgebungen</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
           {/* Temperature Environment Templates */}
           <div className="space-y-3">
-            <h4 className="font-medium text-sm text-muted-foreground">Temperatur Kontexte</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">
+              Temperatur Kontexte
+            </h4>
             {/* Kühlkammer Template Card */}
             {/* Innenraum Template Card */}
             {/* Draußen Template Card */}
@@ -76,7 +77,9 @@ export function EnvironmentContextManager() {
 
           {/* Speed/Movement Environment Templates */}
           <div className="space-y-3">
-            <h4 className="font-medium text-sm text-muted-foreground">Geschwindigkeit Kontexte</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">
+              Geschwindigkeit Kontexte
+            </h4>
             {/* Auto Template Card */}
             {/* Fahrrad Template Card */}
             {/* Fußgänger Template Card */}
@@ -85,7 +88,9 @@ export function EnvironmentContextManager() {
 
           {/* Pressure Environment Templates */}
           <div className="space-y-3">
-            <h4 className="font-medium text-sm text-muted-foreground">Druck Kontexte</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">
+              Druck Kontexte
+            </h4>
             {/* Meereshöhe Template Card */}
             {/* Berge Template Card */}
             {/* Druckkammer Template Card */}
@@ -93,7 +98,9 @@ export function EnvironmentContextManager() {
 
           {/* Custom Environments */}
           <div className="space-y-3">
-            <h4 className="font-medium text-sm text-muted-foreground">Benutzerdefiniert</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">
+              Benutzerdefiniert
+            </h4>
             {/* User-created environments */}
           </div>
         </div>

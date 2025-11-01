@@ -58,7 +58,7 @@ export function CreateEnvironmentDialog() {
   return (
     <div>
       {/* Multi-step wizard dialog */}
-      
+
       {/* Step 1: Environment Type Selection */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Umgebungstyp auswählen</h3>
@@ -67,21 +67,27 @@ export function CreateEnvironmentDialog() {
           <div className="border rounded-lg p-4 cursor-pointer hover:bg-accent">
             {/* Thermometer icon */}
             <h4 className="font-medium">Temperatur</h4>
-            <p className="text-sm text-muted-foreground">Kühlkammer, Innenraum, Draußen</p>
+            <p className="text-sm text-muted-foreground">
+              Kühlkammer, Innenraum, Draußen
+            </p>
           </div>
 
           {/* Speed Environment Card */}
           <div className="border rounded-lg p-4 cursor-pointer hover:bg-accent">
             {/* Speedometer icon */}
             <h4 className="font-medium">Geschwindigkeit</h4>
-            <p className="text-sm text-muted-foreground">Auto, Fahrrad, Fußgänger</p>
+            <p className="text-sm text-muted-foreground">
+              Auto, Fahrrad, Fußgänger
+            </p>
           </div>
 
           {/* Pressure Environment Card */}
           <div className="border rounded-lg p-4 cursor-pointer hover:bg-accent">
             {/* Gauge icon */}
             <h4 className="font-medium">Druck</h4>
-            <p className="text-sm text-muted-foreground">Atmosphärisch, Druckkammer</p>
+            <p className="text-sm text-muted-foreground">
+              Atmosphärisch, Druckkammer
+            </p>
           </div>
 
           {/* Custom Environment Card */}
@@ -125,7 +131,9 @@ export function CreateEnvironmentDialog() {
 
       {/* Step 4: Visualization & Advanced Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Darstellung & Erweiterte Einstellungen</h3>
+        <h3 className="text-lg font-semibold">
+          Darstellung & Erweiterte Einstellungen
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Visualization Settings */}
           <div className="space-y-3">

@@ -66,12 +66,13 @@
 'use client';
 
 // API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_URL || 'http://localhost:8000';
-const WS_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_WS_URL || 'ws://localhost:8000';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_FASTAPI_URL || 'http://localhost:8000';
+const WS_BASE_URL =
+  process.env.NEXT_PUBLIC_FASTAPI_WS_URL || 'ws://localhost:8000';
 
 // TODO: API service functions
 export class FastAPIService {
-  
   // Sensor management
   static async getSensors() {
     // TODO: Implement GET /api/v1/sensors
@@ -109,9 +110,9 @@ export class FastAPIService {
   static createWebSocketConnection(onMessage: (data: any) => void) {
     // TODO: Implement WebSocket connection
     // Connect to /api/v1/stream for real-time sensor data
-    
+
     const ws = new WebSocket(`${WS_BASE_URL}/api/v1/stream`);
-    
+
     ws.onopen = () => {
       console.log('Connected to FastAPI WebSocket');
     };
@@ -185,7 +186,7 @@ export function useSensors() {
 }
 
 export function useSystemStatus() {
-  // TODO: Hook for system status monitoring  
+  // TODO: Hook for system status monitoring
   // Polls system status at regular intervals
 }
 

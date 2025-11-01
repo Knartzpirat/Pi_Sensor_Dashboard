@@ -55,7 +55,6 @@ export function SensorCard() {
     <div className="group">
       {/* Sensor card with GPIO/HAT connection indicator */}
       <div className="border-l-4 border-status-color">
-        
         {/* Header with sensor info and hardware details */}
         <div className="flex justify-between items-start">
           {/* Sensor name, type, and GPIO/HAT info */}
@@ -77,9 +76,7 @@ export function SensorCard() {
         </div>
 
         {/* Mini chart for recent readings */}
-        <div className="h-16">
-          {/* Sparkline chart component */}
-        </div>
+        <div className="h-16">{/* Sparkline chart component */}</div>
 
         {/* Action buttons for Raspberry Pi specific functions */}
         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
