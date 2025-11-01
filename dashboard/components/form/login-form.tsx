@@ -78,17 +78,19 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      {/* TODO: Add Login Enhancements
-       * - Create components/auth/social-login-buttons.tsx
-       * - Add OAuth providers (Google, GitHub, etc.)
-       * - Add "Remember me" functionality with secure tokens
+      {/* TODO: Add Single-User Login Enhancements
+       * - Create components/auth/session-management.tsx
+       * - Extended "Remember me" functionality for Raspberry Pi
+       * - Auto-logout after inactivity for security
        *
-       * - Create components/auth/captcha-component.tsx
-       * - Add CAPTCHA for security after failed attempts
+       * - Create components/auth/password-reset.tsx  
+       * - Local password reset without external dependencies
+       * - Recovery codes for system access
        *
-       * - Create components/auth/login-activity.tsx
-       * - Show recent login locations and devices
-       * - Security notifications
+       * - Create components/auth/security-settings.tsx
+       * - Session timeout configuration
+       * - Login attempt monitoring for Raspberry Pi
+       * - Local security preferences
        */}
       <Card className="w-full max-w-sm">
         <CardContent className="">

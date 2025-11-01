@@ -29,16 +29,16 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/dashboard/live-sensor-charts.tsx` - Echtzeit-Sensordaten mit Umgebungskontext
 - [ ] `components/dashboard/raspberry-pi-system-status.tsx` - Hardware-Info, GPIO Status, FastAPI Health
 
-## 🏢 Umgebungskontext Management (Test Objects)
+## 🏢 Umgebungskontext Management (Measurement Objects)
 
-### Environment Context (`components/test-objects/`)
+### Environment Context (`components/measurement-objects/`)
 
 - [ ] `environment-context-manager.tsx` - Hauptinterface für Umgebungsverwaltung
-- [ ] `create-environment-dialog.tsx` - Dialog zum Erstellen neuer Umgebungen
+- [ ] `create-environment-dialog.tsx` - Dialog zum Erstellen neuer Messumgebungen
 - [ ] `sensor-environment-assignment.tsx` - Drag & Drop Sensor-zu-Umgebung Zuordnung
 - [ ] `environment-context-measurements.tsx` - Messwerte nach Umgebungskontext gruppiert
-- [ ] `environment-templates.tsx` - Vordefinierte Umgebungsvorlagen
-- [ ] `environment-analytics.tsx` - Umgebungsspezifische Analysen und Vergleiche
+- [ ] `environment-templates.tsx` - Vordefinierte Messumgebungs-Vorlagen
+- [ ] `environment-analytics.tsx` - Umgebungsspezifische Messanalysen und Vergleiche
 
 ### Umgebungstyp-Beispiele:
 
@@ -119,15 +119,15 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/charts/area-chart.tsx` - Flächendiagramme für Trends
 - [ ] `components/charts/heatmap-chart.tsx` - Heatmaps für Sensor-Verteilungen
 
-## 🔧 Test Objects Erweiterungen
+## 🔧 Measurement Objects Erweiterungen
 
-### Test Objects (`app/dashboard/test-objects/page.tsx`)
+### Measurement Objects (`app/dashboard/measurement-objects/page.tsx`)
 
-- [ ] `components/test-objects/test-objects-header.tsx` - Header mit Bulk-Aktionen
-- [ ] `components/test-objects/analytics-cards.tsx` - Test-Statistiken
-- [ ] `components/test-objects/batch-operations.tsx` - Bulk Edit/Delete
-- [ ] `components/test-objects/test-scheduler.tsx` - Geplante Tests
-- [ ] `components/test-objects/test-history.tsx` - Änderungsverlauf
+- [ ] `components/measurement-objects/measurement-objects-header.tsx` - Header mit Bulk-Aktionen
+- [ ] `components/measurement-objects/analytics-cards.tsx` - Messstatistiken
+- [ ] `components/measurement-objects/batch-operations.tsx` - Bulk Edit/Delete
+- [ ] `components/measurement-objects/measurement-scheduler.tsx` - Geplante Messungen
+- [ ] `components/measurement-objects/measurement-history.tsx` - Messungsverlauf
 
 ## 🔐 Authentifizierung (Single-User System)
 
