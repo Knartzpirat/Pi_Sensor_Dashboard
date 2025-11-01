@@ -14,6 +14,13 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `sampling-settings.tsx` - Messintervalle und Datensammlung
 - [ ] `hardware-diagnostics.tsx` - System- und Hardware-Diagnose
 
+### Bereits vorhanden aber veraltet (zu entfernen):
+
+- [x] ~~`gpio-pin-configurator.tsx`~~ - ⚠️ Veraltet, durch flexible-hardware-configurator ersetzen
+- [x] ~~`sensor-hardware-settings.tsx`~~ - ⚠️ Veraltet, in flexible-hardware-configurator integrieren
+- [x] ~~`data-stream-config.tsx`~~ - ⚠️ Entfernt, da hard-coded
+- [x] ~~`fastapi-connection.tsx`~~ - ⚠️ Entfernt, da hard-coded
+
 ### Dashboard Komponenten (`components/dashboard/`)
 
 - [ ] `raspberry-pi-system-status.tsx` - Pi Hardware-Status und Metriken
@@ -32,10 +39,10 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Environment Context (`components/measurement-objects/`)
 
-- [ ] `environment-context-manager.tsx` - Hauptinterface für Umgebungsverwaltung
-- [ ] `create-environment-dialog.tsx` - Dialog zum Erstellen neuer Messumgebungen
-- [ ] `sensor-environment-assignment.tsx` - Drag & Drop Sensor-zu-Umgebung Zuordnung
-- [ ] `environment-context-measurements.tsx` - Messwerte nach Umgebungskontext gruppiert
+- [x] ~~`environment-context-manager.tsx`~~ - ✅ Bereits implementiert (`components/test-objects/environment-context-manager.tsx`)
+- [x] ~~`create-environment-dialog.tsx`~~ - ✅ Bereits implementiert (`components/test-objects/create-environment-dialog.tsx`)
+- [x] ~~`sensor-environment-assignment.tsx`~~ - ✅ Bereits implementiert (`components/test-objects/sensor-environment-assignment.tsx`)
+- [x] ~~`environment-context-measurements.tsx`~~ - ✅ Bereits implementiert (`components/test-objects/environment-context-measurements.tsx`)
 - [ ] `environment-templates.tsx` - Vordefinierte Messumgebungs-Vorlagen
 - [ ] `environment-analytics.tsx` - Umgebungsspezifische Messanalysen und Vergleiche
 
@@ -94,12 +101,12 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ### Sensors Page (`app/dashboard/sensors/page.tsx`)
 
 - [ ] `components/sensors/sensor-list.tsx` - Hardware-unabhängige Sensor-Übersicht
-- [ ] `components/sensors/sensor-card.tsx` - Einzelne Sensor-Karte mit Live-Status
+- [x] ~~`components/sensors/sensor-card.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/sensors/connection-type-selector.tsx` - GPIO/Board/I2C Auswahl
 - [ ] `components/sensors/flexible-port-mapping.tsx` - Adaptiert sich an Hardware-Typ
 - [ ] `components/sensors/hardware-detection.tsx` - Auto-Detection verschiedener Boards
 - [ ] `components/sensors/setup-wizard.tsx` - Guided Hardware Setup für verschiedene Konfigurationen
-- [ ] `components/sensors/add-sensor-dialog.tsx` - Multi-Step Sensor-Setup mit Hardware-Erkennung
+- [x] ~~`components/sensors/add-sensor-dialog.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/sensors/edit-sensor-dialog.tsx` - Sensor bearbeiten mit flexibler Port-Zuordnung
 - [ ] `components/sensors/sensor-diagnostics.tsx` - Universal Diagnose für alle Hardware-Typen
 - [ ] `components/sensors/sensor-calibration.tsx` - Kalibrierung unabhängig von Anschluss-Art
