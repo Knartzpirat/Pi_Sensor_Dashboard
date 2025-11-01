@@ -129,13 +129,13 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/test-objects/test-scheduler.tsx` - Geplante Tests
 - [ ] `components/test-objects/test-history.tsx` - Änderungsverlauf
 
-## 🔐 Authentifizierung Erweiterungen
+## 🔐 Authentifizierung (Single-User System)
 
 ### Login (`components/form/login-form.tsx`)
 
-- [ ] `components/auth/social-login-buttons.tsx` - OAuth Provider (Google, GitHub)
-- [ ] `components/auth/captcha-component.tsx` - CAPTCHA nach Failed-Logins
-- [ ] `components/auth/login-activity.tsx` - Login-Verlauf und Geräte
+- [ ] `components/auth/session-management.tsx` - Sitzungsverwaltung und Auto-Logout
+- [ ] `components/auth/password-reset.tsx` - Passwort-Reset für lokalen Benutzer
+- [ ] `components/auth/security-settings.tsx` - Lokale Sicherheitseinstellungen
 
 ## 📊 Data Table Erweiterungen
 
