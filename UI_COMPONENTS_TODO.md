@@ -115,14 +115,27 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Settings Page (`app/dashboard/settings/page.tsx`)
 
-- [ ] `components/settings/settings-navigation.tsx` - Settings-Kategorien
-- [ ] `components/settings/user-profile-settings.tsx` - Benutzerprofil
+**APIs bereits vorhanden (✅):**
+
+- [x] ~~Change Password API~~ - `/api/settings/change-password`
+- [x] ~~Change Username API~~ - `/api/settings/change-username`
+
+**UI Komponenten noch zu implementieren:**
+
+- [ ] `components/settings/settings-navigation.tsx` - Settings-Kategorien Navigation
+- [ ] `components/settings/user-profile-settings.tsx` - Benutzerprofil mit bestehenden APIs
 - [ ] `components/settings/system-settings.tsx` - System-Konfiguration
 - [ ] `components/settings/notification-settings.tsx` - Benachrichtigungen
 - [ ] `components/settings/security-settings.tsx` - Sessions, API Keys
 - [ ] `components/settings/backup-settings.tsx` - Backup & Restore
 - [ ] `components/settings/integration-settings.tsx` - Webhooks, APIs
 - [ ] `components/settings/maintenance-tools.tsx` - Logs, Diagnostik
+
+**Fehlende APIs für Settings:**
+
+- [ ] `/api/settings/notifications` - Benachrichtigungseinstellungen
+- [ ] `/api/settings/system` - System-Konfiguration
+- [ ] `/api/settings/backup` - Backup/Restore Operations
 
 ## 📈 Chart-Komponenten
 
@@ -138,6 +151,12 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Measurement Objects (`app/dashboard/measurement-objects/page.tsx`)
 
+**APIs bereits vorhanden (✅):**
+
+- [x] ~~Test-Objects CRUD~~ - `/api/test-objects` (kann als Measurement Objects verwendet werden)
+
+**UI Komponenten noch zu implementieren:**
+
 - [ ] `components/measurement-objects/measurement-objects-header.tsx` - Header mit Bulk-Aktionen
 - [ ] `components/measurement-objects/analytics-cards.tsx` - Messstatistiken
 - [ ] `components/measurement-objects/batch-operations.tsx` - Bulk Edit/Delete
@@ -148,9 +167,17 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Login (`components/form/login-form.tsx`)
 
+**APIs bereits vorhanden (✅):**
+
+- [x] ~~Login/Logout APIs~~ - `/api/auth/login`, `/api/auth/logout`
+- [x] ~~Password Reset API~~ - `/api/auth/reset-password`
+- [x] ~~Recovery Codes API~~ - `/api/auth/verify-recovery-code`
+
+**UI Komponenten noch zu implementieren:**
+
 - [ ] `components/auth/session-management.tsx` - Sitzungsverwaltung und Auto-Logout
-- [ ] `components/auth/password-reset.tsx` - Passwort-Reset für lokalen Benutzer
-- [ ] `components/auth/security-settings.tsx` - Lokale Sicherheitseinstellungen
+- [ ] `components/auth/password-reset.tsx` - Passwort-Reset UI für lokalen Benutzer
+- [ ] `components/auth/security-settings.tsx` - Lokale Sicherheitseinstellungen UI
 
 ## 🎨 UI Primitive Komponenten
 
@@ -218,11 +245,32 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `hooks/use-file-upload.tsx` - Custom Hook für File-Upload mit Progress und Error Handling
 - [ ] `hooks/use-delete-confirmation.tsx` - Custom Hook für Delete-Dialoge mit Confirmation
 
-### API Services
+### API Services & Endpoints
 
-- [ ] `services/test-object-api.ts` - API Service für Test-Object CRUD Operations
-- [ ] `services/upload-api.ts` - API Service für File-Upload Operations
-- [ ] `services/file-api.ts` - API Service für File Delete Operations
+**Bereits vorhanden (✅):**
+
+- [x] ~~`/api/auth/*`~~ - Login, Logout, Reset-Password, Recovery-Codes
+- [x] ~~`/api/test-objects/*`~~ - Test-Object CRUD Operations
+- [x] ~~`/api/pictures/*`~~ - Picture Management mit Reorder
+- [x] ~~`/api/documents/*`~~ - Document Management
+- [x] ~~`/api/labels/*`~~ - Label Management
+- [x] ~~`/api/uploads`~~ - File Upload Operations
+- [x] ~~`/api/settings/*`~~ - User Settings (Password, Username)
+
+**Noch zu implementieren:**
+
+- [ ] `/api/sensors` - Sensor-Management und Hardware-Detection
+- [ ] `/api/measurements` - Messungen CRUD und Daten-Export
+- [ ] `/api/reports` - Report-Generierung und Templates
+- [ ] `/api/hardware` - Raspberry Pi Hardware-Status und Konfiguration
+- [ ] `/api/system` - System-Status, GPIO, Performance-Metriken
+
+**Client Services:**
+
+- [x] ~~`services/fastapi-service.ts`~~ - ✅ Bereits implementiert
+- [ ] `services/sensor-api.ts` - Client Service für Sensor Operations
+- [ ] `services/measurement-api.ts` - Client Service für Measurements
+- [ ] `services/hardware-api.ts` - Client Service für Hardware Detection
 
 ## 📱 Mobile & Responsive
 
@@ -244,26 +292,32 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ## Implementierungs-Prioritäten
 
-### Hoch (Core Features)
+### Hoch (Core Features) - Für Raspberry Pi Sensor Dashboard
 
-1. Dashboard Statistik-Karten
-2. Global Search Komponente
-3. Benachrichtigungen
-4. Charts (Line, Gauge)
-5. Sensor-Management Grundlagen
+1. **Hardware-Management** - Sensor Detection & Konfiguration
+2. **Measurements Page** - Durchgeführte Messungen anzeigen und vergleichen
+3. **Dashboard Charts** - Live-Sensor-Daten Visualisierung
+4. **API Endpoints** - `/api/sensors`, `/api/measurements`, `/api/hardware`
+5. **Real-time Updates** - WebSocket für Live-Sensordaten
 
 ### Medium (Enhanced UX)
 
-1. Real-time Updates
-2. Export-Funktionalitäten
-3. Mobile Optimierung
-4. Settings-Interface
+1. **Reports System** - PDF/Excel Export von Messdaten
+2. **Settings Interface** - Hardware-Konfiguration UI
+3. **Mobile Optimierung** - Touch-freundliche Sensor-Bedienung
+4. **Code Refactoring** - UI Components aus bestehenden Dateien extrahieren
 
 ### Niedrig (Nice-to-Have)
 
-2. Advanced Analytics
-3. Accessibility Features
-4. Batch-Operationen
+1. **Advanced Analytics** - Sensor-Trends und Vorhersagen
+2. **Accessibility Features** - Screen Reader Support
+3. **Batch-Operationen** - Bulk-Sensor-Management
+
+## API-Status Übersicht
+
+**✅ Implementiert:** Auth, Test-Objects, Files, Settings (Basis)
+**🔄 Teilweise:** Dashboard Components, Charts  
+**❌ Fehlend:** Sensors, Measurements, Hardware, Reports, System
 
 Jede Komponente sollte:
 
