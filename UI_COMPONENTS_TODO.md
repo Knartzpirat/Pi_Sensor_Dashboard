@@ -122,7 +122,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ### Basis-Charts (`components/charts/`)
 
 - [x] ~~`components/charts/line-chart.tsx`~~ - ✅ Bereits implementiert
-- [x] ~~`components/charts/gauge-chart.tsx`~~ - ✅ Bereits implementiert  
+- [x] ~~`components/charts/gauge-chart.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/charts/bar-chart.tsx` - Balkendiagramme für Vergleiche
 - [ ] `components/charts/area-chart.tsx` - Flächendiagramme für Trends
 - [ ] `components/charts/heatmap-chart.tsx` - Heatmaps für Sensor-Verteilungen
@@ -185,7 +185,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Real-time Components
 
-- [ ] `components/realtime/websocket-provider.tsx` - WebSocket-Integration
+- [x] ~~`components/realtime/websocket-provider.tsx`~~ - ✅ Bereits implementiert (`components/providers/websocket-provider.tsx`)
 - [ ] `components/realtime/live-updates.tsx` - Live-Daten Updates
 - [ ] `components/realtime/connection-status.tsx` - Verbindungsstatus
 
