@@ -78,6 +78,18 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col items-center justify-center">
+      {/* TODO: Add Login Enhancements
+       * - Create components/auth/social-login-buttons.tsx
+       * - Add OAuth providers (Google, GitHub, etc.)
+       * - Add "Remember me" functionality with secure tokens
+       * 
+       * - Create components/auth/captcha-component.tsx
+       * - Add CAPTCHA for security after failed attempts
+       * 
+       * - Create components/auth/login-activity.tsx
+       * - Show recent login locations and devices
+       * - Security notifications
+       */}
       <Card className="w-full max-w-sm">
         <CardContent className="">
           <form

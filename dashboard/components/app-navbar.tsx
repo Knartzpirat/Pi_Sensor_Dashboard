@@ -26,6 +26,27 @@ export function AppNavbar() {
         <h1 className="text-base font-medium">{t(`sidebar.pages.${pageName}`)}</h1>
       </div>
       <div className="flex justify-end p-4 gap-2 ">
+        {/* TODO: Add Search Component
+         * - Create components/navbar/global-search.tsx
+         * - Global search for sensors, measurements, test objects
+         * - Use Command component (cmdk) for fuzzy search
+         * - Keyboard shortcut (Ctrl+K)
+         */}
+        
+        {/* TODO: Add Notifications Component
+         * - Create components/navbar/notifications.tsx
+         * - Bell icon with notification count badge
+         * - Dropdown with recent alerts/system notifications
+         * - Use Popover component, mark as read functionality
+         */}
+        
+        {/* TODO: Add User Menu Component
+         * - Create components/navbar/user-menu.tsx
+         * - Avatar with dropdown menu
+         * - Profile settings, preferences, help links
+         * - Use DropdownMenu component
+         */}
+        
         <LocaleSwitcher />
         <SwitchTheme />
         <LogoutButton />

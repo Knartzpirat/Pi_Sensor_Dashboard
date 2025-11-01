@@ -34,17 +34,17 @@ const data = {
     },
     {
       key: 'measurements',
-      url: '#',
+      url: '#', // TODO: Create /dashboard/measurements page with real-time sensor data
       icon: ChartSpline,
     },
     {
       key: 'reports',
-      url: '#',
+      url: '#', // TODO: Create /dashboard/reports page with exportable charts and data
       icon: BookOpenText,
     },
     {
       key: 'sensors',
-      url: '#',
+      url: '#', // TODO: Create /dashboard/sensors page for sensor management
       icon: Cable,
     },
     {
@@ -107,6 +107,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainItems} />
+        
+        {/* TODO: Add Sidebar Widget Components
+         * - Create components/sidebar/sensor-status-widget.tsx
+         * - Show online/offline sensor count with indicators
+         * - Real-time status updates
+         * 
+         * - Create components/sidebar/recent-alerts-widget.tsx
+         * - Show last 3-5 critical alerts in compact format
+         * - Link to full alerts page
+         * 
+         * - Create components/sidebar/quick-stats-widget.tsx  
+         * - Current temperature, humidity averages
+         * - Mini charts or progress indicators
+         */}
+        
         <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
