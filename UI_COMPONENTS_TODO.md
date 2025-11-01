@@ -49,8 +49,8 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Navbar (`components/app-navbar.tsx`)
 
-- [ ] `components/navbar/global-search.tsx` - Globale Suche mit Cmd+K Shortcut
-- [ ] `components/navbar/notifications.tsx` - Bell-Icon mit Alert-Dropdown
+- [x] ~~`components/navbar/global-search.tsx`~~ - ✅ Bereits implementiert
+- [x] ~~`components/navbar/notifications.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/navbar/user-menu.tsx` - Avatar mit Benutzer-Menü
 
 ### Sidebar (`components/app-sidebar/index.tsx`)
@@ -121,8 +121,8 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Basis-Charts (`components/charts/`)
 
-- [ ] `components/charts/line-chart.tsx` - Zeitreihen-Diagramme mit Recharts
-- [ ] `components/charts/gauge-chart.tsx` - Kreisdiagramme für Einzelwerte
+- [x] ~~`components/charts/line-chart.tsx`~~ - ✅ Bereits implementiert
+- [x] ~~`components/charts/gauge-chart.tsx`~~ - ✅ Bereits implementiert  
 - [ ] `components/charts/bar-chart.tsx` - Balkendiagramme für Vergleiche
 - [ ] `components/charts/area-chart.tsx` - Flächendiagramme für Trends
 - [ ] `components/charts/heatmap-chart.tsx` - Heatmaps für Sensor-Verteilungen
@@ -149,8 +149,8 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### Forms (`components/forms/`)
 
-- [ ] `components/forms/date-range-picker.tsx` - Erweiterte Datumsauswahl
-- [ ] `components/forms/multi-select.tsx` - Mehrfachauswahl mit Suche
+- [x] ~~`components/forms/date-range-picker.tsx`~~ - ✅ Bereits implementiert
+- [x] ~~`components/forms/multi-select.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/forms/sensor-form.tsx` - Flexible Sensor-Konfiguration für verschiedene Hardware
 - [ ] `components/forms/settings-form.tsx` - Settings-Formulare
 - [ ] `components/forms/multi-file-upload.tsx` - Wiederverwendbare Multi-File-Upload Komponente
@@ -158,7 +158,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 ### UI Primitives (`components/ui/`)
 
-- [ ] `components/ui/color-picker.tsx` - Farb-Auswahl für Themes
+- [x] ~~`components/ui/color-picker.tsx`~~ - ✅ Bereits implementiert
 - [ ] `components/ui/data-grid.tsx` - Erweiterte Tabelle mit Editing
 - [ ] `components/ui/tree-view.tsx` - Hierarchische Datenstruktur
 - [ ] `components/ui/timeline.tsx` - Ereignis-Timeline
@@ -166,6 +166,9 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/ui/status-indicator.tsx` - Status-Badges und -Icons
 - [ ] `components/ui/breadcrumb-nav.tsx` - Navigation-Breadcrumbs
 - [ ] `components/ui/empty-state.tsx` - Leere Zustände mit Aktionen
+
+### Code Refactoring UI Components (aus bestehenden Dateien extrahieren)
+
 - [ ] `components/ui/image-thumbnail-preview.tsx` - Wiederverwendbare Thumbnail-Komponente mit Preview-Dialog
 - [ ] `components/ui/image-carousel-dialog.tsx` - Modal mit Carousel für Bildergalerien
 - [ ] `components/ui/truncated-text-popover.tsx` - Wiederverwendbare Komponente für abgeschnittenen Text mit Popover
