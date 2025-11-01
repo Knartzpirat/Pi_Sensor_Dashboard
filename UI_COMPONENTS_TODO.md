@@ -201,15 +201,15 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ### Medium (Enhanced UX)
 
 1. Real-time Updates
-3. Export-Funktionalitäten
-4. Mobile Optimierung
-5. Settings-Interface
+2. Export-Funktionalitäten
+3. Mobile Optimierung
+4. Settings-Interface
 
 ### Niedrig (Nice-to-Have)
 
 2. Advanced Analytics
 3. Accessibility Features
-5. Batch-Operationen
+4. Batch-Operationen
 
 Jede Komponente sollte:
 

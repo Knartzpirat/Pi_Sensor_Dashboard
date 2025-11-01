@@ -51,7 +51,7 @@ export function TestObjectsTable({
   // TODO: Extract to custom hooks
   // - [ ] `hooks/use-table-persistence.tsx` - Custom Hook für Table State Persistence (Cookies)
   // - [ ] `hooks/use-table-configuration.tsx` - Table Configuration Hook für Standard-Settings
-  
+
   // Load column visibility from cookies
   const savedColumnVisibility = React.useMemo(() => {
     if (typeof window === 'undefined') return {};

@@ -41,7 +41,7 @@ import { useRouter } from 'next/navigation';
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
   images,
-  title
+  title,
 }: {
   images: Array<{ id: string; url: string; order: number }>;
   title: string;
@@ -109,10 +109,10 @@ function ThumbnailPreview({
       <DialogContent className="max-w-3xl">
         <DialogTitle className="sr-only">{title}</DialogTitle>
         {images.length === 1 ? (
-        <div className="flex items-center justify-center">
-          <Image
+          <div className="flex items-center justify-center">
+            <Image
               src={images[0].url}
-            alt={title}
+              alt={title}
               width={800}
               height={800}
               className="rounded-md object-contain max-h-[70vh]"
@@ -129,17 +129,20 @@ function ThumbnailPreview({
             >
               <CarouselContent className="items-center">
                 {images.map((image, index) => (
-                  <CarouselItem key={image.id} className="flex items-center justify-center">
-                      <Image
-                        src={image.url}
-                        alt={`${title} - Bild ${index + 1}`}
-                        width={800}
-                        height={800}
+                  <CarouselItem
+                    key={image.id}
+                    className="flex items-center justify-center"
+                  >
+                    <Image
+                      src={image.url}
+                      alt={`${title} - Bild ${index + 1}`}
+                      width={800}
+                      height={800}
                       className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
-            unoptimized
+                      unoptimized
                       onLoad={handleImageLoad}
                       priority={index === 0}
-          />
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -156,16 +159,15 @@ function ThumbnailPreview({
   );
 }
 
-
-
 interface GetColumnsProps {
   t: (key: string, values?: Record<string, string | number | Date>) => string;
   labelCounts: Record<string, number>;
 }
 
-export function getColumns(
-  { t, labelCounts }: GetColumnsProps
-): ColumnDef<TestObjectsTableData>[] {
+export function getColumns({
+  t,
+  labelCounts,
+}: GetColumnsProps): ColumnDef<TestObjectsTableData>[] {
   return [
     {
       id: 'select',
@@ -386,14 +388,17 @@ export function getColumns(
           hasChangesRef.current = true;
         }, []);
 
-        const handleOpenChange = React.useCallback((open: boolean) => {
-          setIsEditDrawerOpen(open);
-          // When drawer closes, refresh if there were changes
-          if (!open && hasChangesRef.current) {
-            router.refresh();
-            hasChangesRef.current = false;
-          }
-        }, [router]);
+        const handleOpenChange = React.useCallback(
+          (open: boolean) => {
+            setIsEditDrawerOpen(open);
+            // When drawer closes, refresh if there were changes
+            if (!open && hasChangesRef.current) {
+              router.refresh();
+              hasChangesRef.current = false;
+            }
+          },
+          [router]
+        );
 
         return (
           <>

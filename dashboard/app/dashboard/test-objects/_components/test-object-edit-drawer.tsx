@@ -233,7 +233,7 @@ export function TestObjectEditDrawer({
   // TODO: Extract to custom hooks
   // - [ ] `hooks/use-test-object-data.tsx` - Custom Hook für Test-Object Data Loading
   // - [ ] `hooks/use-labels-data.tsx` - Custom Hook für Labels Loading und Caching
-  
+
   // Load test object data
   React.useEffect(() => {
     if (!open || !testObjectId) return;
@@ -271,7 +271,7 @@ export function TestObjectEditDrawer({
   // TODO: Extract to custom hooks
   // - [ ] `hooks/use-test-object-mutations.tsx` - Custom Hook für Test-Object Update Operations
   // - [ ] `services/test-object-api.ts` - API Service für Test-Object CRUD Operations
-  
+
   const handleTitleChange = async (newTitle: string) => {
     if (!testObjectId || !newTitle.trim()) return;
 
@@ -429,7 +429,7 @@ export function TestObjectEditDrawer({
   // TODO: Extract to custom hook
   // - [ ] `hooks/use-file-upload.tsx` - Custom Hook für File-Upload mit Progress und Error Handling
   // - [ ] `services/upload-api.ts` - API Service für File-Upload Operations
-  
+
   const handleUploadNewFiles = async () => {
     if (!testObjectId || newFiles.length === 0) return;
 
@@ -517,7 +517,7 @@ export function TestObjectEditDrawer({
   // TODO: Extract to custom hook
   // - [ ] `hooks/use-delete-confirmation.tsx` - Custom Hook für Delete-Dialoge mit Confirmation
   // - [ ] `services/file-api.ts` - API Service für File Delete Operations
-  
+
   const handleDeleteConfirm = async () => {
     if (!deleteItem) return;
 
@@ -645,10 +645,7 @@ export function TestObjectEditDrawer({
                     >
                       <SortableContent className="grid grid-cols-4 gap-2">
                         {pictures.map((picture) => (
-                          <SortableItem
-                            key={picture.id}
-                            value={picture.id}
-                          >
+                          <SortableItem key={picture.id} value={picture.id}>
                             <ContextMenu>
                               <ContextMenuTrigger asChild>
                                 <div className="relative aspect-square group">

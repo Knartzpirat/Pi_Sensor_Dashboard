@@ -55,7 +55,7 @@ export default function MeasurementsPage() {
           {/* Bulk Actions: Vergleichen, Exportieren, Löschen */}
           {/* Selected X measurements indicator */}
         </div>
-        
+
         {/* MeasurementsTable Component */}
         {/* Spalten: */}
         {/* - Checkbox für Auswahl */}
@@ -77,7 +77,7 @@ export default function MeasurementsPage() {
       {/* - Sensor-Grafen (Line/Area Charts) */}
       {/* - Min/Max/Durchschnitt Werte */}
       {/* - Export-Button für diese spezifische Messung */}
-      
+
       {/* TODO: Add Measurement Comparison Dialog */}
       {/* MeasurementComparisonDialog Component */}
       {/* Öffnet sich bei "Vergleichen" Action */}
