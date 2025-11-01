@@ -76,6 +76,11 @@ export const TestObjectForm = React.forwardRef<
   );
   const [allFiles, setAllFiles] = React.useState<File[]>([]);
 
+  // TODO: Extract to separate components and hooks
+  // - [ ] `hooks/use-file-upload-state.tsx` - Custom Hook für File-Upload State Management
+  // - [ ] `components/form/multi-file-upload.tsx` - Wiederverwendbare Multi-File-Upload Komponente
+  // - [ ] `components/form/file-type-filter.tsx` - File-Type Filter und Sortierung
+  
   // Dateien nach Typ filtern
   const images = React.useMemo(
     () => allFiles.filter((file) => file.type.startsWith('image/')),

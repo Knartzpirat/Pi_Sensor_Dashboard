@@ -10,8 +10,6 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 - [ ] `gpio-pin-configurator.tsx` - Interaktive GPIO-Pinout Konfiguration
 - [ ] `sensor-hardware-settings.tsx` - GPIO vs HAT Sensor-Setup
-- [ ] `fastapi-connection.tsx` - Backend-Verbindungseinstellungen
-- [ ] `data-stream-config.tsx` - WebSocket/SSE Streaming-Konfiguration
 - [ ] `sampling-settings.tsx` - Messintervalle und Datensammlung
 - [ ] `hardware-diagnostics.tsx` - System- und Hardware-Diagnose
 
@@ -104,7 +102,7 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/settings/user-profile-settings.tsx` - Benutzerprofil
 - [ ] `components/settings/system-settings.tsx` - System-Konfiguration
 - [ ] `components/settings/notification-settings.tsx` - Benachrichtigungen
-- [ ] `components/settings/security-settings.tsx` - 2FA, Sessions, API Keys
+- [ ] `components/settings/security-settings.tsx` - Sessions, API Keys
 - [ ] `components/settings/backup-settings.tsx` - Backup & Restore
 - [ ] `components/settings/integration-settings.tsx` - Webhooks, APIs
 - [ ] `components/settings/maintenance-tools.tsx` - Logs, Diagnostik
@@ -136,16 +134,6 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `components/auth/session-management.tsx` - Sitzungsverwaltung und Auto-Logout
 - [ ] `components/auth/password-reset.tsx` - Passwort-Reset für lokalen Benutzer
 - [ ] `components/auth/security-settings.tsx` - Lokale Sicherheitseinstellungen
-
-## 📊 Data Table Erweiterungen
-
-### Enhanced DataTable (`components/data-table/data-table.tsx`)
-
-- [ ] `components/data-table/data-table-export.tsx` - Excel/CSV/PDF Export
-- [ ] `components/data-table/data-table-bulk-actions.tsx` - Batch-Operationen
-- [ ] `components/data-table/data-table-column-visibility.tsx` - Spalten-Management
-- [ ] `components/data-table/data-table-saved-views.tsx` - Gespeicherte Konfigurationen
-- [ ] `components/data-table/data-table-advanced-search.tsx` - Komplexe Filter
 
 ## 🎨 UI Primitive Komponenten
 
@@ -213,17 +201,14 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 ### Medium (Enhanced UX)
 
 1. Real-time Updates
-2. Advanced DataTable Features
 3. Export-Funktionalitäten
 4. Mobile Optimierung
 5. Settings-Interface
 
 ### Niedrig (Nice-to-Have)
 
-1. Social Login
 2. Advanced Analytics
 3. Accessibility Features
-4. Custom Themes
 5. Batch-Operationen
 
 Jede Komponente sollte:

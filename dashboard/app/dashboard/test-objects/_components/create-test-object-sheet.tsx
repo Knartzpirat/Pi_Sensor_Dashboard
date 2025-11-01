@@ -23,6 +23,8 @@ export function CreateTestObjectSheet() {
   const [isLoading, setIsLoading] = React.useState(false);
   const formRef = React.useRef<TestObjectFormRef>(null);
 
+  // TODO: Extract to custom hook
+  // - [ ] `hooks/use-form-loading-state.tsx` - Bessere Lösung für Form Loading State ohne Polling
   React.useEffect(() => {
     const id = setInterval(() => {
       if (formRef.current?.isLoading !== isLoading) {

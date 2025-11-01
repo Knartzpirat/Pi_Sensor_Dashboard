@@ -33,6 +33,11 @@ import {
 } from '@/components/ui/popover';
 import { useRouter } from 'next/navigation';
 
+// TODO: Extract to separate component
+// - [ ] `components/ui/image-thumbnail-preview.tsx` - Wiederverwendbare Thumbnail-Komponente mit Preview-Dialog
+// - [ ] `components/ui/image-carousel-dialog.tsx` - Modal mit Carousel für Bildergalerien
+// - [ ] `hooks/use-carousel-state.tsx` - Custom Hook für Carousel-Status und Navigation
+
 // Thumbnail component with preview dialog
 function ThumbnailPreview({
   images,
@@ -241,6 +246,8 @@ export function getColumns(
           label={t('testObjects.table.description')}
         />
       ),
+      // TODO: Extract to separate component
+      // - [ ] `components/ui/truncated-text-popover.tsx` - Wiederverwendbare Komponente für abgeschnittenen Text mit Popover
       cell: function DescriptionCell({ row }) {
         const description = row.getValue('description') as string | null;
 
@@ -265,7 +272,7 @@ export function getColumns(
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-96 max-w-[500px]" align="start">
-              <div className="whitespace-pre-wrap break-words text-sm">
+              <div className="whitespace-pre-wrap wrap-break-word text-sm">
                 {description}
               </div>
             </PopoverContent>
@@ -288,6 +295,8 @@ export function getColumns(
           label={t('testObjects.table.label')}
         />
       ),
+      // TODO: Extract to separate component
+      // - [ ] `components/ui/label-badge.tsx` - Wiederverwendbare Label-Badge mit Farb-Support
       cell: ({ row }) => {
         const label = row.getValue('label') as string;
         const labelColor = row.original.labelColor;
@@ -362,9 +371,12 @@ export function getColumns(
         variant: 'date',
       },
     },
+    // TODO: Extract to separate component
+    // - [ ] `components/ui/table-row-actions.tsx` - Wiederverwendbare Row-Actions mit Edit/Delete Buttons
+    // - [ ] `hooks/use-row-edit-state.tsx` - Custom Hook für Row-Edit State Management
     {
       id: 'actions',
-      cell: function Cell({ row, table }) {
+      cell: function Cell({ row }) {
         const [isEditDrawerOpen, setIsEditDrawerOpen] = React.useState(false);
         const router = useRouter();
         const hasChangesRef = React.useRef(false);

@@ -69,6 +69,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
+// TODO: Extract to separate component
+// - [ ] `components/ui/inline-textarea-editor.tsx` - Wiederverwendbare inline-editable Textarea mit Auto-Save
+// - [ ] `hooks/use-inline-edit.tsx` - Custom Hook für Inline-Edit State und Auto-Save Logic
+
 // Textarea component that looks like text until clicked
 function DescriptionTextarea({
   value,
@@ -226,6 +230,10 @@ export function TestObjectEditDrawer({
     name: string;
   } | null>(null);
 
+  // TODO: Extract to custom hooks
+  // - [ ] `hooks/use-test-object-data.tsx` - Custom Hook für Test-Object Data Loading
+  // - [ ] `hooks/use-labels-data.tsx` - Custom Hook für Labels Loading und Caching
+  
   // Load test object data
   React.useEffect(() => {
     if (!open || !testObjectId) return;
@@ -260,6 +268,10 @@ export function TestObjectEditDrawer({
     loadData();
   }, [open, testObjectId, t]);
 
+  // TODO: Extract to custom hooks
+  // - [ ] `hooks/use-test-object-mutations.tsx` - Custom Hook für Test-Object Update Operations
+  // - [ ] `services/test-object-api.ts` - API Service für Test-Object CRUD Operations
+  
   const handleTitleChange = async (newTitle: string) => {
     if (!testObjectId || !newTitle.trim()) return;
 
@@ -414,6 +426,10 @@ export function TestObjectEditDrawer({
     }
   };
 
+  // TODO: Extract to custom hook
+  // - [ ] `hooks/use-file-upload.tsx` - Custom Hook für File-Upload mit Progress und Error Handling
+  // - [ ] `services/upload-api.ts` - API Service für File-Upload Operations
+  
   const handleUploadNewFiles = async () => {
     if (!testObjectId || newFiles.length === 0) return;
 
@@ -498,6 +514,10 @@ export function TestObjectEditDrawer({
     }
   }, [open]);
 
+  // TODO: Extract to custom hook
+  // - [ ] `hooks/use-delete-confirmation.tsx` - Custom Hook für Delete-Dialoge mit Confirmation
+  // - [ ] `services/file-api.ts` - API Service für File Delete Operations
+  
   const handleDeleteConfirm = async () => {
     if (!deleteItem) return;
 
@@ -605,6 +625,10 @@ export function TestObjectEditDrawer({
 
               {(pictures.length > 0 || documents.length > 0) && <Separator />}
 
+              {/* TODO: Extract to separate component
+               * - [ ] `components/ui/sortable-image-grid.tsx` - Wiederverwendbare sortierbare Bildergalerie
+               * - [ ] `components/ui/image-item.tsx` - Einzelne Bildkarte mit Context Menu und Drag Handle
+               */}
               {/* Images Section */}
               {pictures.length > 0 && (
                 <div className="space-y-3">
@@ -684,6 +708,10 @@ export function TestObjectEditDrawer({
                 </div>
               )}
 
+              {/* TODO: Extract to separate component
+               * - [ ] `components/ui/sortable-document-list.tsx` - Wiederverwendbare sortierbare Dokumentenliste
+               * - [ ] `components/ui/document-item.tsx` - Einzelnes Dokument mit inline-edit Name und Context Menu
+               */}
               {/* Documents Section */}
               {documents.length > 0 && (
                 <div className="space-y-3">
@@ -751,6 +779,10 @@ export function TestObjectEditDrawer({
                 </div>
               )}
 
+              {/* TODO: Extract to separate component
+               * - [ ] `components/form/file-upload-section.tsx` - Wiederverwendbare File-Upload Sektion mit Preview
+               * - [ ] `components/ui/upload-progress-bar.tsx` - Upload-Progress Indikator
+               */}
               {/* Upload New Files Section */}
               <div className="space-y-3">
                 <h3 className="flex items-center gap-2 text-sm font-medium">
