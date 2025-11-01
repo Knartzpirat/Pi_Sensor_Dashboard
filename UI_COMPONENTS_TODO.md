@@ -52,7 +52,6 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 
 - [x] ~~`components/navbar/global-search.tsx`~~ - ✅ Bereits implementiert
 - [x] ~~`components/navbar/notifications.tsx`~~ - ✅ Bereits implementiert
-- [ ] `components/navbar/user-menu.tsx` - Avatar mit Benutzer-Menü
 
 ### Sidebar (`components/app-sidebar/index.tsx`)
 
