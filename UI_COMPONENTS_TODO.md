@@ -46,12 +46,6 @@ Diese Datei enthält eine vollständige Übersicht aller TODO-Kommentare für UI
 - [ ] `environment-templates.tsx` - Vordefinierte Messumgebungs-Vorlagen
 - [ ] `environment-analytics.tsx` - Umgebungsspezifische Messanalysen und Vergleiche
 
-### Umgebungstyp-Beispiele:
-
-**Temperatur-Kontexte:** Kühlkammer (-20°C bis 5°C), Innenraum (18°C bis 25°C), Draußen (-30°C bis 50°C)
-**Geschwindigkeits-Kontexte:** Auto (0-200 km/h), Fahrrad (0-50 km/h), Fußgänger (0-15 km/h)  
-**Druck-Kontexte:** Meereshöhe (1013 hPa), Berge (< 1013 hPa), Druckkammer (> 1013 hPa)
-
 ## 🧭 Navigation & Layout
 
 ### Navbar (`components/app-navbar.tsx`)
