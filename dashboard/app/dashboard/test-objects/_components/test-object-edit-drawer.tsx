@@ -68,6 +68,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { Label } from '@/components/ui/label';
+
+// TODO: Extract to separate component
+// - [ ] `components/ui/inline-textarea-editor.tsx` - Wiederverwendbare inline-editable Textarea mit Auto-Save
+// - [ ] `hooks/use-inline-edit.tsx` - Custom Hook für Inline-Edit State und Auto-Save Logic
 
 // Textarea component that looks like text until clicked
 function DescriptionTextarea({
@@ -82,7 +87,7 @@ function DescriptionTextarea({
   const [isEditing, setIsEditing] = React.useState(false);
   const [localValue, setLocalValue] = React.useState(value);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const saveTimeoutRef = React.useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     setLocalValue(value);
@@ -149,7 +154,7 @@ function DescriptionTextarea({
     return (
       <div
         onClick={() => setIsEditing(true)}
-        className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text hover:border-ring transition-colors whitespace-pre-wrap"
+        className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text hover:border-ring transition-colors whitespace-pre-wrap"
       >
         {value || <span className="text-muted-foreground">{placeholder}</span>}
       </div>
@@ -165,7 +170,7 @@ function DescriptionTextarea({
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="min-h-[80px] resize-y"
+        className="min-h-20 resize-y"
       />
     </div>
   );
@@ -218,13 +223,19 @@ export function TestObjectEditDrawer({
   const [pictures, setPictures] = React.useState<Picture[]>([]);
   const [documents, setDocuments] = React.useState<Document[]>([]);
   const [labels, setLabels] = React.useState<Label[]>([]);
-  const [newFiles, setNewFiles] = React.useState<File[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
   const [deleteItem, setDeleteItem] = React.useState<{
     type: 'picture' | 'document';
     id: string;
     name: string;
   } | null>(null);
+  const [allFiles, setAllFiles] = React.useState<File[]>([]);
+  const uploadTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const lastUploadHashRef = React.useRef<string>('');
+
+  // TODO: Extract to custom hooks
+  // - [ ] `hooks/use-test-object-data.tsx` - Custom Hook für Test-Object Data Loading
+  // - [ ] `hooks/use-labels-data.tsx` - Custom Hook für Labels Loading und Caching
 
   // Load test object data
   React.useEffect(() => {
@@ -259,6 +270,10 @@ export function TestObjectEditDrawer({
 
     loadData();
   }, [open, testObjectId, t]);
+
+  // TODO: Extract to custom hooks
+  // - [ ] `hooks/use-test-object-mutations.tsx` - Custom Hook für Test-Object Update Operations
+  // - [ ] `services/test-object-api.ts` - API Service für Test-Object CRUD Operations
 
   const handleTitleChange = async (newTitle: string) => {
     if (!testObjectId || !newTitle.trim()) return;
@@ -414,8 +429,22 @@ export function TestObjectEditDrawer({
     }
   };
 
-  const handleUploadNewFiles = async () => {
-    if (!testObjectId || newFiles.length === 0) return;
+  // TODO: Extract to custom hook
+  // - [ ] `hooks/use-file-upload.tsx` - Custom Hook für File-Upload mit Progress und Error Handling
+  // - [ ] `services/upload-api.ts` - API Service für File-Upload Operations
+
+  const uploadFiles = async (files: File[]) => {
+    if (!testObjectId || files.length === 0 || isUploading) return;
+
+    // Create a hash of files to prevent duplicate uploads
+    const fileHash = files
+      .map((f) => `${f.name}-${f.size}-${f.lastModified}`)
+      .join('|');
+    if (fileHash === lastUploadHashRef.current) {
+      console.log('Duplicate upload prevented');
+      return;
+    }
+    lastUploadHashRef.current = fileHash;
 
     setIsUploading(true);
     try {
@@ -424,21 +453,13 @@ export function TestObjectEditDrawer({
       formData.append('entityType', 'TEST_OBJECT');
 
       // Separate images and documents
-      const images = newFiles.filter((file) => file.type.startsWith('image/'));
-      const docs = newFiles.filter((file) => file.type === 'application/pdf');
+      const images = files.filter((file) => file.type.startsWith('image/'));
+      const docs = files.filter((file) => file.type === 'application/pdf');
 
       console.log('Uploading files:', {
         images: images.length,
         documents: docs.length,
       });
-      console.log(
-        'Images:',
-        images.map((f) => ({ name: f.name, type: f.type, size: f.size }))
-      );
-      console.log(
-        'Documents:',
-        docs.map((f) => ({ name: f.name, type: f.type, size: f.size }))
-      );
 
       // Add images with order
       images.forEach((file, index) => {
@@ -463,14 +484,15 @@ export function TestObjectEditDrawer({
         body: formData,
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        console.error('Upload failed:', result);
+        const errorText = await response.text();
+        console.error('Upload failed:', errorText);
         throw new Error(
-          result.error || result.details || 'Failed to upload files'
+          `Upload failed: ${response.status} ${response.statusText}`
         );
       }
+
+      const result = await response.json();
 
       // Update local state with new files
       if (result.data?.images && Array.isArray(result.data.images)) {
@@ -481,22 +503,65 @@ export function TestObjectEditDrawer({
       }
 
       toast.success(t('testObjects.edit.uploadSuccess'));
-      setNewFiles([]);
       onSuccess?.();
     } catch (error) {
       console.error('Error uploading files:', error);
       toast.error(t('testObjects.edit.uploadError'));
     } finally {
       setIsUploading(false);
+      // Clear hash after a delay to allow new uploads of same files
+      setTimeout(() => {
+        lastUploadHashRef.current = '';
+      }, 5000);
     }
   };
 
-  // Reset new files when drawer closes
+  const handleFilesChange = async (files: File[]) => {
+    if (isUploading) {
+      toast.error('Upload already in progress');
+      return;
+    }
+
+    // Clear any existing timeout
+    if (uploadTimeoutRef.current) {
+      clearTimeout(uploadTimeoutRef.current);
+    }
+
+    setAllFiles(files);
+
+    if (files.length > 0) {
+      // Debounce the upload to prevent rapid successive calls
+      uploadTimeoutRef.current = setTimeout(async () => {
+        await uploadFiles(files);
+        // Clear files after upload
+        setAllFiles([]);
+      }, 100);
+    }
+  };
+
+  // Reset files when drawer closes
   React.useEffect(() => {
     if (!open) {
-      setNewFiles([]);
+      setAllFiles([]);
+      if (uploadTimeoutRef.current) {
+        clearTimeout(uploadTimeoutRef.current);
+      }
+      lastUploadHashRef.current = '';
     }
   }, [open]);
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (uploadTimeoutRef.current) {
+        clearTimeout(uploadTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // TODO: Extract to custom hook
+  // - [ ] `hooks/use-delete-confirmation.tsx` - Custom Hook für Delete-Dialoge mit Confirmation
+  // - [ ] `services/file-api.ts` - API Service für File Delete Operations
 
   const handleDeleteConfirm = async () => {
     if (!deleteItem) return;
@@ -605,6 +670,10 @@ export function TestObjectEditDrawer({
 
               {(pictures.length > 0 || documents.length > 0) && <Separator />}
 
+              {/* TODO: Extract to separate component
+               * - [ ] `components/ui/sortable-image-grid.tsx` - Wiederverwendbare sortierbare Bildergalerie
+               * - [ ] `components/ui/image-item.tsx` - Einzelne Bildkarte mit Context Menu und Drag Handle
+               */}
               {/* Images Section */}
               {pictures.length > 0 && (
                 <div className="space-y-3">
@@ -621,10 +690,7 @@ export function TestObjectEditDrawer({
                     >
                       <SortableContent className="grid grid-cols-4 gap-2">
                         {pictures.map((picture) => (
-                          <SortableItem
-                            key={picture.id}
-                            value={picture.id}
-                          >
+                          <SortableItem key={picture.id} value={picture.id}>
                             <ContextMenu>
                               <ContextMenuTrigger asChild>
                                 <div className="relative aspect-square group">
@@ -684,6 +750,10 @@ export function TestObjectEditDrawer({
                 </div>
               )}
 
+              {/* TODO: Extract to separate component
+               * - [ ] `components/ui/sortable-document-list.tsx` - Wiederverwendbare sortierbare Dokumentenliste
+               * - [ ] `components/ui/document-item.tsx` - Einzelnes Dokument mit inline-edit Name und Context Menu
+               */}
               {/* Documents Section */}
               {documents.length > 0 && (
                 <div className="space-y-3">
@@ -751,32 +821,48 @@ export function TestObjectEditDrawer({
                 </div>
               )}
 
-              {/* Upload New Files Section */}
+              {/* TODO: Extract to separate component
+               * - [ ] `components/form/file-upload-section.tsx` - Wiederverwendbare File-Upload Sektion mit Preview
+               * - [ ] `components/ui/upload-progress-bar.tsx` - Upload-Progress Indikator
+               */}
+              {/* Upload Files Section */}
               <div className="space-y-3">
                 <h3 className="flex items-center gap-2 text-sm font-medium">
                   <Upload className="h-4 w-4" />
                   {t('testObjects.edit.uploadNewFiles')}
                 </h3>
                 <FileUpload
-                  value={newFiles}
-                  onValueChange={setNewFiles}
+                  value={allFiles}
+                  onValueChange={handleFilesChange}
                   accept="image/*,application/pdf"
                   multiple
-                  maxFiles={20}
-                  maxSize={10 * 1024 * 1024}
+                  maxFiles={30}
+                  maxSize={10 * 1024 * 1024} // 10MB
+                  disabled={isUploading}
                 >
                   <FileUploadDropzone>
-                    <div className="flex flex-col items-center gap-2 py-4">
+                    <div className="flex flex-col items-center gap-2 py-6">
+                      {isUploading ? (
                       <div className="flex items-center gap-2">
-                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                        <FileText className="h-6 w-6 text-muted-foreground" />
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          <p className="text-sm font-medium">
+                            {t('testObjects.edit.uploading')}
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                            <FileText className="h-8 w-8 text-muted-foreground" />
                       </div>
                       <div className="text-center">
                         <p className="font-medium text-sm">
                           {t('testObjects.form.dropzone_combined_title')}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          {t('testObjects.form.dropzone_combined_description')}
+                              {t(
+                                'testObjects.form.dropzone_combined_description'
+                              )}
                         </p>
                       </div>
                       <FileUploadTrigger asChild>
@@ -784,46 +870,11 @@ export function TestObjectEditDrawer({
                           {t('testObjects.form.select_files')}
                         </Button>
                       </FileUploadTrigger>
+                        </>
+                      )}
                     </div>
                   </FileUploadDropzone>
                 </FileUpload>
-
-                {newFiles.length > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-muted rounded-md">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        {newFiles.length} {t('testObjects.edit.filesSelected')}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setNewFiles([])}
-                        disabled={isUploading}
-                      >
-                        {t('common.cancel')}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={handleUploadNewFiles}
-                        disabled={isUploading}
-                      >
-                        {isUploading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {t('testObjects.edit.uploading')}
-                          </>
-                        ) : (
-                          t('testObjects.edit.upload')
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
