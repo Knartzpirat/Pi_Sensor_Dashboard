@@ -143,10 +143,10 @@ export function TestObjectEditDrawer({
 
       // Update local state with new files
       if (result?.images) {
-        setLocalPictures((prev) => [...prev, ...result.images]);
+        setLocalPictures((prev) => [...prev, ...(result.images || [])]);
       }
       if (result?.documents) {
-        setLocalDocuments((prev) => [...prev, ...result.documents]);
+        setLocalDocuments((prev) => [...prev, ...(result.documents || [])]);
       }
 
       // Clear files after upload
