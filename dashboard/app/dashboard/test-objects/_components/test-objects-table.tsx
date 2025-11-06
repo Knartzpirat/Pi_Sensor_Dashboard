@@ -41,9 +41,23 @@ export function TestObjectsTable({
   const { enableAdvancedFilter, filterFlag } = useFeatureFlags();
   const t = useTranslations();
 
+  // Force re-render when user preferences change
+  const [preferencesVersion, setPreferencesVersion] = React.useState(0);
+
+  React.useEffect(() => {
+    const handlePreferencesChange = () => {
+      setPreferencesVersion((v) => v + 1);
+    };
+
+    window.addEventListener('userPreferencesLoaded', handlePreferencesChange);
+    return () => {
+      window.removeEventListener('userPreferencesLoaded', handlePreferencesChange);
+    };
+  }, []);
+
   const columns = React.useMemo(
     () => getColumns({ t, labelCounts }),
-    [t, labelCounts]
+    [t, labelCounts, preferencesVersion]
   );
 
   const pageCount = Math.ceil(total / 10);

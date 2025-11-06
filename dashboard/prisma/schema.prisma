@@ -17,7 +17,8 @@ model User {
 
   // Relationen
   refreshTokens   RefreshToken[]
-  recoveryCodes RecoveryCode[]
+  recoveryCodes   RecoveryCode[]
+  preferences     UserPreferences?
 
   @@map("users")
 }
@@ -68,6 +69,19 @@ model SetupStatus {
   version     String?
 
   @@map("setup_status")
+}
+
+model UserPreferences {
+  id           String   @id @default(cuid())
+  dateFormat   String   @default("DD.MM.YYYY") // e.g., "DD.MM.YYYY", "MM/DD/YYYY", "YYYY-MM-DD"
+  timezone     String   @default("Europe/Berlin") // IANA timezone identifier
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
 }
 
 // Label-Tabelle (wiederverwendbare Tags/Kategorien)

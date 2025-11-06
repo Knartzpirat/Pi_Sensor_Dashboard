@@ -3,6 +3,7 @@ import './globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+import { PreferencesProvider } from '@/components/preferences-provider';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 type Props = {
@@ -22,8 +23,10 @@ export default async function RootLayout({ children }: Props) {
         >
           <NuqsAdapter>
             <NextIntlClientProvider>
-              <main>{children}</main>
-              <Toaster />
+              <PreferencesProvider>
+                <main>{children}</main>
+                <Toaster />
+              </PreferencesProvider>
             </NextIntlClientProvider>
           </NuqsAdapter>
         </ThemeProvider>

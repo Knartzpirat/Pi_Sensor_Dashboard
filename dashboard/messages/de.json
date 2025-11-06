@@ -309,5 +309,44 @@
   "sort": {
     "asc": "Auf",
     "desc": "Ab"
+  },
+
+  "settings": {
+    "title": "Einstellungen",
+    "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
+    "account": {
+      "title": "Konto",
+      "description": "Verwalten Sie Ihre Kontoinformationen und Sicherheit.",
+      "username": "Benutzername",
+      "usernameDescription": "Ihr Benutzername für die Anmeldung.",
+      "usernameUpdated": "Benutzername erfolgreich aktualisiert",
+      "usernameError": "Fehler beim Aktualisieren des Benutzernamens",
+      "password": "Passwort",
+      "passwordDescription": "Ändern Sie Ihr Passwort.",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "changePassword": "Passwort ändern",
+      "passwordUpdated": "Passwort erfolgreich geändert",
+      "passwordError": "Fehler beim Ändern des Passworts",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "currentPasswordIncorrect": "Aktuelles Passwort ist falsch"
+    },
+    "preferences": {
+      "title": "Präferenzen",
+      "description": "Passen Sie Ihre Erfahrung an.",
+      "dateFormat": "Datumsformat",
+      "dateFormatDescription": "Wählen Sie, wie Daten in der Anwendung angezeigt werden.",
+      "timezone": "Zeitzone",
+      "timezoneDescription": "Legen Sie Ihre lokale Zeitzone für genaue Zeitstempel fest.",
+      "preferencesUpdated": "Präferenzen erfolgreich aktualisiert",
+      "preferencesError": "Fehler beim Aktualisieren der Präferenzen"
+    },
+    "dateFormats": {
+      "ddmmyyyy": "TT.MM.JJJJ (z.B. 31.12.2024)",
+      "mmddyyyy": "MM/TT/JJJJ (z.B. 12/31/2024)",
+      "yyyymmdd": "JJJJ-MM-TT (z.B. 2024-12-31)",
+      "ddmmyyyy_slash": "TT/MM/JJJJ (z.B. 31/12/2024)"
+    }
   }
 }

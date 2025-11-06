@@ -223,19 +223,38 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
   },
 };
 
+// Client-side cache for user preferences
+let cachedUserPreferences: DateFormatConfig | null = null;
+
+/**
+ * Set the user's date format preference (called from client components)
+ *
+ * @param dateFormat - User's preferred date format (e.g., "DD.MM.YYYY")
+ */
+export function setUserDateFormatPreference(dateFormat: string): void {
+  // Map user's format string to locale preset
+  const localeMap: Record<string, string> = {
+    'DD.MM.YYYY': 'de-DE',
+    'DD/MM/YYYY': 'en-GB',
+    'MM/DD/YYYY': 'en-US',
+    'YYYY-MM-DD': 'ISO-8601',
+  };
+
+  const locale = localeMap[dateFormat] || 'de-DE';
+  cachedUserPreferences = dateFormatPresets[locale] || defaultDateFormatConfig;
+}
+
 /**
  * Get the current date format configuration
  *
  * @returns The active date format configuration
- *
- * TODO: Implement user preference loading
- * - Check for user-specific setting in database
- * - Fall back to default if not set
  */
 export function getDateFormatConfig(): DateFormatConfig {
-  // TODO: Load from user preferences
-  // const userPreference = await getUserDateFormatPreference();
-  // return dateFormatPresets[userPreference] || defaultDateFormatConfig;
+  // Return cached user preference if available
+  if (cachedUserPreferences) {
+    return cachedUserPreferences;
+  }
 
+  // Fall back to default
   return defaultDateFormatConfig;
 }

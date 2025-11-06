@@ -102,5 +102,44 @@
   "language": {
     "german": "German",
     "english": "English"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account settings and preferences.",
+    "account": {
+      "title": "Account",
+      "description": "Manage your account information and security.",
+      "username": "Username",
+      "usernameDescription": "Your username for logging in.",
+      "usernameUpdated": "Username updated successfully",
+      "usernameError": "Failed to update username",
+      "password": "Password",
+      "passwordDescription": "Change your password.",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "changePassword": "Change Password",
+      "passwordUpdated": "Password changed successfully",
+      "passwordError": "Failed to change password",
+      "passwordMismatch": "Passwords do not match",
+      "currentPasswordIncorrect": "Current password is incorrect"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "description": "Customize your experience.",
+      "dateFormat": "Date Format",
+      "dateFormatDescription": "Choose how dates are displayed throughout the application.",
+      "timezone": "Timezone",
+      "timezoneDescription": "Set your local timezone for accurate timestamps.",
+      "preferencesUpdated": "Preferences updated successfully",
+      "preferencesError": "Failed to update preferences"
+    },
+    "dateFormats": {
+      "ddmmyyyy": "DD.MM.YYYY (e.g., 31.12.2024)",
+      "mmddyyyy": "MM/DD/YYYY (e.g., 12/31/2024)",
+      "yyyymmdd": "YYYY-MM-DD (e.g., 2024-12-31)",
+      "ddmmyyyy_slash": "DD/MM/YYYY (e.g., 31/12/2024)"
+    }
   }
 }
