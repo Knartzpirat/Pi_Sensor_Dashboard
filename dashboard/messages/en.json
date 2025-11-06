@@ -1,6 +1,17 @@
 {
   "common": {
-    "redirectingIn": "Redirecting in {seconds} seconds..."
+    "redirectingIn": "Redirecting in {seconds} seconds...",
+    "noResults": "No results found.",
+    "nofieldsfound": "No fields found.",
+    "selected": "selected",
+    "reset": "Reset",
+    "clear": "Clear",
+    "save": "Save",
+    "search": "Search...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "download": "Download",
+    "view": "View"
   },
   "inputs": {
     "username": "Username",

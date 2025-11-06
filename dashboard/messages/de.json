@@ -29,7 +29,9 @@
     "save": "Speichern",
     "search": "Suche...",
     "cancel": "Abbrechen",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "download": "Herunterladen",
+    "view": "Anzeigen"
   },
 
   "deleteDialog": {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { FileText, GripVertical, Trash2 } from 'lucide-react';
+import { FileText, GripVertical, Trash2, Download, Eye } from 'lucide-react';
 import { DndContext } from '@dnd-kit/core';
 import {
   Sortable,
@@ -36,6 +36,8 @@ interface SortableDocumentListProps {
   onDelete?: (documentId: string, documentName: string) => void;
   onRename?: (documentId: string, newName: string) => void;
   deleteLabel?: string;
+  downloadLabel?: string;
+  viewLabel?: string;
   allowRename?: boolean;
 }
 
@@ -48,8 +50,22 @@ export function SortableDocumentList({
   onDelete,
   onRename,
   deleteLabel = 'Delete',
+  downloadLabel = 'Download',
+  viewLabel = 'View',
   allowRename = true,
 }: SortableDocumentListProps) {
+  const handleDownload = (doc: DocumentItem) => {
+    const link = document.createElement('a');
+    link.href = doc.url;
+    link.download = doc.originalName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleView = (doc: DocumentItem) => {
+    window.open(doc.url, '_blank', 'noopener,noreferrer');
+  };
   return (
     <DndContext>
       <Sortable
@@ -86,8 +102,16 @@ export function SortableDocumentList({
                     )}
                   </div>
                 </ContextMenuTrigger>
-                {onDelete && (
-                  <ContextMenuContent>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => handleView(doc)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    {viewLabel}
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={() => handleDownload(doc)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {downloadLabel}
+                  </ContextMenuItem>
+                  {onDelete && (
                     <ContextMenuItem
                       className="text-destructive focus:text-destructive"
                       onClick={() => onDelete(doc.id, doc.originalName)}
@@ -95,8 +119,8 @@ export function SortableDocumentList({
                       <Trash2 className="mr-2 h-4 w-4" />
                       {deleteLabel}
                     </ContextMenuItem>
-                  </ContextMenuContent>
-                )}
+                  )}
+                </ContextMenuContent>
               </ContextMenu>
             </SortableItem>
           ))}

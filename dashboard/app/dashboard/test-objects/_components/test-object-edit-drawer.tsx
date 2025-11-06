@@ -2,10 +2,9 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, FileText, Image as ImageIcon, Upload } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -13,25 +12,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
-import {
-  Editable,
-  EditableArea,
-  EditableInput,
-  EditablePreview,
-  EditableLabel,
-} from '@/components/ui/editable';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadTrigger,
-} from '@/components/ui/file-upload';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,9 +22,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { InlineTextareaEditor } from '@/components/ui/inline-textarea-editor';
-import { SortableImageGrid } from '@/components/ui/sortable-image-grid';
-import { SortableDocumentList } from '@/components/ui/sortable-document-list';
 import { toast } from 'sonner';
 
 // Custom Hooks
@@ -52,6 +29,12 @@ import { useTestObjectData } from '@/hooks/use-test-object-data';
 import { useTestObjectMutations } from '@/hooks/use-test-object-mutations';
 import { useFileUpload } from '@/hooks/use-file-upload';
 import { useFileOperations } from '@/hooks/use-file-operations';
+
+// Feature Components
+import { EditableInfoSection } from '@/components/editable-info-section';
+import { MediaSection } from '@/components/media-section';
+import { DocumentsSection } from '@/components/documents-section';
+import { FileUploadSection } from '@/components/file-upload-section';
 
 interface Picture {
   id: string;
@@ -115,10 +98,8 @@ export function TestObjectEditDrawer({
     'picture',
     onSuccess
   );
-  const {
-    reorderFiles: reorderDocuments,
-    renameFile: renameDocument,
-  } = useFileOperations('document', onSuccess);
+  const { reorderFiles: reorderDocuments, renameFile: renameDocument } =
+    useFileOperations('document', onSuccess);
 
   // Delete confirmation dialog state
   const [deleteItem, setDeleteItem] = React.useState<{
@@ -247,155 +228,45 @@ export function TestObjectEditDrawer({
           ) : (
             <div className="space-y-6 py-2 px-4">
               {/* Basic Info Section */}
-              <div className="space-y-4">
-                <Editable
-                  value={testObject?.title || ''}
-                  onSubmit={updateTitle}
-                  required
-                >
-                  <EditableLabel>{t('testObjects.table.title')}</EditableLabel>
-                  <EditableArea>
-                    <EditablePreview />
-                    <EditableInput />
-                  </EditableArea>
-                </Editable>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t('testObjects.table.description')}
-                  </label>
-                  <InlineTextareaEditor
-                    value={testObject?.description || ''}
-                    onSubmit={updateDescription}
-                    placeholder={t('testObjects.table.description_placeholder')}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t('testObjects.table.label')}
-                  </label>
-                  <Select
-                    value={testObject?.labelId || undefined}
-                    onValueChange={updateLabel}
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={t('testObjects.table.label_placeholder')}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {labels.map((label) => (
-                        <SelectItem key={label.id} value={label.id}>
-                          <div className="flex items-center gap-2">
-                            {label.color && (
-                              <div
-                                className="h-3 w-3 rounded-full"
-                                style={{ backgroundColor: label.color }}
-                              />
-                            )}
-                            {label.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <EditableInfoSection
+                title={testObject?.title || ''}
+                description={testObject?.description || null}
+                labelId={testObject?.labelId || null}
+                labels={labels}
+                onTitleUpdate={updateTitle}
+                onDescriptionUpdate={updateDescription}
+                onLabelUpdate={updateLabel}
+              />
 
               {(localPictures.length > 0 || localDocuments.length > 0) && (
                 <Separator />
               )}
 
               {/* Images Section */}
-              {localPictures.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <ImageIcon className="h-4 w-4" />
-                    {t('testObjects.form.images')} ({localPictures.length})
-                  </h3>
-                  <SortableImageGrid
-                    images={localPictures}
-                    onReorder={handlePicturesReorder}
-                    onDelete={(id, name) =>
-                      setDeleteItem({ type: 'picture', id, name })
-                    }
-                    deleteLabel={t('common.delete')}
-                  />
-                </div>
-              )}
+              <MediaSection
+                pictures={localPictures}
+                onReorder={handlePicturesReorder}
+                onDelete={(id, name) =>
+                  setDeleteItem({ type: 'picture', id, name })
+                }
+              />
 
               {/* Documents Section */}
-              {localDocuments.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <FileText className="h-4 w-4" />
-                    {t('testObjects.form.documents')} ({localDocuments.length})
-                  </h3>
-                  <SortableDocumentList
-                    documents={localDocuments}
-                    onReorder={handleDocumentsReorder}
-                    onDelete={(id, name) =>
-                      setDeleteItem({ type: 'document', id, name })
-                    }
-                    onRename={handleDocumentRename}
-                    deleteLabel={t('common.delete')}
-                    allowRename={true}
-                  />
-                </div>
-              )}
+              <DocumentsSection
+                documents={localDocuments}
+                onReorder={handleDocumentsReorder}
+                onDelete={(id, name) =>
+                  setDeleteItem({ type: 'document', id, name })
+                }
+                onRename={handleDocumentRename}
+              />
 
               {/* Upload Files Section */}
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 text-sm font-medium">
-                  <Upload className="h-4 w-4" />
-                  {t('testObjects.edit.uploadNewFiles')}
-                </h3>
-                <FileUpload
-                  value={allFiles}
-                  onValueChange={handleFilesChange}
-                  accept="image/*,application/pdf"
-                  multiple
-                  maxFiles={30}
-                  maxSize={10 * 1024 * 1024} // 10MB
-                  disabled={isUploading}
-                >
-                  <FileUploadDropzone>
-                    <div className="flex flex-col items-center gap-2 py-6">
-                      {isUploading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                          <p className="text-sm font-medium">
-                            {t('testObjects.edit.uploading')}
-                          </p>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                            <FileText className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                          <div className="text-center">
-                            <p className="font-medium text-sm">
-                              {t('testObjects.form.dropzone_combined_title')}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {t(
-                                'testObjects.form.dropzone_combined_description'
-                              )}
-                            </p>
-                          </div>
-                          <FileUploadTrigger asChild>
-                            <Button type="button" variant="outline" size="sm">
-                              {t('testObjects.form.select_files')}
-                            </Button>
-                          </FileUploadTrigger>
-                        </>
-                      )}
-                    </div>
-                  </FileUploadDropzone>
-                </FileUpload>
-              </div>
+              <FileUploadSection
+                files={allFiles}
+                isUploading={isUploading}
+                onFilesChange={handleFilesChange}
+              />
             </div>
           )}
         </SheetContent>
