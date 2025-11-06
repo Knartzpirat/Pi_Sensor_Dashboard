@@ -51,6 +51,7 @@ import { toast } from 'sonner';
 import { useTestObjectData } from '@/hooks/use-test-object-data';
 import { useTestObjectMutations } from '@/hooks/use-test-object-mutations';
 import { useFileUpload } from '@/hooks/use-file-upload';
+import { useFileOperations } from '@/hooks/use-file-operations';
 
 interface Picture {
   id: string;
@@ -110,6 +111,15 @@ export function TestObjectEditDrawer({
 
   const { uploadWithDebounce, isUploading } = useFileUpload();
 
+  const { reorderFiles: reorderPictures } = useFileOperations(
+    'picture',
+    onSuccess
+  );
+  const {
+    reorderFiles: reorderDocuments,
+    renameFile: renameDocument,
+  } = useFileOperations('document', onSuccess);
+
   // Delete confirmation dialog state
   const [deleteItem, setDeleteItem] = React.useState<{
     type: 'picture' | 'document';
@@ -164,61 +174,19 @@ export function TestObjectEditDrawer({
   // Handle picture reordering
   const handlePicturesReorder = async (newPictures: Picture[]) => {
     setLocalPictures(newPictures);
-
-    try {
-      await Promise.all(
-        newPictures.map((pic, index) =>
-          fetch(`/api/pictures/${pic.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order: index }),
-          })
-        )
-      );
-      toast.success(t('testObjects.edit.orderUpdated'));
-      onSuccess?.();
-    } catch (error) {
-      console.error('Error updating picture order:', error);
-      toast.error(t('testObjects.edit.orderUpdateError'));
-    }
+    await reorderPictures(newPictures);
   };
 
   // Handle document reordering
   const handleDocumentsReorder = async (newDocuments: Document[]) => {
     setLocalDocuments(newDocuments);
-
-    try {
-      await Promise.all(
-        newDocuments.map((doc, index) =>
-          fetch(`/api/documents/${doc.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order: index }),
-          })
-        )
-      );
-      toast.success(t('testObjects.edit.orderUpdated'));
-      onSuccess?.();
-    } catch (error) {
-      console.error('Error updating document order:', error);
-      toast.error(t('testObjects.edit.orderUpdateError'));
-    }
+    await reorderDocuments(newDocuments);
   };
 
   // Handle document rename
   const handleDocumentRename = async (documentId: string, newName: string) => {
-    if (!newName.trim()) return;
-
-    try {
-      const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalName: newName }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update document name');
-
-      const updatedDoc = await response.json();
+    const updatedDoc = await renameDocument(documentId, newName);
+    if (updatedDoc) {
       setLocalDocuments((prev) =>
         prev.map((doc) =>
           doc.id === documentId
@@ -226,10 +194,6 @@ export function TestObjectEditDrawer({
             : doc
         )
       );
-      toast.success(t('testObjects.edit.documentNameUpdated'));
-    } catch (error) {
-      console.error('Error updating document name:', error);
-      toast.error(t('testObjects.edit.documentNameError'));
     }
   };
 
