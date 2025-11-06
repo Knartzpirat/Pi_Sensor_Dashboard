@@ -1,4 +1,30 @@
 {
+  "homepage": {
+    "title": "Welcome to Pi Sensor Dashboard",
+    "description": "Monitor and analyze your sensor data with ease."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Real-time sensor monitoring and measurements",
+    "noSensorsConnected": "No sensors connected",
+    "noSensorsDescription": "Connect sensors to start monitoring data",
+    "currentReading": "Current Reading",
+    "measurement": {
+      "title": "Active Measurement",
+      "progress": "Progress",
+      "cancel": "Cancel Measurement",
+      "confirmCancel": "Are you sure you want to cancel this measurement?",
+      "confirmCancelDescription": "This action cannot be undone. All collected data will be lost.",
+      "startedAt": "Started at",
+      "estimatedCompletion": "Estimated completion"
+    },
+    "sensors": {
+      "title": "Sensors",
+      "showInGraph": "Show in graph",
+      "hideFromGraph": "Hide from graph",
+      "noEntities": "No measurement entities available"
+    }
+  },
   "common": {
     "redirectingIn": "Redirecting in {seconds} seconds...",
     "noResults": "No results found.",

@@ -3,6 +3,28 @@
     "title": "Willkommen zum Pi Sensor Dashboard",
     "description": "Überwachen und analysieren Sie Ihre Sensordaten mit Leichtigkeit."
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Echtzeit-Sensorüberwachung und Messungen",
+    "noSensorsConnected": "Keine Sensoren verbunden",
+    "noSensorsDescription": "Verbinden Sie Sensoren, um mit der Datenüberwachung zu beginnen",
+    "currentReading": "Aktuelle Messung",
+    "measurement": {
+      "title": "Aktive Messung",
+      "progress": "Fortschritt",
+      "cancel": "Messung abbrechen",
+      "confirmCancel": "Möchten Sie diese Messung wirklich abbrechen?",
+      "confirmCancelDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Alle gesammelten Daten gehen verloren.",
+      "startedAt": "Gestartet um",
+      "estimatedCompletion": "Geschätzte Fertigstellung"
+    },
+    "sensors": {
+      "title": "Sensoren",
+      "showInGraph": "Im Graph anzeigen",
+      "hideFromGraph": "Aus Graph ausblenden",
+      "noEntities": "Keine Messgrößen verfügbar"
+    }
+  },
 
   "sidebar": {
     "title": "Pi Sensor Dashboard",
