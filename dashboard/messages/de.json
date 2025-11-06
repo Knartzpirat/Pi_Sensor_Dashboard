@@ -314,6 +314,21 @@
   "settings": {
     "title": "Einstellungen",
     "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
+    "tabs": {
+      "general": "Allgemein",
+      "hardware": "Hardware"
+    },
+    "hardware": {
+      "title": "Hardware-Einstellungen",
+      "description": "Verwalten Sie Ihre Hardware-Integrationen und -Einstellungen.",
+      "noIntegrations": "Keine Hardware-Integrationen verfügbar.",
+      "addIntegration": "Integration hinzufügen",
+      "integrationAdded": "Hardware-Integration erfolgreich hinzugefügt",
+      "integrationError": "Fehler beim Hinzufügen der Hardware-Integration",
+      "removeIntegration": "Integration entfernen",
+      "integrationRemoved": "Hardware-Integration erfolgreich entfernt",
+      "removeIntegrationConfirm": "Möchten Sie die Integration '{name}' wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
     "account": {
       "title": "Konto",
       "description": "Verwalten Sie Ihre Kontoinformationen und Sicherheit.",

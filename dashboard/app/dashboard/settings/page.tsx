@@ -1,12 +1,11 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 
 import { AccountSettingsSection } from './_components/account-settings-section';
 import { PreferencesSettingsSection } from './_components/preferences-settings-section';
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 async function getUserProfile() {
   noStore();
 
@@ -96,10 +95,30 @@ export default async function SettingsPage() {
         <p className="text-muted-foreground">{t('settings.description')}</p>
       </div>
 
-      <div className="grid gap-6">
-        <AccountSettingsSection initialProfile={profile} />
-        <PreferencesSettingsSection initialPreferences={preferences} />
-      </div>
+      <Tabs defaultValue="general" className="w-full">
+        <div className="grid gap-4">
+          <TabsList>
+            <TabsTrigger value="general">
+              {t('settings.tabs.general')}
+            </TabsTrigger>
+            <TabsTrigger value="hardware">
+              {t('settings.tabs.hardware')}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="general">
+            <div className="grid gap-4">
+              <AccountSettingsSection initialProfile={profile} />
+              <PreferencesSettingsSection initialPreferences={preferences} />
+            </div>
+          </TabsContent>
+          <TabsContent value="hardware">
+            {/* Hardware settings content goes here */}
+            <p className="text-muted-foreground">
+              {t('settings.hardware.description')}
+            </p>
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
