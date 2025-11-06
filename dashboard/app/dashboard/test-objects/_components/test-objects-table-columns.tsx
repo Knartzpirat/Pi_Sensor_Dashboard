@@ -8,23 +8,8 @@ import type { TestObjectsTableData } from '@/types/test-object';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tag, ImageIcon, Pencil } from 'lucide-react';
-import Image from 'next/image';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from '@/components/ui/carousel';
-import AutoHeight from 'embla-carousel-auto-height';
+import { Tag, Pencil } from 'lucide-react';
+import { ImageThumbnailPreview } from '@/components/ui/image-thumbnail-preview';
 import { TestObjectEditDrawer } from './test-object-edit-drawer';
 import {
   Popover,
@@ -32,129 +17,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useRouter } from 'next/navigation';
-
-// TODO: Extract to separate component
-// - [ ] `components/image-thumbnail-preview.tsx` - Wiederverwendbare Thumbnail-Komponente mit Preview-Dialog
-// - [ ] `components/image-carousel-dialog.tsx` - Modal mit Carousel für Bildergalerien
-// - [ ] `hooks/use-carousel-state.tsx` - Custom Hook für Carousel-Status und Navigation
-
-// Thumbnail component with preview dialog
-function ThumbnailPreview({
-  images,
-  title,
-}: {
-  images: Array<{ id: string; url: string; order: number }>;
-  title: string;
-}) {
-  const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
-  const [current, setCurrent] = React.useState(0);
-  const [count, setCount] = React.useState(0);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [imagesLoaded, setImagesLoaded] = React.useState(0);
-
-  React.useEffect(() => {
-    if (!carouselApi) return;
-
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-
-    carouselApi.on('select', () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
-
-  // Reinit carousel when images are loaded
-  React.useEffect(() => {
-    if (carouselApi && imagesLoaded > 0) {
-      carouselApi.reInit();
-    }
-  }, [carouselApi, imagesLoaded]);
-
-  // Reset state when dialog closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setImagesLoaded(0);
-      setCurrent(0);
-    }
-  }, [isOpen]);
-
-  const handleImageLoad = React.useCallback(() => {
-    setImagesLoaded((prev) => prev + 1);
-  }, []);
-
-  if (!images || images.length === 0) {
-    return (
-      <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50">
-        <ImageIcon className="h-5 w-5 text-muted-foreground" />
-      </div>
-    );
-  }
-
-  const thumbnailUrl = images[0].url;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted/50 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
-          <Image
-            src={thumbnailUrl}
-            alt={title}
-            width={48}
-            height={48}
-            className="h-full w-full rounded-md object-cover"
-            unoptimized
-          />
-        </button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <DialogTitle className="sr-only">{title}</DialogTitle>
-        {images.length === 1 ? (
-        <div className="flex items-center justify-center">
-          <Image
-              src={images[0].url}
-            alt={title}
-              width={800}
-              height={800}
-              className="rounded-md object-contain max-h-[70vh]"
-              unoptimized
-            />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <Carousel
-              setApi={setCarouselApi}
-              className="w-full"
-              plugins={[AutoHeight()]}
-              opts={{ watchDrag: true }}
-            >
-              <CarouselContent className="items-center">
-                {images.map((image, index) => (
-                  <CarouselItem key={image.id} className="flex items-center justify-center">
-                      <Image
-                        src={image.url}
-                        alt={`${title} - Bild ${index + 1}`}
-                        width={800}
-                        height={800}
-                      className="rounded-md object-contain max-h-[70vh] w-auto h-auto"
-            unoptimized
-                      onLoad={handleImageLoad}
-                      priority={index === 0}
-          />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-            <div className="text-center text-sm text-muted-foreground">
-              Bild {current} von {count}
-            </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 
 
@@ -204,7 +66,7 @@ export function getColumns(
         const images = row.original.images;
         const title = row.getValue('title') as string;
 
-        return <ThumbnailPreview images={images} title={title} />;
+        return <ImageThumbnailPreview images={images} title={title} />;
       },
       enableSorting: false,
       enableHiding: true,
@@ -367,9 +229,6 @@ export function getColumns(
         variant: 'date',
       },
     },
-    // TODO: Extract to separate component
-    // - [ ] `components/data-table/data-table-row-actions.tsx` - Wiederverwendbare Row-Actions mit Edit/Delete Buttons
-    // - [ ] `hooks/use-row-edit-state.tsx` - Custom Hook für Row-Edit State Management
     {
       id: 'actions',
       cell: function Cell({ row }) {
