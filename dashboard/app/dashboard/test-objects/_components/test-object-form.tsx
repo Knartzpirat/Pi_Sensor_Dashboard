@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { useTranslations } from 'next-intl';
-import { GripVertical, Image as ImageIcon, FileText, X } from 'lucide-react';
+import { Image as ImageIcon, FileText } from 'lucide-react';
 
 import {
   Form,
@@ -26,25 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadList,
-  FileUploadItem,
-  FileUploadItemPreview,
-  FileUploadItemMetadata,
-  FileUploadItemDelete,
-  FileUploadTrigger,
-} from '@/components/ui/file-upload';
-import {
-  Sortable,
-  SortableContent,
-  SortableItem,
-  SortableItemHandle,
-  SortableOverlay,
-} from '@/components/ui/sortable';
+import { FileUpload, FileUploadDropzone, FileUploadTrigger } from '@/components/ui/file-upload';
 import { Button } from '@/components/ui/button';
+import { SortableFileList } from '@/components/form/sortable-file-list';
 import { cn } from '@/lib/utils';
+
+// Custom Hooks
+import { useLabelsData } from '@/hooks/use-labels-data';
+import { useSeparateFileLists } from '@/hooks/use-file-type-filter';
 
 const testObjectSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -71,36 +60,14 @@ export const TestObjectForm = React.forwardRef<
 >(({ defaultValues, onSuccess, className }, ref) => {
   const t = useTranslations();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [labels, setLabels] = React.useState<{ id: string; name: string }[]>(
-    []
-  );
   const [allFiles, setAllFiles] = React.useState<File[]>([]);
 
-  // Dateien nach Typ filtern
-  const images = React.useMemo(
-    () => allFiles.filter((file) => file.type.startsWith('image/')),
-    [allFiles]
+  // Use custom hooks
+  const { labels } = useLabelsData('TEST_OBJECT');
+  const { images, documents, setImages, setDocuments } = useSeparateFileLists(
+    allFiles,
+    setAllFiles
   );
-
-  const pdfs = React.useMemo(
-    () => allFiles.filter((file) => file.type === 'application/pdf'),
-    [allFiles]
-  );
-
-  // Setter für separate Listen, die den gemeinsamen State aktualisieren
-  const setImages = React.useCallback((newImages: File[]) => {
-    setAllFiles((current) => [
-      ...newImages,
-      ...current.filter((f) => f.type === 'application/pdf'),
-    ]);
-  }, []);
-
-  const setPdfs = React.useCallback((newPdfs: File[]) => {
-    setAllFiles((current) => [
-      ...current.filter((f) => f.type.startsWith('image/')),
-      ...newPdfs,
-    ]);
-  }, []);
 
   const form = useForm<TestObjectFormValues>({
     resolver: zodResolver(testObjectSchema),
@@ -111,19 +78,11 @@ export const TestObjectForm = React.forwardRef<
     },
   });
 
-  React.useEffect(() => {
-    // Load available labels
-    fetch('/api/labels?type=TEST_OBJECT')
-      .then((res) => res.json())
-      .then((data) => setLabels(data))
-      .catch((error) => console.error('Error loading labels:', error));
-  }, []);
-
   async function onSubmit(data: TestObjectFormValues) {
     setIsLoading(true);
 
     try {
-      // Zuerst das Test-Objekt erstellen
+      // Create test object
       const response = await fetch('/api/test-objects', {
         method: 'POST',
         headers: {
@@ -138,20 +97,20 @@ export const TestObjectForm = React.forwardRef<
 
       const testObject = await response.json();
 
-      // Dann Dateien hochladen (falls vorhanden)
-      if (images.length > 0 || pdfs.length > 0) {
+      // Upload files if present
+      if (images.length > 0 || documents.length > 0) {
         const formData = new FormData();
         formData.append('entityId', testObject.id);
         formData.append('entityType', 'TEST_OBJECT');
 
-        // Bilder mit ihrer Reihenfolge
+        // Add images with order
         images.forEach((file, index) => {
           formData.append('images', file);
           formData.append(`imageOrder_${index}`, index.toString());
         });
 
-        // PDFs mit ihrer Reihenfolge
-        pdfs.forEach((file, index) => {
+        // Add documents with order
+        documents.forEach((file, index) => {
           formData.append('documents', file);
           formData.append(`documentOrder_${index}`, index.toString());
         });
@@ -181,11 +140,18 @@ export const TestObjectForm = React.forwardRef<
     }
   }
 
-  // Parent kann submit() und isLoading von außen ansteuern
+  // Expose submit and isLoading to parent
   React.useImperativeHandle(ref, () => ({
     submit: form.handleSubmit(onSubmit),
     isLoading,
   }));
+
+  const handleRemoveFile = React.useCallback(
+    (file: File) => {
+      setAllFiles((current) => current.filter((f) => f !== file));
+    },
+    []
+  );
 
   return (
     <Form {...form}>
@@ -257,13 +223,13 @@ export const TestObjectForm = React.forwardRef<
           )}
         />
 
-        {/* Gemeinsame Datei-Upload Dropzone */}
+        {/* File Upload Section */}
         <div className="space-y-4">
-        <div className="space-y-2">
+          <div className="space-y-2">
             <FormLabel>{t('testObjects.form.files')}</FormLabel>
-          <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm">
               {t('testObjects.form.files_description')}
-          </p>
+            </p>
           </div>
 
           <FileUpload
@@ -277,7 +243,7 @@ export const TestObjectForm = React.forwardRef<
             <FileUploadDropzone>
               <div className="flex flex-col items-center gap-2 py-6">
                 <div className="flex items-center gap-2">
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
                   <FileText className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <div className="text-center">
@@ -296,150 +262,40 @@ export const TestObjectForm = React.forwardRef<
               </div>
             </FileUploadDropzone>
 
-          {/* Bilder Liste */}
+            {/* Images List */}
             {images.length > 0 && (
-            <div className="space-y-2">
-              <FormLabel>
-                <ImageIcon className="mr-2 inline-block h-4 w-4" />
-                {t('testObjects.form.images')} ({images.length})
-              </FormLabel>
-              <p className="text-muted-foreground text-xs">
-                {t('testObjects.form.images_description')}
-              </p>
-              <Sortable
-                value={images}
-                onValueChange={setImages}
-                getItemValue={(file) => file.name + file.size}
-              >
-                <SortableContent>
-                  <FileUploadList>
-                    {images.map((file) => (
-                      <SortableItem
-                        key={file.name + file.size}
-                        value={file.name + file.size}
-                        asChild
-                      >
-                        <FileUploadItem value={file}>
-                          <SortableItemHandle asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
-                            >
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          </SortableItemHandle>
-                          <FileUploadItemPreview />
-                          <FileUploadItemMetadata />
-                          <FileUploadItemDelete asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setAllFiles((current) =>
-                                  current.filter((f) => f !== file)
-                                );
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </FileUploadItemDelete>
-                        </FileUploadItem>
-                      </SortableItem>
-                    ))}
-                  </FileUploadList>
-                </SortableContent>
-                <SortableOverlay>
-                  {({ value }) => {
-                    const file = images.find(
-                      (f) => f.name + f.size === value
-                    );
-                    return file ? (
-                      <FileUploadItem value={file} className="opacity-50">
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                      </FileUploadItem>
-                    ) : null;
-                  }}
-                </SortableOverlay>
-              </Sortable>
-        </div>
-          )}
+              <div className="space-y-2">
+                <FormLabel>
+                  <ImageIcon className="mr-2 inline-block h-4 w-4" />
+                  {t('testObjects.form.images')} ({images.length})
+                </FormLabel>
+                <p className="text-muted-foreground text-xs">
+                  {t('testObjects.form.images_description')}
+                </p>
+                <SortableFileList
+                  files={images}
+                  onReorder={setImages}
+                  onRemove={handleRemoveFile}
+                />
+              </div>
+            )}
 
-          {/* PDF/Dokumente Liste */}
-          {pdfs.length > 0 && (
-        <div className="space-y-2">
-          <FormLabel>
-            <FileText className="mr-2 inline-block h-4 w-4" />
-                {t('testObjects.form.documents')} ({pdfs.length})
-          </FormLabel>
-              <p className="text-muted-foreground text-xs">
-            {t('testObjects.form.documents_description')}
-          </p>
-              <Sortable
-                value={pdfs}
-                onValueChange={setPdfs}
-                getItemValue={(file) => file.name + file.size}
-              >
-                <SortableContent>
-                  <FileUploadList>
-                    {pdfs.map((file) => (
-                      <SortableItem
-                        key={file.name + file.size}
-                        value={file.name + file.size}
-                        asChild
-                      >
-                        <FileUploadItem value={file}>
-                          <SortableItemHandle asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-6 cursor-grab active:cursor-grabbing"
-                            >
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          </SortableItemHandle>
-                          <FileUploadItemPreview />
-                          <FileUploadItemMetadata />
-                          <FileUploadItemDelete asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setAllFiles((current) =>
-                                  current.filter((f) => f !== file)
-                                );
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </FileUploadItemDelete>
-                        </FileUploadItem>
-                      </SortableItem>
-                    ))}
-                  </FileUploadList>
-                </SortableContent>
-                <SortableOverlay>
-                  {({ value }) => {
-                    const file = pdfs.find(
-                      (f) => f.name + f.size === value
-                    );
-                    return file ? (
-                      <FileUploadItem value={file} className="opacity-50">
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                      </FileUploadItem>
-                    ) : null;
-                  }}
-                </SortableOverlay>
-              </Sortable>
-            </div>
+            {/* Documents List */}
+            {documents.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel>
+                  <FileText className="mr-2 inline-block h-4 w-4" />
+                  {t('testObjects.form.documents')} ({documents.length})
+                </FormLabel>
+                <p className="text-muted-foreground text-xs">
+                  {t('testObjects.form.documents_description')}
+                </p>
+                <SortableFileList
+                  files={documents}
+                  onReorder={setDocuments}
+                  onRemove={handleRemoveFile}
+                />
+              </div>
             )}
           </FileUpload>
         </div>

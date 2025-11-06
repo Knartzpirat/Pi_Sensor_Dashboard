@@ -8,13 +8,13 @@ import { DataTableFilterList } from '@/components/data-table/data-table-filter-l
 import { DataTableSortList } from '@/components/data-table/data-table-sort-list';
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
+import {
+  useTablePersistence,
+  useColumnVisibilityPersistence,
+} from '@/hooks/use-table-persistence';
 import type { TestObjectsTableData, QueryKeys } from '@/types/test-object';
 import { getColumns } from './test-objects-table-columns';
 import { TestObjectsTableToolbarActions } from './test-objects-table-toolbar-actions';
-import {
-  loadTableViewFromCookie,
-  saveTableViewToCookie,
-} from '@/lib/tableView-cookies';
 import { useTranslations } from 'next-intl';
 import { DataTableFilterMenu } from '@/components/data-table/data-table-filter-menu';
 
@@ -48,13 +48,11 @@ export function TestObjectsTable({
 
   const pageCount = Math.ceil(total / 10);
 
-  // Load column visibility from cookies
-  const savedColumnVisibility = React.useMemo(() => {
-    if (typeof window === 'undefined') return {};
-    return (
-      loadTableViewFromCookie<Record<string, boolean>>(TABLE_VIEW_KEY) ?? {}
-    );
-  }, []);
+  // Use custom hook for table persistence
+  const { savedState: savedColumnVisibility } = useTablePersistence(
+    TABLE_VIEW_KEY,
+    {}
+  );
 
   const { table, shallow, debounceMs, throttleMs } = useDataTable({
     data,
@@ -72,14 +70,11 @@ export function TestObjectsTable({
     clearOnDefault: true,
   });
 
-  // Save column visibility to cookies when it changes
-  const columnVisibility = table.getState().columnVisibility;
-  const columnVisibilityJson = JSON.stringify(columnVisibility);
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    saveTableViewToCookie(TABLE_VIEW_KEY, columnVisibility);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columnVisibilityJson]);
+  // Automatically save column visibility to cookies
+  useColumnVisibilityPersistence(
+    TABLE_VIEW_KEY,
+    table.getState().columnVisibility
+  );
 
   return (
     <div className="space-y-4">
