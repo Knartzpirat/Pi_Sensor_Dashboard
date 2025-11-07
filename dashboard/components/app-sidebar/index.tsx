@@ -44,7 +44,7 @@ const data = {
     },
     {
       key: 'sensors',
-      url: '#',
+      url: '/dashboard/sensors',
       icon: Cable,
     },
     {
