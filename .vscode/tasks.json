@@ -2,26 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Backend starten (FastAPI)",
-            "type": "shell",
-            "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-            "args": [
-                "-m",
-                "uvicorn",
-                "backend.main:app",
-                "--reload"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Frontend starten (Next.js)",
+            "label": "Dashboard starten (Next.js)",
             "type": "shell",
             "command": "pnpm",
             "args": [
@@ -34,18 +15,49 @@
                 "reveal": "always",
                 "panel": "dedicated"
             },
-            "problemMatcher": []
-        },
-        {
-            "label": "Starte Backend + Frontend",
-            "dependsOn": [
-                "Backend starten (FastAPI)",
-                "Frontend starten (Next.js)"
-            ],
-            "dependsOrder": "parallel",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "problemMatcher": [
                 "$eslint-compact"
             ]
+        },
+        {
+            "label": "Dashboard bauen (Production)",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "label": "Dashboard starten (Production)",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "start"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "label": "Prisma Studio starten",
@@ -64,5 +76,184 @@
             },
             "problemMatcher": []
         },
+        {
+            "label": "Prisma Client generieren",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "prisma",
+                "generate"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Prisma Schema pushen",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "prisma",
+                "db",
+                "push"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Entwicklung starten (Dev + Prisma Studio)",
+            "dependsOn": [
+                "Dashboard starten (Next.js)",
+                "Prisma Studio starten"
+            ],
+            "dependsOrder": "parallel",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "label": "Lint Code",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "lint"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "label": "TypeScript Check",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "tsc",
+                "--noEmit"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/dashboard"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+        {
+            "label": "Backend starten (FastAPI)",
+            "type": "shell",
+            "command": "${workspaceFolder}/backend/.venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "uvicorn",
+                "app.main:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--reload"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Backend Dependencies installieren",
+            "type": "shell",
+            "command": "${workspaceFolder}/backend/.venv/Scripts/pip.exe",
+            "args": [
+                "install",
+                "-r",
+                "requirements.txt"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Backend Virtual Environment erstellen",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "venv",
+                ".venv"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Full Stack starten (Dashboard + Backend)",
+            "dependsOn": [
+                "Dashboard starten (Next.js)",
+                "Backend starten (FastAPI)"
+            ],
+            "dependsOrder": "parallel",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "label": "Komplett-Setup (Backend + Dashboard + Prisma Studio)",
+            "dependsOn": [
+                "Backend starten (FastAPI)",
+                "Dashboard starten (Next.js)",
+                "Prisma Studio starten"
+            ],
+            "dependsOrder": "parallel",
+            "group": "build",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        }
     ]
 }
