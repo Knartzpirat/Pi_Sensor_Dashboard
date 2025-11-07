@@ -110,15 +110,18 @@ enum EntityType {
 
 // Testobjekt-Tabelle
 model TestObject {
-  id          String    @id @default(cuid())
-  title       String
-  description String?   @db.Text
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  labelId     String?
-  label       Label?    @relation(fields: [labelId], references: [id], onDelete: SetNull)
-  
+  id           String        @id @default(cuid())
+  title        String
+  description  String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  labelId      String?
+  label        Label?        @relation(fields: [labelId], references: [id], onDelete: SetNull)
+
+  // Relationen
+  measurements Measurement[]
+
   @@index([labelId])
   @@index([createdAt])
 }
@@ -161,4 +164,138 @@ model Document {
 
   @@index([entityType, entityId, order])
   @@index([entityType, entityId])
+}
+
+// Sensor-Tabelle
+model Sensor {
+  id               String              @id @default(cuid())
+  name             String              @unique
+  driver           String              // z.B. "DHT22Driver", "BMP280Driver"
+  connectionType   SensorConnectionType // i2c, adc (nur Custom Board), io
+
+  // GPIO Board: Speichert das verwendete BCM Pin (nur für io-Sensoren)
+  // Custom Board: Speichert die Kanal-Nummer (1-8)
+  pin              Int?                // GPIO Pin (BCM) oder Kanal-Nummer
+
+  // Zusätzliche Verbindungsparameter (z.B. I2C-Adresse für i2c-Sensoren)
+  connectionParams Json?               // Verbindungsparameter als JSON
+
+  pollInterval     Float               @default(1.0) // Polling-Intervall in Sekunden
+  enabled          Boolean             @default(true)
+  calibration      Json?               // Kalibrierungsdaten
+
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  // Relationen
+  entities         SensorEntity[]
+  measurements     Measurement[]       @relation("MeasurementSensors")
+
+  @@index([enabled])
+  @@map("sensors")
+}
+
+// Enum für Sensor-Verbindungstypen
+enum SensorConnectionType {
+  i2c  // I2C-Bus (beide Boards)
+  adc  // Analog über ADC (nur Custom Board)
+  io   // Digital GPIO (beide Boards)
+}
+
+// Sensor-Entität (z.B. Temperatur, Luftfeuchtigkeit eines Sensors)
+model SensorEntity {
+  id          String   @id @default(cuid())
+  sensorId    String
+  name        String   // z.B. "Temperature", "Humidity"
+  unit        String   // z.B. "°C", "%", "hPa"
+  type        String   // z.B. "temperature", "humidity", "pressure"
+  minValue    Float?   // Minimaler erwarteter Wert
+  maxValue    Float?   // Maximaler erwarteter Wert
+  precision   Int      @default(2) // Dezimalstellen
+  color       String   @default("#3b82f6") // Farbe für Graph-Darstellung
+  isVisible   Boolean  @default(true) // Im Graph sichtbar
+
+  createdAt   DateTime @default(now())
+
+  // Relationen
+  sensor      Sensor         @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  readings    SensorReading[]
+
+  @@index([sensorId])
+  @@index([isVisible])
+  @@map("sensor_entities")
+}
+
+// Messungs-Session
+model Measurement {
+  id              String            @id @default(cuid())
+  sessionId       String            @unique // Eindeutige Session-ID vom Backend
+  title           String
+  description     String?           @db.Text
+  testObjectId    String?           // Optional: Zuordnung zu einem Testobjekt
+
+  status          MeasurementStatus @default(RUNNING)
+  interval        Float             @default(1.0) // Messintervall in Sekunden
+  duration        Float?            // Optional: Dauer in Sekunden
+
+  startTime       DateTime
+  endTime         DateTime?
+
+  readingsCount   Int               @default(0)
+  errorCount      Int               @default(0)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relationen
+  testObject      TestObject?       @relation(fields: [testObjectId], references: [id], onDelete: SetNull)
+  sensors         Sensor[]          @relation("MeasurementSensors")
+  readings        SensorReading[]
+
+  @@index([sessionId])
+  @@index([status])
+  @@index([testObjectId])
+  @@index([startTime])
+  @@map("measurements")
+}
+
+// Enum für Messungs-Status
+enum MeasurementStatus {
+  IDLE
+  STARTING
+  RUNNING
+  PAUSED
+  STOPPING
+  COMPLETED
+  ERROR
+}
+
+// Sensor-Messwert (wird vom Frontend während des WebSocket-Streams gespeichert)
+model SensorReading {
+  id            String   @id @default(cuid())
+  measurementId String
+  entityId      String
+
+  value         Float
+  quality       Float    @default(1.0) // Qualität 0-1
+  timestamp     DateTime @default(now())
+
+  // Relationen
+  measurement   Measurement  @relation(fields: [measurementId], references: [id], onDelete: Cascade)
+  entity        SensorEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([measurementId, timestamp])
+  @@index([entityId])
+  @@map("sensor_readings")
+}
+
+// Hardware-Konfiguration
+model HardwareConfig {
+  id          String   @id @default(cuid())
+  boardType   String   @default("GPIO") // "GPIO" oder "CUSTOM"
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("hardware_config")
 }
