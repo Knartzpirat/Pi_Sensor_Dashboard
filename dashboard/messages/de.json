@@ -97,6 +97,30 @@
     "startmeasurements": "Messungen starten",
     "addsensor": "Sensor hinzufügen"
   },
+  "sensors": {
+    "addSensor": "Sensor hinzufügen",
+    "addSensorDescription": "Konfigurieren Sie einen neuen Sensor durch Auswahl des Typs und der Verbindungsdetails",
+    "sensorName": "Sensor-Name",
+    "sensorType": "Sensor-Typ",
+    "selectSensorType": "Sensor-Typ auswählen",
+    "connectionType": "Verbindungstyp",
+    "connectionTypes": {
+      "i2c": "I2C",
+      "i2cDescription": "I2C-Bus-Kommunikation (beide Boards)",
+      "adc": "Analog (ADC)",
+      "adcDescription": "Analoger Sensor mit ADC (nur Custom Board)",
+      "io": "Digital GPIO",
+      "ioDescription": "Digitaler GPIO-Sensor (beide Boards)"
+    },
+    "i2cAddress": "I2C-Adresse",
+    "i2cAddressDescription": "Hexadezimale Adresse des I2C-Geräts (z.B. 0x76 für BMP280)",
+    "adcNotSupported": "ADC-Sensoren werden nur vom Custom Board unterstützt",
+    "selectPin": "GPIO-Pin auswählen",
+    "selectChannel": "Kanal auswählen",
+    "pinInUse": "Pin wird bereits verwendet",
+    "channelInUse": "Kanal wird bereits verwendet",
+    "noAvailablePins": "Keine verfügbaren Pins/Kanäle. Alle werden bereits verwendet."
+  },
 
   "loading": {
     "creating": "Wird erstellt..."
@@ -335,21 +359,27 @@
 
   "settings": {
     "title": "Einstellungen",
+    "tabs": {
+      "general": "Allgemein",
+      "hardware": "Hardware"
+    },
     "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
     "tabs": {
       "general": "Allgemein",
       "hardware": "Hardware"
     },
     "hardware": {
-      "title": "Hardware-Einstellungen",
-      "description": "Verwalten Sie Ihre Hardware-Integrationen und -Einstellungen.",
-      "noIntegrations": "Keine Hardware-Integrationen verfügbar.",
-      "addIntegration": "Integration hinzufügen",
-      "integrationAdded": "Hardware-Integration erfolgreich hinzugefügt",
-      "integrationError": "Fehler beim Hinzufügen der Hardware-Integration",
-      "removeIntegration": "Integration entfernen",
-      "integrationRemoved": "Hardware-Integration erfolgreich entfernt",
-      "removeIntegrationConfirm": "Möchten Sie die Integration '{name}' wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden."
+      "title": "Hardware-Konfiguration",
+      "description": "Wählen Sie Ihren Board-Typ. Pin- und Kanal-Zuweisungen werden beim Hinzufügen von Sensoren konfiguriert.",
+      "boardType": "Board-Typ",
+      "boardTypes": {
+        "gpio": "Raspberry Pi GPIO",
+        "gpioDescription": "Direkte GPIO-Verbindung. Wählen Sie Pins beim Hinzufügen von Sensoren.",
+        "custom": "Custom Board",
+        "customDescription": "Custom Board mit 8 Kanälen und Spannungssteuerung. Wählen Sie Kanäle beim Hinzufügen von Sensoren."
+      },
+      "configSaved": "Hardware-Konfiguration erfolgreich gespeichert",
+      "configError": "Fehler beim Speichern der Hardware-Konfiguration"
     },
     "account": {
       "title": "Konto",
