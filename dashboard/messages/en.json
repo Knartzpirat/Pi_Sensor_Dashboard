@@ -56,6 +56,30 @@
     "title": "Test Title",
     "description": "This is a test description."
   },
+  "sensors": {
+    "addSensor": "Add Sensor",
+    "addSensorDescription": "Configure a new sensor by selecting the type and connection details",
+    "sensorName": "Sensor Name",
+    "sensorType": "Sensor Type",
+    "selectSensorType": "Select sensor type",
+    "connectionType": "Connection Type",
+    "connectionTypes": {
+      "i2c": "I2C",
+      "i2cDescription": "I2C bus communication (both boards)",
+      "adc": "Analog (ADC)",
+      "adcDescription": "Analog sensor with ADC (Custom Board only)",
+      "io": "Digital GPIO",
+      "ioDescription": "Digital GPIO sensor (both boards)"
+    },
+    "i2cAddress": "I2C Address",
+    "i2cAddressDescription": "Hexadecimal address of the I2C device (e.g., 0x76 for BMP280)",
+    "adcNotSupported": "ADC sensors are only supported on Custom Board",
+    "selectPin": "Select GPIO Pin",
+    "selectChannel": "Select Channel",
+    "pinInUse": "Pin already in use",
+    "channelInUse": "Channel already in use",
+    "noAvailablePins": "No available pins/channels. All are currently in use."
+  },
   "buttons": {
     "setup": "Set Up",
     "login": "Log In",
@@ -133,6 +157,10 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your account settings and preferences.",
+    "tabs": {
+      "general": "General",
+      "hardware": "Hardware"
+    },
     "account": {
       "title": "Account",
       "description": "Manage your account information and security.",
@@ -166,6 +194,19 @@
       "mmddyyyy": "MM/DD/YYYY (e.g., 12/31/2024)",
       "yyyymmdd": "YYYY-MM-DD (e.g., 2024-12-31)",
       "ddmmyyyy_slash": "DD/MM/YYYY (e.g., 31/12/2024)"
+    },
+    "hardware": {
+      "title": "Hardware Configuration",
+      "description": "Select your board type. Pin and channel assignments will be configured when adding sensors.",
+      "boardType": "Board Type",
+      "boardTypes": {
+        "gpio": "Raspberry Pi GPIO",
+        "gpioDescription": "Direct GPIO connection. Select pins when adding sensors.",
+        "custom": "Custom Board",
+        "customDescription": "Custom board with 8 channels and voltage control. Select channels when adding sensors."
+      },
+      "configSaved": "Hardware configuration saved successfully",
+      "configError": "Failed to save hardware configuration"
     }
   }
 }
