@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { AccountSettingsSection } from './_components/account-settings-section';
 import { PreferencesSettingsSection } from './_components/preferences-settings-section';
+import { HardwareSettingsSection } from './_components/hardware-settings-section';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 async function getUserProfile() {
   noStore();
@@ -78,12 +79,34 @@ async function getUserPreferences() {
   }
 }
 
+async function getHardwareConfig() {
+  noStore();
+
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/hardware/config`, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.config;
+  } catch (error) {
+    console.error('Error fetching hardware config:', error);
+    return null;
+  }
+}
+
 export default async function SettingsPage() {
   const t = await getTranslations();
 
-  const [profile, preferences] = await Promise.all([
+  const [profile, preferences, hardwareConfig] = await Promise.all([
     getUserProfile(),
     getUserPreferences(),
+    getHardwareConfig(),
   ]);
 
   return (
@@ -112,10 +135,7 @@ export default async function SettingsPage() {
             </div>
           </TabsContent>
           <TabsContent value="hardware">
-            {/* Hardware settings content goes here */}
-            <p className="text-muted-foreground">
-              {t('settings.hardware.description')}
-            </p>
+            <HardwareSettingsSection initialConfig={hardwareConfig} />
           </TabsContent>
         </div>
       </Tabs>
