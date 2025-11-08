@@ -2,12 +2,30 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Cable, Power, PowerOff } from 'lucide-react';
+import { Cable, Power, PowerOff, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AddSensorDrawer } from '@/components/add-sensor-drawer';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+} from '@/components/ui/context-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import type { BoardType } from '@/types/hardware';
 
@@ -34,8 +52,11 @@ interface SensorsPageClientProps {
 export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClientProps) {
   const t = useTranslations();
   const tSensors = useTranslations('sensors');
+  const tCommon = useTranslations('common');
 
   const [sensors, setSensors] = React.useState<Sensor[]>(initialSensors);
+  const [sensorToDelete, setSensorToDelete] = React.useState<Sensor | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   // Get list of used pins/channels
   const usedPins = React.useMemo(() => {
@@ -66,6 +87,39 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
       }
     } catch (error) {
       console.error('Error updating sensor:', error);
+    }
+  };
+
+  const handleEdit = (sensor: Sensor) => {
+    // TODO: Implement edit functionality
+    toast.info('Edit functionality coming soon');
+  };
+
+  const handleDeleteClick = (sensor: Sensor) => {
+    setSensorToDelete(sensor);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!sensorToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/sensors/${sensorToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete sensor');
+      }
+
+      setSensors((prev) => prev.filter((s) => s.id !== sensorToDelete.id));
+      toast.success(tSensors('sensorDeleted'));
+      setSensorToDelete(null);
+    } catch (error) {
+      console.error('Error deleting sensor:', error);
+      toast.error(tSensors('deleteSensorError'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -117,68 +171,108 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sensors.map((sensor) => (
-            <Card key={sensor.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{sensor.name}</CardTitle>
-                    <CardDescription>{sensor.driver}</CardDescription>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleToggleEnabled(sensor.id, !sensor.enabled)}
-                  >
-                    {sensor.enabled ? (
-                      <Power className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <PowerOff className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {/* Connection Info */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <Badge variant="outline">
-                      {tSensors(`connectionTypes.${sensor.connectionType}`)}
-                    </Badge>
-                    {sensor.pin && (
-                      <Badge variant="secondary">
-                        {boardType === 'GPIO'
-                          ? `GPIO ${sensor.pin}`
-                          : `Channel ${sensor.pin}`}
-                      </Badge>
-                    )}
-                    {sensor.enabled ? (
-                      <Badge variant="default">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Disabled</Badge>
-                    )}
-                  </div>
-
-                  {/* Entities */}
-                  {sensor.entities.length > 0 && (
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-1">
-                        Measurements:
+            <ContextMenu key={sensor.id}>
+              <ContextMenuTrigger>
+                <Card className="cursor-context-menu">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{sensor.name}</CardTitle>
+                        <CardDescription>{sensor.driver}</CardDescription>
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        {sensor.entities.map((entity) => (
-                          <Badge key={entity.id} variant="outline" className="text-xs">
-                            {entity.name} ({entity.unit})
-                          </Badge>
-                        ))}
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleToggleEnabled(sensor.id, !sensor.enabled)}
+                      >
+                        {sensor.enabled ? (
+                          <Power className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <PowerOff className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {/* Connection Info */}
+                      <div className="flex items-center gap-2 text-sm">
+                        <Badge variant="outline">
+                          {tSensors(`connectionTypes.${sensor.connectionType}`)}
+                        </Badge>
+                        {sensor.pin && (
+                          <Badge variant="secondary">
+                            {boardType === 'GPIO'
+                              ? `GPIO ${sensor.pin}`
+                              : `Channel ${sensor.pin}`}
+                          </Badge>
+                        )}
+                        {sensor.enabled ? (
+                          <Badge variant="default">Active</Badge>
+                        ) : (
+                          <Badge variant="secondary">Disabled</Badge>
+                        )}
+                      </div>
+
+                      {/* Entities */}
+                      {sensor.entities.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1">
+                            Measurements:
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {sensor.entities.map((entity) => (
+                              <Badge key={entity.id} variant="outline" className="text-xs">
+                                {entity.name} ({entity.unit})
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem onClick={() => handleEdit(sensor)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  {tCommon('edit')}
+                </ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => handleDeleteClick(sensor)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {tCommon('delete')}
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!sensorToDelete} onOpenChange={() => !isDeleting && setSensorToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tSensors('deleteSensorTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tSensors('deleteSensorDescription', { name: sensorToDelete?.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{tCommon('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? tCommon('loading') : tCommon('delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
