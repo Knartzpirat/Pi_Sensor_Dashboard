@@ -4,25 +4,40 @@ Python FastAPI backend für Sensor-Management und Echtzeit-Datenstreaming.
 
 ## Features
 
-- **Modulare Sensor-Treiber**: Einfaches Hinzufügen neuer Sensoren
-- **Modulare Board-Implementierungen**: Unterstützung für verschiedene HATs
-- **Echtzeit-Streaming**: WebSocket-basierte Datenübertragung
-- **REST API**: Vollständige Sensor- und Messverwaltung
-- **Custom Board Support**: Spannungswahl (3.3V, 5V, 12V), ADC-Integration
-- **Dummy-Treiber**: Windows-Entwicklung ohne Hardware möglich
+- **Modular Sensor Drivers**: Individual driver files for each sensor type
+- **Dummy Mode**: Test without hardware using realistic dummy data
+- **Sensor Registry**: Automatic discovery and registration of sensors
+- **REST API**: Full CRUD operations for sensors
+- **Real-time Readings**: Poll sensor data at configurable intervals
+- **Metadata System**: Each driver includes connection types, entities, calibration info
 
-## Architektur
+## Available Sensors
+
+| Sensor | Connection | Board Support | Entities |
+|--------|-----------|---------------|----------|
+| **PhotoCell** | ADC | Custom | Light Level (V) |
+| **BME280** | I2C | GPIO, Custom | Temperature (°C), Pressure (hPa), Humidity (%) |
+| **SCD-41** | I2C | GPIO, Custom | CO2 (ppm), Temperature (°C), Humidity (%) |
+| **DS18B20** | 1-Wire (IO) | GPIO, Custom | Temperature (°C) |
+| **FlexSensor** | ADC | Custom | Bend Angle (V) |
+| **eTape** | ADC | Custom | Liquid Level (V) |
+
+See [app/sensors/README.md](app/sensors/README.md) for detailed sensor documentation.
+
+## Architecture
 
 ```
 backend/
 ├── app/
-│   ├── sensors/          # Sensor-Treiber (DHT22, BMP280, etc.)
-│   ├── boards/           # Board-Implementierungen (GPIO, Custom)
-│   ├── models/           # Basis-Klassen und Datenmodelle
+│   ├── sensors/          # Sensor drivers (PhotoCell, BME280, SCD41, etc.)
+│   │   ├── base.py      # Base classes (BaseSensorDriver, SensorMetadata)
+│   │   ├── registry.py  # Central registry and factory functions
+│   │   └── *.py         # Individual sensor driver files
+│   ├── models/           # Data models (Pydantic)
 │   ├── core/             # Sensor-Manager, WebSocket-Manager
-│   ├── api/              # REST API-Endpunkte
-│   ├── config/           # Konfiguration
-│   └── main.py           # Hauptanwendung
+│   ├── api/              # REST API endpoints
+│   ├── config/           # Configuration
+│   └── main.py           # FastAPI application
 ├── requirements.txt
 └── .env
 ```
