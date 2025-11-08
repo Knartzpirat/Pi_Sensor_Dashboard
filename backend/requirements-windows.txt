@@ -1,0 +1,7 @@
+# Windows development requirements (no hardware libraries)
+# Use this for development on Windows without Raspberry Pi hardware
+
+-r requirements-base.txt
+
+# No hardware-specific libraries on Windows
+# Hardware libraries will use dummy drivers automatically
