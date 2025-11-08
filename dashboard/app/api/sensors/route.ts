@@ -97,7 +97,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create sensor
+    // Fetch sensor metadata from backend to get entities
+    let sensorMetadata = null;
+    try {
+      const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+      const metadataResponse = await fetch(`${backendUrl}/sensors/supported?board_type=${boardType}`);
+      if (metadataResponse.ok) {
+        const data = await metadataResponse.json();
+        sensorMetadata = data.sensors.find((s: any) => s.driverName === driver);
+      }
+    } catch (error) {
+      console.error('Failed to fetch sensor metadata:', error);
+    }
+
+    // Create sensor with entities
     const sensor = await prisma.sensor.create({
       data: {
         name,
@@ -109,6 +122,18 @@ export async function POST(request: NextRequest) {
         pollInterval: pollInterval || 1.0,
         enabled: enabled !== undefined ? enabled : true,
         calibration,
+        entities: sensorMetadata?.entities
+          ? {
+              create: sensorMetadata.entities.map((entity: any) => ({
+                name: entity.name,
+                unit: entity.unit,
+                type: entity.type,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        entities: true,
       },
     });
 
@@ -119,11 +144,13 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
+          name: sensor.id, // Use sensor ID as name for backend
           driver,
           connection_type: connectionType,
-          pin,
-          connection_params: connectionParams,
+          connection_params: {
+            ...connectionParams,
+            pin,
+          },
           poll_interval: pollInterval || 1.0,
           enabled: enabled !== undefined ? enabled : true,
           calibration,
@@ -131,7 +158,8 @@ export async function POST(request: NextRequest) {
       });
 
       if (!response.ok) {
-        console.error('Failed to add sensor to backend');
+        const errorText = await response.text();
+        console.error('Failed to add sensor to backend:', errorText);
         // Don't fail the request, sensor is still saved in DB
       }
     } catch (backendError) {
