@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from app.core.sensor_manager import SensorManager
 from app.models.sensor_base import SensorConfig, ConnectionType
-from app.sensors.sensor_registry import (
+from app.sensors import (
     list_all_sensors,
     list_sensors_by_board,
     list_sensors_by_category,
@@ -79,15 +79,7 @@ async def get_supported_sensors(
     if board_type:
         sensors = list_sensors_by_board(board_type.upper())
     elif category:
-        from app.sensors.sensor_registry import SensorCategory
-        try:
-            cat = SensorCategory(category.lower())
-            sensors = list_sensors_by_category(cat)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid category: {category}"
-            )
+        sensors = list_sensors_by_category(category.lower())
     elif connection_type:
         sensors = list_sensors_by_connection_type(connection_type.lower())
     else:
