@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
 
 import {
   Drawer,
@@ -20,6 +19,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Grid2x2Plus } from 'lucide-react';
 
 import type { BoardType } from '@/types/hardware';
 import type { SensorConnectionType } from '@/types/sensor';
@@ -32,15 +33,22 @@ interface AddSensorDrawerProps {
   onSensorAdded?: () => void;
 }
 
-// Available sensor drivers
-const SENSOR_DRIVERS = [
-  { value: 'DHT22', label: 'DHT22', connectionType: 'io' as SensorConnectionType, description: 'Temperature & Humidity' },
-  { value: 'DHT11', label: 'DHT11', connectionType: 'io' as SensorConnectionType, description: 'Temperature & Humidity' },
-  { value: 'BMP280', label: 'BMP280', connectionType: 'i2c' as SensorConnectionType, description: 'Pressure & Temperature' },
-  { value: 'BME280', label: 'BME280', connectionType: 'i2c' as SensorConnectionType, description: 'Pressure, Temp & Humidity' },
-  { value: 'ADS1115', label: 'ADS1115', connectionType: 'i2c' as SensorConnectionType, description: '16-bit ADC' },
-  { value: 'Analog', label: 'Analog Sensor', connectionType: 'adc' as SensorConnectionType, description: 'Generic analog sensor' },
-];
+interface SupportedSensor {
+  driverName: string;
+  displayName: string;
+  description: string;
+  category: string;
+  connectionTypes: string[];
+  entities: Array<{
+    name: string;
+    unit: string;
+    type: string;
+    precision: number;
+  }>;
+  requiresCalibration: boolean;
+  minPollInterval: number;
+  supportsBoards: string[];
+}
 
 export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSensorDrawerProps) {
   const t = useTranslations();
@@ -49,6 +57,8 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
 
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [supportedSensors, setSupportedSensors] = React.useState<SupportedSensor[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   // Form state
   const [name, setName] = React.useState('');
@@ -56,6 +66,25 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
   const [connectionType, setConnectionType] = React.useState<SensorConnectionType | ''>('');
   const [pin, setPin] = React.useState<number | undefined>(undefined);
   const [i2cAddress, setI2cAddress] = React.useState('0x76'); // Default for BMP280
+
+  // Load supported sensors from backend
+  React.useEffect(() => {
+    const loadSupportedSensors = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+        const response = await fetch(`${backendUrl}/sensors/supported?board_type=${boardType}`);
+        const data = await response.json();
+        setSupportedSensors(data.sensors || []);
+      } catch (error) {
+        console.error('Failed to load supported sensors:', error);
+        // Fallback to empty list
+        setSupportedSensors([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSupportedSensors();
+  }, [boardType]);
 
   // Get supported connection types for current board
   const supportedConnectionTypes = React.useMemo(
@@ -65,8 +94,10 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
 
   // Filter available drivers based on board type
   const availableDrivers = React.useMemo(() => {
-    return SENSOR_DRIVERS.filter((d) => supportedConnectionTypes.includes(d.connectionType));
-  }, [supportedConnectionTypes]);
+    return supportedSensors.filter((sensor) =>
+      sensor.supportsBoards.includes(boardType)
+    );
+  }, [supportedSensors, boardType]);
 
   // Get available pins/channels
   const pinOptions = React.useMemo((): PinOption[] => {
@@ -82,9 +113,9 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
   // Auto-select connection type when driver is selected
   const handleDriverChange = (value: string) => {
     setDriver(value);
-    const selectedDriver = SENSOR_DRIVERS.find((d) => d.value === value);
-    if (selectedDriver) {
-      setConnectionType(selectedDriver.connectionType);
+    const selectedSensor = supportedSensors.find((s) => s.driverName === value);
+    if (selectedSensor && selectedSensor.connectionTypes.length > 0) {
+      setConnectionType(selectedSensor.connectionTypes[0] as SensorConnectionType);
       setPin(undefined); // Reset pin selection
     }
   };
@@ -107,7 +138,8 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
 
       // Prepare connection params
       const connectionParams: any = {};
-      if (connectionType === 'i2c') {
+      if (connectionType === 'i2c' && boardType === 'GPIO') {
+        // Only GPIO Board needs I2C address, Custom Board uses TCA9548A multiplexer
         connectionParams.i2c_address = i2cAddress;
       }
 
@@ -148,13 +180,21 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
   };
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          {tSensors('addSensor')}
-        </Button>
-      </DrawerTrigger>
+    <Tooltip>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <TooltipTrigger asChild>
+          <DrawerTrigger asChild>
+            <Button
+              size="icon"
+              className="size-8 group-data-[collapsible=icon]:opacity-0"
+              variant="outline"
+            >
+              <Grid2x2Plus />
+              <span className="sr-only">{t('buttons.addsensor')}</span>
+            </Button>
+          </DrawerTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{t('buttons.addsensor')}</TooltipContent>
       <DrawerContent>
         <form onSubmit={handleSubmit}>
           <DrawerHeader>
@@ -178,16 +218,21 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
             {/* Sensor Driver */}
             <div className="space-y-2">
               <Label htmlFor="driver">{tSensors('sensorType')}</Label>
-              <Select value={driver} onValueChange={handleDriverChange}>
+              <Select value={driver} onValueChange={handleDriverChange} disabled={isLoading}>
                 <SelectTrigger id="driver">
-                  <SelectValue placeholder={tSensors('selectSensorType')} />
+                  <SelectValue placeholder={isLoading ? 'Loading sensors...' : tSensors('selectSensorType')}>
+                    {driver && availableDrivers.find(s => s.driverName === driver)?.displayName}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {availableDrivers.map((d) => (
-                    <SelectItem key={d.value} value={d.value}>
-                      <div className="flex flex-col">
-                        <span>{d.label}</span>
-                        <span className="text-xs text-muted-foreground">{d.description}</span>
+                  {availableDrivers.map((sensor) => (
+                    <SelectItem key={sensor.driverName} value={sensor.driverName} className="py-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{sensor.displayName}</span>
+                        <span className="text-xs text-muted-foreground leading-relaxed">{sensor.description}</span>
+                        <span className="text-xs text-muted-foreground leading-relaxed">
+                          {sensor.entities.map((e) => e.name).join(', ')}
+                        </span>
                       </div>
                     </SelectItem>
                   ))}
@@ -213,18 +258,20 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
                 </Label>
                 <Select value={pin?.toString()} onValueChange={(v) => setPin(parseInt(v))}>
                   <SelectTrigger id="pin">
-                    <SelectValue placeholder={boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')} />
+                    <SelectValue placeholder={boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')}>
+                      {pin !== undefined && pinOptions.find(o => o.value === pin)?.label}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {pinOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value.toString()} disabled={option.disabled}>
-                        <div className="flex flex-col">
-                          <span>{option.label}</span>
+                      <SelectItem key={option.value} value={option.value.toString()} disabled={option.disabled} className="py-3">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{option.label}</span>
                           {option.description && (
-                            <span className="text-xs text-muted-foreground">{option.description}</span>
+                            <span className="text-xs text-muted-foreground leading-relaxed">{option.description}</span>
                           )}
                           {option.disabled && (
-                            <span className="text-xs text-destructive">
+                            <span className="text-xs text-destructive leading-relaxed">
                               {boardType === 'GPIO' ? tSensors('pinInUse') : tSensors('channelInUse')}
                             </span>
                           )}
@@ -236,8 +283,8 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
               </div>
             )}
 
-            {/* I2C Address (only for I2C sensors) */}
-            {connectionType === 'i2c' && (
+            {/* I2C Address (only for I2C sensors on GPIO Board) */}
+            {connectionType === 'i2c' && boardType === 'GPIO' && (
               <div className="space-y-2">
                 <Label htmlFor="i2cAddress">{tSensors('i2cAddress')}</Label>
                 <Input
@@ -248,6 +295,13 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
                 />
                 <p className="text-xs text-muted-foreground">{tSensors('i2cAddressDescription')}</p>
               </div>
+            )}
+
+            {/* I2C Multiplexer info for Custom Board */}
+            {connectionType === 'i2c' && boardType === 'CUSTOM' && (
+              <Alert>
+                <AlertDescription>{tSensors('i2cMultiplexerInfo')}</AlertDescription>
+              </Alert>
             )}
 
             {/* Warning for no available pins */}
@@ -275,6 +329,7 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
           </DrawerFooter>
         </form>
       </DrawerContent>
-    </Drawer>
+      </Drawer>
+    </Tooltip>
   );
 }
