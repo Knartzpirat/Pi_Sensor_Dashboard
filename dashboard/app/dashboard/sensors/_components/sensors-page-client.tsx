@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AddSensorDrawer } from '@/components/add-sensor-drawer';
+import { EditSensorDrawer } from '@/components/edit-sensor-drawer';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -57,6 +58,7 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
   const [sensors, setSensors] = React.useState<Sensor[]>(initialSensors);
   const [sensorToDelete, setSensorToDelete] = React.useState<Sensor | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [sensorToEdit, setSensorToEdit] = React.useState<Sensor | null>(null);
 
   // Get list of used pins/channels
   const usedPins = React.useMemo(() => {
@@ -91,8 +93,7 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
   };
 
   const handleEdit = (sensor: Sensor) => {
-    // TODO: Implement edit functionality
-    toast.info('Edit functionality coming soon');
+    setSensorToEdit(sensor);
   };
 
   const handleDeleteClick = (sensor: Sensor) => {
@@ -196,7 +197,7 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
                   <CardContent>
                     <div className="space-y-3">
                       {/* Connection Info */}
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
                         <Badge variant="outline">
                           {tSensors(`connectionTypes.${sensor.connectionType}`)}
                         </Badge>
@@ -252,13 +253,23 @@ export function SensorsPageClient({ initialSensors, boardType }: SensorsPageClie
         </div>
       )}
 
+      {/* Edit Sensor Drawer */}
+      <EditSensorDrawer
+        sensor={sensorToEdit}
+        boardType={boardType}
+        usedPins={usedPins}
+        open={!!sensorToEdit}
+        onOpenChange={(open) => !open && setSensorToEdit(null)}
+        onSensorUpdated={handleSensorAdded}
+      />
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!sensorToDelete} onOpenChange={() => !isDeleting && setSensorToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{tSensors('deleteSensorTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {tSensors('deleteSensorDescription', { name: sensorToDelete?.name })}
+              {tSensors('deleteSensorDescription', { name: sensorToDelete?.name || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
