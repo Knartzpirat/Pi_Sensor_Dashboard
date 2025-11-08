@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ interface HardwareSettingsSectionProps {
 export function HardwareSettingsSection({ initialConfig }: HardwareSettingsSectionProps) {
   const t = useTranslations('settings.hardware');
   const tCommon = useTranslations('common');
+  const router = useRouter();
 
   const [boardType, setBoardType] = React.useState<BoardType>(
     initialConfig?.boardType as BoardType || 'GPIO'
@@ -44,6 +46,9 @@ export function HardwareSettingsSection({ initialConfig }: HardwareSettingsSecti
       }
 
       toast.success(t('configSaved'));
+
+      // Refresh the router cache to reload board-specific sensors
+      router.refresh();
     } catch (error) {
       console.error('Error saving hardware config:', error);
       toast.error(t('configError'));
