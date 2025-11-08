@@ -28,12 +28,18 @@ class Settings(BaseSettings):
     )
 
     # CORS
-    cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "http://192.168.1.100:3000"]
+    cors_origins: str = Field(
+        default="http://localhost:3000,http://192.168.1.100:3000"
     )
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS origins from comma-separated string"""
+        return [origin.strip() for origin in self.cors_origins.split(",")]
 
     # Hardware
     board_type: str = Field(default="GPIO")
+    use_dummy_drivers: bool = Field(default=False)  # Use dummy sensors/boards for development
     i2c_bus: int = Field(default=1)
     spi_bus: int = Field(default=0)
     spi_device: int = Field(default=0)
