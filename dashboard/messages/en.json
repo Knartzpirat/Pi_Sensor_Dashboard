@@ -61,6 +61,9 @@
   "sensors": {
     "addSensor": "Add Sensor",
     "addSensorDescription": "Configure a new sensor by selecting the type and connection details",
+    "editSensor": "Edit Sensor",
+    "editSensorDescription": "Update sensor configuration",
+    "sensorUpdated": "Sensor updated successfully",
     "sensorName": "Sensor Name",
     "sensorType": "Sensor Type",
     "selectSensorType": "Select sensor type",
@@ -85,7 +88,12 @@
     "deleteSensorTitle": "Delete Sensor",
     "deleteSensorDescription": "Are you sure you want to delete the sensor \"{name}\"? This action cannot be undone.",
     "sensorDeleted": "Sensor deleted successfully",
-    "deleteSensorError": "Failed to delete sensor"
+    "deleteSensorError": "Failed to delete sensor",
+    "driverChangeWarning": "Warning: You are changing the sensor type. Make sure the correct physical sensor is connected!",
+    "confirmSaveTitle": "Confirm Changes",
+    "confirmSaveDescription": "Are you sure you want to save these changes to the sensor configuration?",
+    "confirmSaveDescriptionWithDriverChange": "You are changing the sensor type. This requires different hardware to be connected.",
+    "driverChangeWarningDetailed": "DANGER: Connecting the wrong sensor type could damage your hardware! Verify that the correct physical sensor is connected before saving."
   },
   "buttons": {
     "setup": "Set Up",

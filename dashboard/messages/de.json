@@ -102,6 +102,9 @@
   "sensors": {
     "addSensor": "Sensor hinzufügen",
     "addSensorDescription": "Konfigurieren Sie einen neuen Sensor durch Auswahl des Typs und der Verbindungsdetails",
+    "editSensor": "Sensor bearbeiten",
+    "editSensorDescription": "Sensor-Konfiguration aktualisieren",
+    "sensorUpdated": "Sensor erfolgreich aktualisiert",
     "sensorName": "Sensor-Name",
     "sensorType": "Sensor-Typ",
     "selectSensorType": "Sensor-Typ auswählen",
@@ -126,6 +129,11 @@
     "deleteSensorTitle": "Sensor löschen",
     "deleteSensorDescription": "Möchten Sie den Sensor \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "sensorDeleted": "Sensor erfolgreich gelöscht",
+    "driverChangeWarning": "Warnung: Sie ändern den Sensor-Typ. Stellen Sie sicher, dass der richtige physische Sensor angeschlossen ist!",
+    "confirmSaveTitle": "Änderungen bestätigen",
+    "confirmSaveDescription": "Möchten Sie diese Änderungen an der Sensor-Konfiguration wirklich speichern?",
+    "confirmSaveDescriptionWithDriverChange": "Sie ändern den Sensor-Typ. Dies erfordert, dass andere Hardware angeschlossen ist.",
+    "driverChangeWarningDetailed": "GEFAHR: Das Anschließen des falschen Sensor-Typs kann Ihre Hardware beschädigen! Überprüfen Sie, dass der richtige physische Sensor angeschlossen ist, bevor Sie speichern.",
     "deleteSensorError": "Fehler beim Löschen des Sensors"
   },
 
