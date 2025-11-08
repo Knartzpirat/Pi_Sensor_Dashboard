@@ -7,11 +7,19 @@ const prisma = getPrismaClient();
 
 /**
  * GET /api/sensors
- * List all sensors
+ * List sensors for current board type
  */
 export async function GET() {
   try {
+    // Get current board type
+    const hardwareConfig = await prisma.hardwareConfig.findFirst();
+    const boardType = hardwareConfig?.boardType || 'GPIO';
+
+    // Only fetch sensors for current board
     const sensors = await prisma.sensor.findMany({
+      where: {
+        boardType,
+      },
       include: {
         entities: true,
       },
@@ -95,6 +103,7 @@ export async function POST(request: NextRequest) {
         name,
         driver,
         connectionType,
+        boardType, // Zuordnung zum aktuellen Board
         pin,
         connectionParams,
         pollInterval: pollInterval || 1.0,
