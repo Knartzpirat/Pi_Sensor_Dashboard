@@ -37,7 +37,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "download": "Download",
-    "view": "View"
+    "view": "View",
+    "edit": "Edit",
+    "loading": "Loading..."
   },
   "inputs": {
     "username": "Username",
@@ -73,12 +75,17 @@
     },
     "i2cAddress": "I2C Address",
     "i2cAddressDescription": "Hexadecimal address of the I2C device (e.g., 0x76 for BMP280)",
+    "i2cMultiplexerInfo": "This channel is connected via TCA9548A I2C multiplexer. No address configuration needed.",
     "adcNotSupported": "ADC sensors are only supported on Custom Board",
     "selectPin": "Select GPIO Pin",
     "selectChannel": "Select Channel",
     "pinInUse": "Pin already in use",
     "channelInUse": "Channel already in use",
-    "noAvailablePins": "No available pins/channels. All are currently in use."
+    "noAvailablePins": "No available pins/channels. All are currently in use.",
+    "deleteSensorTitle": "Delete Sensor",
+    "deleteSensorDescription": "Are you sure you want to delete the sensor \"{name}\"? This action cannot be undone.",
+    "sensorDeleted": "Sensor deleted successfully",
+    "deleteSensorError": "Failed to delete sensor"
   },
   "buttons": {
     "setup": "Set Up",
