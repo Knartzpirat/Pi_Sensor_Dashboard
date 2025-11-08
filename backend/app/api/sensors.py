@@ -8,6 +8,12 @@ from pydantic import BaseModel
 
 from app.core.sensor_manager import SensorManager
 from app.models.sensor_base import SensorConfig, ConnectionType
+from app.sensors.sensor_registry import (
+    list_all_sensors,
+    list_sensors_by_board,
+    list_sensors_by_category,
+    list_sensors_by_connection_type,
+)
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 
@@ -54,6 +60,43 @@ async def list_sensors():
     manager = SensorManager.get_instance()
     sensors = await manager.list_sensors()
     return {"sensors": sensors}
+
+
+@router.get("/supported", tags=["sensors"])
+async def get_supported_sensors(
+    board_type: str = None,
+    category: str = None,
+    connection_type: str = None,
+):
+    """
+    Get list of all supported sensors with metadata.
+
+    Query parameters:
+    - board_type: Filter by board type (GPIO or CUSTOM)
+    - category: Filter by sensor category (environmental, motion, light, analog, custom)
+    - connection_type: Filter by connection type (i2c, adc, io)
+    """
+    if board_type:
+        sensors = list_sensors_by_board(board_type.upper())
+    elif category:
+        from app.sensors.sensor_registry import SensorCategory
+        try:
+            cat = SensorCategory(category.lower())
+            sensors = list_sensors_by_category(cat)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid category: {category}"
+            )
+    elif connection_type:
+        sensors = list_sensors_by_connection_type(connection_type.lower())
+    else:
+        sensors = list_all_sensors()
+
+    return {
+        "sensors": sensors,
+        "count": len(sensors),
+    }
 
 
 @router.get("/{sensor_id}")
