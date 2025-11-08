@@ -1,13 +1,12 @@
 'use client';
+import * as React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 //import { DrawerNewMeasurement } from '@/components/drawer-newMeasurement';
-//import { AddSensorSheetContent } from '@/components/sheet-addSensor';
-//import { Drawer, DrawerTrigger } from '@/components/ui/drawer';
-import { Sheet, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { AddSensorDrawer } from '@/components/add-sensor-drawer';
+import type { BoardType } from '@/types/hardware';
 
-import { CirclePlus, Grid2x2Plus, type LucideIcon } from 'lucide-react';
+import { CirclePlus, type LucideIcon } from 'lucide-react';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -15,12 +14,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip';
 
 export function NavMain({
   items,
@@ -32,6 +25,45 @@ export function NavMain({
   }[];
 }) {
   const t = useTranslations();
+  const [boardType, setBoardType] = React.useState<BoardType>('GPIO');
+  const [usedPins, setUsedPins] = React.useState<number[]>([]);
+
+  // Load hardware config and used pins
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Get hardware config
+        const configRes = await fetch('/api/hardware/config');
+        const configData = await configRes.json();
+        setBoardType(configData.config?.boardType || 'GPIO');
+
+        // Get existing sensors to find used pins
+        const sensorsRes = await fetch('/api/sensors');
+        const sensorsData = await sensorsRes.json();
+        const pins = (sensorsData.sensors || [])
+          .filter((s: any) => s.pin !== null && s.pin !== undefined)
+          .map((s: any) => s.pin);
+        setUsedPins(pins);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleSensorAdded = async () => {
+    // Reload used pins after sensor is added
+    try {
+      const sensorsRes = await fetch('/api/sensors');
+      const sensorsData = await sensorsRes.json();
+      const pins = (sensorsData.sensors || [])
+        .filter((s: any) => s.pin !== null && s.pin !== undefined)
+        .map((s: any) => s.pin);
+      setUsedPins(pins);
+    } catch (error) {
+      console.error('Error reloading sensors:', error);
+    }
+  };
 
   return (
     <SidebarGroup>
@@ -48,25 +80,11 @@ export function NavMain({
               <DrawerNewMeasurement />
             </Drawer> */}
 
-            <Tooltip>
-              <Sheet>
-                <TooltipTrigger asChild>
-                  <SheetTrigger asChild>
-                    <Button
-                      size="icon"
-                      className="size-8 group-data-[collapsible=icon]:opacity-0"
-                      variant="outline"
-                    >
-                      <Grid2x2Plus />
-                      <span className="sr-only">{t('buttons.addsensor')}</span>
-                    </Button>
-                  </SheetTrigger>
-                </TooltipTrigger>
-                <TooltipContent>{t('buttons.addsensor')}</TooltipContent>
-
-                {/* <AddSensorSheetContent /> */}
-              </Sheet>
-            </Tooltip>
+            <AddSensorDrawer
+              boardType={boardType}
+              usedPins={usedPins}
+              onSensorAdded={handleSensorAdded}
+            />
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
