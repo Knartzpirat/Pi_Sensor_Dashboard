@@ -168,7 +168,7 @@
         {
             "label": "Backend starten (FastAPI)",
             "type": "shell",
-            "command": "${workspaceFolder}/backend/.venv/Scripts/python.exe",
+            "command": "${workspaceFolder}/.venv/Scripts/python.exe",
             "args": [
                 "-m",
                 "uvicorn",
@@ -192,7 +192,7 @@
         {
             "label": "Backend Dependencies installieren",
             "type": "shell",
-            "command": "${workspaceFolder}/backend/.venv/Scripts/pip.exe",
+            "command": "${workspaceFolder}/.venv/Scripts/pip.exe",
             "args": [
                 "install",
                 "-r",
@@ -218,7 +218,7 @@
                 ".venv"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/backend"
+                "cwd": "${workspaceFolder}"
             },
             "presentation": {
                 "reveal": "always",
