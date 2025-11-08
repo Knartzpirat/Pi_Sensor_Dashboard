@@ -9,6 +9,7 @@ Python FastAPI backend für Sensor-Management und Echtzeit-Datenstreaming.
 - **Echtzeit-Streaming**: WebSocket-basierte Datenübertragung
 - **REST API**: Vollständige Sensor- und Messverwaltung
 - **Custom Board Support**: Spannungswahl (3.3V, 5V, 12V), ADC-Integration
+- **Dummy-Treiber**: Windows-Entwicklung ohne Hardware möglich
 
 ## Architektur
 
@@ -40,8 +41,16 @@ venv\Scripts\activate     # Windows
 
 ### 2. Abhängigkeiten installieren
 
+**Für Windows-Entwicklung (ohne Hardware):**
+
 ```bash
 pip install -r requirements.txt
+```
+
+**Für Raspberry Pi (mit Hardware):**
+
+```bash
+pip install -r requirements-rpi.txt
 ```
 
 ### 3. Umgebungsvariablen konfigurieren
@@ -49,6 +58,18 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 # .env bearbeiten und anpassen
+```
+
+**Windows-Entwicklung:** Setze in `.env`:
+```env
+USE_DUMMY_DRIVERS=true
+BOARD_TYPE=GPIO
+```
+
+**Raspberry Pi:** Setze in `.env`:
+```env
+USE_DUMMY_DRIVERS=false
+BOARD_TYPE=GPIO  # oder CUSTOM
 ```
 
 ### 4. Datenbank migrieren (Next.js Dashboard)
@@ -231,6 +252,23 @@ await board.set_voltage_level(VoltageLevel.V12, channel=2)  # Kanal 2 auf 12V
 ```
 
 ## Entwicklung
+
+### Dummy-Treiber (Windows-Entwicklung)
+
+Das Backend unterstützt Dummy-Treiber für die Entwicklung ohne Hardware:
+
+**Test-Script ausführen:**
+```bash
+python test_dummy_drivers.py
+```
+
+Dieses Script testet alle Sensor-Typen und zeigt realistische simulierte Messwerte.
+
+**Automatische Plattformerkennung:**
+- Windows: Verwendet automatisch Dummy-Treiber
+- Linux: Versucht echte Hardware, fällt auf Dummy zurück
+
+**Details:** Siehe [DEVELOPMENT.md](DEVELOPMENT.md) für vollständige Dokumentation.
 
 ### Logging
 
