@@ -10,7 +10,7 @@ Handles:
 import asyncio
 import json
 import logging
-from typing import Dict, Set, Any
+from typing import Dict, Set, Any, Optional
 from datetime import datetime
 from fastapi import WebSocket
 
