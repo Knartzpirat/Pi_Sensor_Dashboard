@@ -1,32 +1,22 @@
 # FastAPI and dependencies
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-pydantic==2.5.3
-pydantic-settings==2.1.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+pydantic-settings>=2.6.0
 
 # Database
-sqlalchemy==2.0.25
-asyncpg==0.29.0
-alembic==1.13.1
+sqlalchemy>=2.0.36
+asyncpg>=0.30.0
+alembic>=1.14.0
 
 # WebSocket support
-python-socketio==5.11.0
-websockets==12.0
-
-# GPIO and Hardware (RPi specific)
-RPi.GPIO==0.7.1
-smbus2==0.4.3
-spidev==3.6
-
-# Sensor libraries
-adafruit-circuitpython-dht==4.0.3
-adafruit-circuitpython-bmp280==3.2.24
-adafruit-circuitpython-ads1x15==2.2.21
+python-socketio>=5.12.0
+websockets>=14.1
 
 # Utilities
-python-dotenv==1.0.0
-python-multipart==0.0.6
-aiofiles==23.2.1
+python-dotenv>=1.0.1
+python-multipart>=0.0.18
+aiofiles>=24.1.0
 
 # Logging and monitoring
-structlog==24.1.0
+structlog>=24.4.0
