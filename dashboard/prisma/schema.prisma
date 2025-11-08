@@ -173,6 +173,9 @@ model Sensor {
   driver           String              // z.B. "DHT22Driver", "BMP280Driver"
   connectionType   SensorConnectionType // i2c, adc (nur Custom Board), io
 
+  // Board-Zuordnung (GPIO oder CUSTOM)
+  boardType        String              @default("GPIO") // Zu welchem Board gehört dieser Sensor
+
   // GPIO Board: Speichert das verwendete BCM Pin (nur für io-Sensoren)
   // Custom Board: Speichert die Kanal-Nummer (1-8)
   pin              Int?                // GPIO Pin (BCM) oder Kanal-Nummer
@@ -192,6 +195,7 @@ model Sensor {
   measurements     Measurement[]       @relation("MeasurementSensors")
 
   @@index([enabled])
+  @@index([boardType])
   @@map("sensors")
 }
 
