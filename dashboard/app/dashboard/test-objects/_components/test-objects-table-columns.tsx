@@ -147,8 +147,8 @@ export function getColumns(
       },
     },
     {
-      id: 'label',
-      accessorKey: 'label',
+      id: 'labels',
+      accessorKey: 'labels',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -156,29 +156,37 @@ export function getColumns(
         />
       ),
       cell: ({ row }) => {
-        const label = row.getValue('label') as string;
-        const labelColor = row.original.labelColor;
+        const labels = row.getValue('labels') as Array<{ id: string; name: string; color: string | null }>;
 
-        if (label === 'No Label') {
+        if (!labels || labels.length === 0) {
           return <span className="text-muted-foreground">-</span>;
         }
 
         return (
-          <Badge
-            variant="outline"
-            style={{
-              borderColor: labelColor || undefined,
-              color: labelColor || undefined,
-            }}
-          >
-            {label}
-          </Badge>
+          <div className="flex flex-wrap gap-1">
+            {labels.map((label) => (
+              <Badge
+                key={label.id}
+                variant="outline"
+                style={{
+                  borderColor: label.color || undefined,
+                  color: label.color || undefined,
+                }}
+              >
+                {label.name}
+              </Badge>
+            ))}
+          </div>
         );
       },
       enableColumnFilter: true,
-      enableSorting: true,
+      enableSorting: false,
       filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id));
+        const labels = row.getValue(id) as Array<{ id: string; name: string; color: string | null }>;
+        if (!labels || labels.length === 0) {
+          return value.includes('No Label');
+        }
+        return labels.some((label) => value.includes(label.name));
       },
       meta: {
         label: t('testObjects.table.label'),
