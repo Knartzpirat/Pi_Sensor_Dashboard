@@ -34,9 +34,7 @@ export async function getTestObjects(
       description: item.description,
       createdAt: new Date(item.createdAt),
       updatedAt: new Date(item.updatedAt),
-      labelId: item.labelId,
-      label: item.label?.name || 'No Label',
-      labelColor: item.label?.color || null,
+      labels: item.labels || [],
       thumbnailUrl: item.pictures?.[0]?.url || null,
       images: item.pictures || [],
       })
@@ -283,8 +281,16 @@ export async function getLabelCounts(): Promise<Record<string, number>> {
     const counts: Record<string, number> = {};
 
     for (const item of allData) {
-      const labelName = item.label?.name || 'No Label';
-      counts[labelName] = (counts[labelName] || 0) + 1;
+      if (item.labels && item.labels.length > 0) {
+        // Count each label
+        for (const label of item.labels) {
+          const labelName = label.name;
+          counts[labelName] = (counts[labelName] || 0) + 1;
+        }
+      } else {
+        // Count items with no labels
+        counts['No Label'] = (counts['No Label'] || 0) + 1;
+      }
     }
 
     return counts;
