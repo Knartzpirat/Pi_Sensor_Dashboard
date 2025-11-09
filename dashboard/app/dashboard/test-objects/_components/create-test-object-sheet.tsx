@@ -50,7 +50,7 @@ export function CreateTestObjectSheet() {
 
         <TestObjectForm
           ref={formRef}
-          className="  mx-4"
+          className="  px-4"
           onSuccess={() => setOpen(false)}
         />
 
