@@ -393,6 +393,14 @@
         "custom": "Custom Board",
         "customDescription": "Custom Board mit 8 Kanälen und Spannungssteuerung. Wählen Sie Kanäle beim Hinzufügen von Sensoren."
       },
+      "dashboardUpdateInterval": "Dashboard-Aktualisierungsintervall",
+      "dashboardUpdateIntervalDescription": "Wie oft das Dashboard Sensordaten aktualisiert, wenn keine Messung läuft.",
+      "dashboardUpdateIntervalNote": "Hinweis: Wenn eine Messung aktiv ist, wird das Dashboard entsprechend dem Messintervall aktualisiert.",
+      "graphDataRetentionTime": "Graph-Daten Speicherdauer",
+      "graphDataRetentionTimeDescription": "Wie lange Graph-Daten im Browser-Speicher aufbewahrt werden sollen, bevor sie gelöscht werden.",
+      "graphDataRetentionTimeNote": "Graph-Daten werden automatisch gespeichert und beim Neuladen der Seite wiederhergestellt, solange sie innerhalb dieser Speicherdauer liegen.",
+      "minutes": "Min",
+      "hours": "Std",
       "configSaved": "Hardware-Konfiguration erfolgreich gespeichert",
       "configError": "Fehler beim Speichern der Hardware-Konfiguration"
     },
