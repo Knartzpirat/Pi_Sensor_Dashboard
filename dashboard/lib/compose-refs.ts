@@ -59,10 +59,10 @@ function composeRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
  * Accepts callback refs and RefObject(s)
  */
 function useComposedRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
-  return React.useCallback(
-    (node) => composeRefs(...refs)(node),
-    [refs]
-  );
+  // We can't use the refs array directly in the dependency array because it creates
+  // a new array on every render. Instead, we memoize the composed ref function.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return React.useMemo(() => composeRefs(...refs), refs);
 }
 
 export { composeRefs, useComposedRefs };

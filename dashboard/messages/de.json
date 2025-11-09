@@ -53,7 +53,9 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "download": "Herunterladen",
-    "view": "Anzeigen"
+    "view": "Anzeigen",
+    "edit": "Bearbeiten",
+    "loading": "Laden..."
   },
 
   "deleteDialog": {
@@ -96,6 +98,43 @@
     "resetpassword": "Passwort zurücksetzen",
     "startmeasurements": "Messungen starten",
     "addsensor": "Sensor hinzufügen"
+  },
+  "sensors": {
+    "addSensor": "Sensor hinzufügen",
+    "addSensorDescription": "Konfigurieren Sie einen neuen Sensor durch Auswahl des Typs und der Verbindungsdetails",
+    "editSensor": "Sensor bearbeiten",
+    "editSensorDescription": "Sensor-Konfiguration aktualisieren",
+    "sensorUpdated": "Sensor erfolgreich aktualisiert",
+    "sensorName": "Sensor-Name",
+    "sensorType": "Sensor-Typ",
+    "selectSensorType": "Sensor-Typ auswählen",
+    "connectionType": "Verbindungstyp",
+    "connectionTypes": {
+      "i2c": "I2C",
+      "i2cDescription": "I2C-Bus-Kommunikation (beide Boards)",
+      "adc": "Analog (ADC)",
+      "adcDescription": "Analoger Sensor mit ADC (nur Custom Board)",
+      "io": "Digital GPIO",
+      "ioDescription": "Digitaler GPIO-Sensor (beide Boards)"
+    },
+    "i2cAddress": "I2C-Adresse",
+    "i2cAddressDescription": "Hexadezimale Adresse des I2C-Geräts (z.B. 0x76 für BMP280)",
+    "i2cMultiplexerInfo": "Dieser Kanal ist über TCA9548A I2C-Multiplexer angeschlossen. Keine Adresskonfiguration erforderlich.",
+    "adcNotSupported": "ADC-Sensoren werden nur vom Custom Board unterstützt",
+    "selectPin": "GPIO-Pin auswählen",
+    "selectChannel": "Kanal auswählen",
+    "pinInUse": "Pin wird bereits verwendet",
+    "channelInUse": "Kanal wird bereits verwendet",
+    "noAvailablePins": "Keine verfügbaren Pins/Kanäle. Alle werden bereits verwendet.",
+    "deleteSensorTitle": "Sensor löschen",
+    "deleteSensorDescription": "Möchten Sie den Sensor \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "sensorDeleted": "Sensor erfolgreich gelöscht",
+    "driverChangeWarning": "Warnung: Sie ändern den Sensor-Typ. Stellen Sie sicher, dass der richtige physische Sensor angeschlossen ist!",
+    "confirmSaveTitle": "Änderungen bestätigen",
+    "confirmSaveDescription": "Möchten Sie diese Änderungen an der Sensor-Konfiguration wirklich speichern?",
+    "confirmSaveDescriptionWithDriverChange": "Sie ändern den Sensor-Typ. Dies erfordert, dass andere Hardware angeschlossen ist.",
+    "driverChangeWarningDetailed": "GEFAHR: Das Anschließen des falschen Sensor-Typs kann Ihre Hardware beschädigen! Überprüfen Sie, dass der richtige physische Sensor angeschlossen ist, bevor Sie speichern.",
+    "deleteSensorError": "Fehler beim Löschen des Sensors"
   },
 
   "loading": {
@@ -335,21 +374,35 @@
 
   "settings": {
     "title": "Einstellungen",
+    "tabs": {
+      "general": "Allgemein",
+      "hardware": "Hardware"
+    },
     "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
     "tabs": {
       "general": "Allgemein",
       "hardware": "Hardware"
     },
     "hardware": {
-      "title": "Hardware-Einstellungen",
-      "description": "Verwalten Sie Ihre Hardware-Integrationen und -Einstellungen.",
-      "noIntegrations": "Keine Hardware-Integrationen verfügbar.",
-      "addIntegration": "Integration hinzufügen",
-      "integrationAdded": "Hardware-Integration erfolgreich hinzugefügt",
-      "integrationError": "Fehler beim Hinzufügen der Hardware-Integration",
-      "removeIntegration": "Integration entfernen",
-      "integrationRemoved": "Hardware-Integration erfolgreich entfernt",
-      "removeIntegrationConfirm": "Möchten Sie die Integration '{name}' wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden."
+      "title": "Hardware-Konfiguration",
+      "description": "Wählen Sie Ihren Board-Typ. Pin- und Kanal-Zuweisungen werden beim Hinzufügen von Sensoren konfiguriert.",
+      "boardType": "Board-Typ",
+      "boardTypes": {
+        "gpio": "Raspberry Pi GPIO",
+        "gpioDescription": "Direkte GPIO-Verbindung. Wählen Sie Pins beim Hinzufügen von Sensoren.",
+        "custom": "Custom Board",
+        "customDescription": "Custom Board mit 8 Kanälen und Spannungssteuerung. Wählen Sie Kanäle beim Hinzufügen von Sensoren."
+      },
+      "dashboardUpdateInterval": "Dashboard-Aktualisierungsintervall",
+      "dashboardUpdateIntervalDescription": "Wie oft das Dashboard Sensordaten aktualisiert, wenn keine Messung läuft.",
+      "dashboardUpdateIntervalNote": "Hinweis: Wenn eine Messung aktiv ist, wird das Dashboard entsprechend dem Messintervall aktualisiert.",
+      "graphDataRetentionTime": "Graph-Daten Speicherdauer",
+      "graphDataRetentionTimeDescription": "Wie lange Graph-Daten im Browser-Speicher aufbewahrt werden sollen, bevor sie gelöscht werden.",
+      "graphDataRetentionTimeNote": "Graph-Daten werden automatisch gespeichert und beim Neuladen der Seite wiederhergestellt, solange sie innerhalb dieser Speicherdauer liegen.",
+      "minutes": "Min",
+      "hours": "Std",
+      "configSaved": "Hardware-Konfiguration erfolgreich gespeichert",
+      "configError": "Fehler beim Speichern der Hardware-Konfiguration"
     },
     "account": {
       "title": "Konto",

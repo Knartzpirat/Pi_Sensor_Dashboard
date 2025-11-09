@@ -14,6 +14,12 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface SensorEntity {
   id: string;
@@ -38,14 +44,21 @@ interface SensorControlsCardProps {
     entityId: string,
     isVisible: boolean
   ) => void;
+  onEntityColorChange?: (
+    sensorId: string,
+    entityId: string,
+    color: string
+  ) => void;
 }
 
 export function SensorControlsCard({
   sensors,
   onEntityVisibilityChange,
+  onEntityColorChange,
 }: SensorControlsCardProps) {
   const t = useTranslations('dashboard.sensors');
   const tCommon = useTranslations('common');
+  const tDashboard = useTranslations('dashboard');
 
   if (sensors.length === 0) {
     return (
@@ -53,14 +66,14 @@ export function SensorControlsCard({
         <CardHeader>
           <CardTitle>{t('title')}</CardTitle>
           <CardDescription>
-            {useTranslations('dashboard')('noSensorsDescription')}
+            {tDashboard('noSensorsDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Activity className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-sm text-muted-foreground">
-              {useTranslations('dashboard')('noSensorsConnected')}
+              {tDashboard('noSensorsConnected')}
             </p>
           </div>
         </CardContent>
@@ -102,10 +115,49 @@ export function SensorControlsCard({
                     className="flex items-center justify-between py-2 border-b last:border-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: entity.color }}
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 p-0"
+                            disabled={!sensor.isConnected}
+                          >
+                            <div
+                              className="w-5 h-5 rounded-full border-2 border-background shadow-sm"
+                              style={{ backgroundColor: entity.color }}
+                            />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64">
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor={`color-${entity.id}`}>
+                                Choose Color
+                              </Label>
+                              <div className="flex gap-2 mt-2">
+                                <input
+                                  id={`color-${entity.id}`}
+                                  type="color"
+                                  value={entity.color}
+                                  onChange={(e) =>
+                                    onEntityColorChange?.(
+                                      sensor.id,
+                                      entity.id,
+                                      e.target.value
+                                    )
+                                  }
+                                  className="h-10 w-full rounded border cursor-pointer"
+                                  disabled={!sensor.isConnected}
+                                />
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {entity.color}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <div>
                         <Label
                           htmlFor={`entity-${entity.id}`}

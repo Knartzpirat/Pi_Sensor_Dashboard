@@ -1,0 +1,14 @@
+# Raspberry Pi requirements with hardware libraries
+# Use this on Raspberry Pi with actual hardware
+
+-r requirements-base.txt
+
+# GPIO and Hardware (RPi specific)
+RPi.GPIO==0.7.1
+smbus2==0.4.3
+spidev==3.6
+
+# Sensor libraries
+adafruit-circuitpython-dht==4.0.3
+adafruit-circuitpython-bmp280==3.3.9
+adafruit-circuitpython-ads1x15==2.2.21

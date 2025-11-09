@@ -37,7 +37,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "download": "Download",
-    "view": "View"
+    "view": "View",
+    "edit": "Edit",
+    "loading": "Loading..."
   },
   "inputs": {
     "username": "Username",
@@ -55,6 +57,43 @@
   "test": {
     "title": "Test Title",
     "description": "This is a test description."
+  },
+  "sensors": {
+    "addSensor": "Add Sensor",
+    "addSensorDescription": "Configure a new sensor by selecting the type and connection details",
+    "editSensor": "Edit Sensor",
+    "editSensorDescription": "Update sensor configuration",
+    "sensorUpdated": "Sensor updated successfully",
+    "sensorName": "Sensor Name",
+    "sensorType": "Sensor Type",
+    "selectSensorType": "Select sensor type",
+    "connectionType": "Connection Type",
+    "connectionTypes": {
+      "i2c": "I2C",
+      "i2cDescription": "I2C bus communication (both boards)",
+      "adc": "Analog (ADC)",
+      "adcDescription": "Analog sensor with ADC (Custom Board only)",
+      "io": "Digital GPIO",
+      "ioDescription": "Digital GPIO sensor (both boards)"
+    },
+    "i2cAddress": "I2C Address",
+    "i2cAddressDescription": "Hexadecimal address of the I2C device (e.g., 0x76 for BMP280)",
+    "i2cMultiplexerInfo": "This channel is connected via TCA9548A I2C multiplexer. No address configuration needed.",
+    "adcNotSupported": "ADC sensors are only supported on Custom Board",
+    "selectPin": "Select GPIO Pin",
+    "selectChannel": "Select Channel",
+    "pinInUse": "Pin already in use",
+    "channelInUse": "Channel already in use",
+    "noAvailablePins": "No available pins/channels. All are currently in use.",
+    "deleteSensorTitle": "Delete Sensor",
+    "deleteSensorDescription": "Are you sure you want to delete the sensor \"{name}\"? This action cannot be undone.",
+    "sensorDeleted": "Sensor deleted successfully",
+    "deleteSensorError": "Failed to delete sensor",
+    "driverChangeWarning": "Warning: You are changing the sensor type. Make sure the correct physical sensor is connected!",
+    "confirmSaveTitle": "Confirm Changes",
+    "confirmSaveDescription": "Are you sure you want to save these changes to the sensor configuration?",
+    "confirmSaveDescriptionWithDriverChange": "You are changing the sensor type. This requires different hardware to be connected.",
+    "driverChangeWarningDetailed": "DANGER: Connecting the wrong sensor type could damage your hardware! Verify that the correct physical sensor is connected before saving."
   },
   "buttons": {
     "setup": "Set Up",
@@ -133,6 +172,10 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your account settings and preferences.",
+    "tabs": {
+      "general": "General",
+      "hardware": "Hardware"
+    },
     "account": {
       "title": "Account",
       "description": "Manage your account information and security.",
@@ -166,6 +209,27 @@
       "mmddyyyy": "MM/DD/YYYY (e.g., 12/31/2024)",
       "yyyymmdd": "YYYY-MM-DD (e.g., 2024-12-31)",
       "ddmmyyyy_slash": "DD/MM/YYYY (e.g., 31/12/2024)"
+    },
+    "hardware": {
+      "title": "Hardware Configuration",
+      "description": "Select your board type. Pin and channel assignments will be configured when adding sensors.",
+      "boardType": "Board Type",
+      "boardTypes": {
+        "gpio": "Raspberry Pi GPIO",
+        "gpioDescription": "Direct GPIO connection. Select pins when adding sensors.",
+        "custom": "Custom Board",
+        "customDescription": "Custom board with 8 channels and voltage control. Select channels when adding sensors."
+      },
+      "dashboardUpdateInterval": "Dashboard Update Interval",
+      "dashboardUpdateIntervalDescription": "How often the dashboard refreshes sensor data when no measurement is running.",
+      "dashboardUpdateIntervalNote": "Note: When a measurement is active, the dashboard will update according to the measurement interval instead.",
+      "graphDataRetentionTime": "Graph Data Retention Time",
+      "graphDataRetentionTimeDescription": "How long graph data should be kept in browser storage before being cleared.",
+      "graphDataRetentionTimeNote": "Graph data is saved automatically and restored when you reload the page, as long as it's within this retention period.",
+      "minutes": "min",
+      "hours": "h",
+      "configSaved": "Hardware configuration saved successfully",
+      "configError": "Failed to save hardware configuration"
     }
   }
 }
