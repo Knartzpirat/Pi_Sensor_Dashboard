@@ -2,27 +2,32 @@
 Sensor API endpoints.
 """
 
-from typing import List
+from typing import List, Dict, Any
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from app.core.sensor_manager import SensorManager
-from app.models.sensor_base import SensorConfig, ConnectionType
 from app.sensors import (
     list_all_sensors,
     list_sensors_by_board,
     list_sensors_by_category,
     list_sensors_by_connection_type,
+    create_sensor_instance,
 )
+from app.core.sensor_manager import SensorManager
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
+
+# In-memory sensor registry
+# Maps sensor_id -> sensor_driver_instance
+_sensor_instances: Dict[str, Any] = {}
 
 
 class SensorConfigRequest(BaseModel):
     """Request model for adding a sensor"""
-    name: str
+    name: str  # This will be the sensor ID from dashboard
     driver: str
-    connection_type: ConnectionType
+    connection_type: str
     connection_params: dict
     poll_interval: float = 1.0
     enabled: bool = True
@@ -40,25 +45,72 @@ class SensorReadingResponse(BaseModel):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_sensor(config: SensorConfigRequest):
     """Add a new sensor"""
-    manager = SensorManager.get_instance()
+    try:
+        # Check if sensor already exists
+        if config.name in _sensor_instances:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Sensor {config.name} already exists"
+            )
 
-    sensor_config = SensorConfig(**config.dict())
-    success = await manager.add_sensor(sensor_config)
-
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to add sensor"
+        # Create sensor instance using new driver system
+        sensor_instance = create_sensor_instance(
+            driver_name=config.driver,
+            sensor_id=config.name,
+            config=config.connection_params
         )
 
-    return {"message": "Sensor added successfully", "sensor_id": config.name}
+        # Store in registry
+        _sensor_instances[config.name] = sensor_instance
+
+        return {
+            "message": "Sensor added successfully",
+            "sensor_id": config.name
+        }
+    except HTTPException:
+        raise
+    except KeyError as e:
+        import traceback
+        error_msg = f"Unknown driver: {config.driver}"
+        print(f"KeyError when adding sensor {config.name}:")
+        print(f"  Error: {error_msg}")
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    except Exception as e:
+        import traceback
+        error_msg = f"Failed to add sensor: {type(e).__name__}: {str(e)}"
+        print(f"Exception when adding sensor {config.name}:")
+        print(f"  Error: {error_msg}")
+        print(f"  Config: {config}")
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 
 @router.get("/")
 async def list_sensors():
-    """List all sensors"""
-    manager = SensorManager.get_instance()
-    sensors = await manager.list_sensors()
+    """List all configured sensors"""
+    sensors = []
+    for sensor_id, sensor in _sensor_instances.items():
+        metadata = sensor.get_metadata()
+        sensors.append({
+            "id": sensor_id,
+            "driver": metadata.driver_name,
+            "entities": [
+                {
+                    "id": f"{sensor_id}_{entity.name}",
+                    "name": entity.name,
+                    "unit": entity.unit,
+                    "type": entity.type
+                }
+                for entity in metadata.entities
+            ]
+        })
     return {"sensors": sensors}
 
 
@@ -94,42 +146,61 @@ async def get_supported_sensors(
 @router.get("/{sensor_id}")
 async def get_sensor(sensor_id: str):
     """Get sensor information"""
-    manager = SensorManager.get_instance()
-
-    try:
-        sensor_info = await manager.get_sensor_info(sensor_id)
-        return sensor_info
-    except ValueError as e:
+    if sensor_id not in _sensor_instances:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail=f"Sensor '{sensor_id}' not found"
         )
+
+    sensor = _sensor_instances[sensor_id]
+    metadata = sensor.get_metadata()
+
+    return {
+        "id": sensor_id,
+        "driver": metadata.driver_name,
+        "display_name": metadata.display_name,
+        "category": metadata.category,
+        "entities": [
+            {
+                "id": f"{sensor_id}_{entity.name}",
+                "name": entity.name,
+                "unit": entity.unit,
+                "type": entity.type
+            }
+            for entity in metadata.entities
+        ]
+    }
 
 
 @router.get("/{sensor_id}/read")
 async def read_sensor(sensor_id: str):
     """Read current values from sensor"""
-    manager = SensorManager.get_instance()
-
-    try:
-        readings = await manager.read_sensor(sensor_id)
-        return {
-            "sensor_id": sensor_id,
-            "readings": [
-                {
-                    "entity_id": r.entity_id,
-                    "value": r.value,
-                    "timestamp": r.timestamp.isoformat(),
-                    "quality": r.quality,
-                }
-                for r in readings
-            ],
-        }
-    except ValueError as e:
+    if sensor_id not in _sensor_instances:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail=f"Sensor '{sensor_id}' not found. Make sure the sensor is registered."
         )
+
+    try:
+        sensor = _sensor_instances[sensor_id]
+        values = await sensor.read()
+
+        # Convert to readings format
+        timestamp = datetime.now()
+        readings = []
+
+        for entity_name, value in values.items():
+            readings.append({
+                "entity_id": f"{sensor_id}_{entity_name}",
+                "value": value,
+                "timestamp": timestamp.isoformat(),
+                "quality": 1.0,
+            })
+
+        return {
+            "sensor_id": sensor_id,
+            "readings": readings,
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -140,14 +211,14 @@ async def read_sensor(sensor_id: str):
 @router.delete("/{sensor_id}")
 async def remove_sensor(sensor_id: str):
     """Remove a sensor"""
-    manager = SensorManager.get_instance()
-    success = await manager.remove_sensor(sensor_id)
-
-    if not success:
+    if sensor_id not in _sensor_instances:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sensor not found"
+            detail=f"Sensor '{sensor_id}' not found"
         )
+
+    # Remove from registry
+    del _sensor_instances[sensor_id]
 
     return {"message": "Sensor removed successfully"}
 
