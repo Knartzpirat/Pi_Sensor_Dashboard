@@ -18,7 +18,7 @@ export async function GET(
     const testObject = await prisma.testObject.findUnique({
       where: { id },
       include: {
-        label: true
+        labels: true
       },
     });
 
@@ -74,17 +74,21 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const { title, description, labelId } = await request.json();
+    const { title, description, labelIds } = await request.json();
 
     const testObject = await prisma.testObject.update({
       where: { id },
       data: {
         title,
         description,
-        labelId,
+        ...(labelIds !== undefined && {
+          labels: {
+            set: labelIds.map((labelId: string) => ({ id: labelId })),
+          },
+        }),
       },
       include: {
-        label: true
+        labels: true
       },
     });
 
