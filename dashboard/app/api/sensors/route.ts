@@ -6,6 +6,27 @@ import { isConnectionTypeSupported } from '@/types/sensor';
 const prisma = getPrismaClient();
 
 /**
+ * Generate a random vibrant color for sensor entities
+ */
+function generateRandomColor(): string {
+  const colors = [
+    '#3b82f6', // blue
+    '#ef4444', // red
+    '#10b981', // green
+    '#f59e0b', // amber
+    '#8b5cf6', // purple
+    '#ec4899', // pink
+    '#06b6d4', // cyan
+    '#f97316', // orange
+    '#84cc16', // lime
+    '#6366f1', // indigo
+    '#14b8a6', // teal
+    '#f43f5e', // rose
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+/**
  * GET /api/sensors
  * List sensors for current board type
  */
@@ -128,6 +149,7 @@ export async function POST(request: NextRequest) {
                 name: entity.name,
                 unit: entity.unit,
                 type: entity.type,
+                color: generateRandomColor(), // Assign random color to each entity
               })),
             }
           : undefined,
