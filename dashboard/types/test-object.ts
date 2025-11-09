@@ -9,10 +9,13 @@ export interface QueryKeys {
 }
 
 // Prisma type with relations for API responses
-export type TestObjectWithLabel = TestObject & {
-  label: Label | null;
+export type TestObjectWithLabels = TestObject & {
+  labels: Label[];
   pictures?: Array<{ id: string; url: string; order: number }>;
 };
+
+// For backward compatibility
+export type TestObjectWithLabel = TestObjectWithLabels;
 
 // Transformed type for table display
 export interface TestObjectsTableData {
@@ -21,9 +24,7 @@ export interface TestObjectsTableData {
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
-  labelId: string | null;
-  label: string; // Always has a value, either label name or 'No Label'
-  labelColor: string | null;
+  labels: Array<{ id: string; name: string; color: string | null }>; // Multiple labels
   thumbnailUrl: string | null; // URL of the first image, or null if no images
   images: Array<{ id: string; url: string; order: number }>; // All images for carousel
 }
