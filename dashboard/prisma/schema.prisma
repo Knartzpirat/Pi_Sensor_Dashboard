@@ -274,10 +274,10 @@ enum MeasurementStatus {
   ERROR
 }
 
-// Sensor-Messwert (wird vom Frontend während des WebSocket-Streams gespeichert)
+// Sensor-Messwert (wird vom Frontend während des WebSocket-Streams gespeichert oder kontinuierlich im Hintergrund)
 model SensorReading {
   id            String   @id @default(cuid())
-  measurementId String
+  measurementId String?  // Optional: null für kontinuierliche Hintergrund-Erfassung
   entityId      String
 
   value         Float
@@ -285,11 +285,12 @@ model SensorReading {
   timestamp     DateTime @default(now())
 
   // Relationen
-  measurement   Measurement  @relation(fields: [measurementId], references: [id], onDelete: Cascade)
+  measurement   Measurement?  @relation(fields: [measurementId], references: [id], onDelete: Cascade)
   entity        SensorEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   @@index([measurementId, timestamp])
-  @@index([entityId])
+  @@index([entityId, timestamp]) // For efficient time-range queries
+  @@index([timestamp]) // For cleanup queries
   @@map("sensor_readings")
 }
 
