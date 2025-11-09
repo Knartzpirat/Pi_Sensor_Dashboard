@@ -90,11 +90,11 @@ model Label {
   id        String       @id @default(cuid())
   name      String
   color     String?      // z.B. "#FF5733"
-  type      EntityType     
+  type      EntityType
   createdAt DateTime     @default(now())
-  
-  testObjects TestObject[]
-  
+
+  testObjects TestObject[] @relation("TestObjectLabels")
+
   @@unique([name, type])  // ← Name muss nur pro Typ unique sein
   @@index([type])
 }
@@ -116,13 +116,12 @@ model TestObject {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  labelId      String?
-  label        Label?        @relation(fields: [labelId], references: [id], onDelete: SetNull)
+  // Many-to-Many relation with Labels
+  labels       Label[]       @relation("TestObjectLabels")
 
   // Relationen
   measurements Measurement[]
 
-  @@index([labelId])
   @@index([createdAt])
 }
 
