@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 
 import type { HardwareConfig, BoardType } from '@/types/hardware';
 
@@ -25,6 +26,14 @@ export function HardwareSettingsSection({ initialConfig }: HardwareSettingsSecti
     initialConfig?.boardType as BoardType || 'GPIO'
   );
 
+  const [dashboardUpdateInterval, setDashboardUpdateInterval] = React.useState<number>(
+    initialConfig?.dashboardUpdateInterval || 5000
+  );
+
+  const [graphDataRetentionTime, setGraphDataRetentionTime] = React.useState<number>(
+    initialConfig?.graphDataRetentionTime || 3600000
+  );
+
   const [isSaving, setIsSaving] = React.useState(false);
 
   const handleSave = async () => {
@@ -33,9 +42,11 @@ export function HardwareSettingsSection({ initialConfig }: HardwareSettingsSecti
     try {
       const config: Partial<HardwareConfig> = {
         boardType,
+        dashboardUpdateInterval,
+        graphDataRetentionTime,
       };
 
-      const response = await fetch('/api/hardware/config', {
+      const response = await fetch('/api/settings/hardware', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
@@ -93,6 +104,62 @@ export function HardwareSettingsSection({ initialConfig }: HardwareSettingsSecti
               </div>
             </div>
           </RadioGroup>
+        </div>
+
+        {/* Dashboard Update Interval */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="dashboard-interval">{t('dashboardUpdateInterval')}</Label>
+            <p className="text-sm text-muted-foreground">
+              {t('dashboardUpdateIntervalDescription')}
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Input
+              id="dashboard-interval"
+              type="number"
+              min="100"
+              max="60000"
+              step="100"
+              value={dashboardUpdateInterval}
+              onChange={(e) => setDashboardUpdateInterval(parseInt(e.target.value, 10))}
+              className="w-32"
+            />
+            <span className="text-sm text-muted-foreground">ms</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t('dashboardUpdateIntervalNote')}
+          </p>
+        </div>
+
+        {/* Graph Data Retention Time */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="retention-time">{t('graphDataRetentionTime')}</Label>
+            <p className="text-sm text-muted-foreground">
+              {t('graphDataRetentionTimeDescription')}
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Input
+              id="retention-time"
+              type="number"
+              min="60000"
+              max="86400000"
+              step="60000"
+              value={graphDataRetentionTime}
+              onChange={(e) => setGraphDataRetentionTime(parseInt(e.target.value, 10))}
+              className="w-32"
+            />
+            <span className="text-sm text-muted-foreground">ms</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>≈ {Math.round(graphDataRetentionTime / 60000)} {t('minutes')}</span>
+            <span>({Math.round(graphDataRetentionTime / 3600000)} {t('hours')})</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t('graphDataRetentionTimeNote')}
+          </p>
         </div>
 
         {/* Save Button */}
