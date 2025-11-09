@@ -19,16 +19,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { FileUpload, FileUploadDropzone, FileUploadTrigger } from '@/components/ui/file-upload';
 import { Button } from '@/components/ui/button';
 import { SortableFileList } from '@/components/form/sortable-file-list';
+import { TagsInput, Tag } from '@/components/ui/tags-input';
 import { cn } from '@/lib/utils';
 
 // Custom Hooks
@@ -38,7 +32,7 @@ import { useSeparateFileLists } from '@/hooks/use-file-type-filter';
 const testObjectSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
   description: z.string().optional(),
-  labelId: z.string().optional(),
+  labelIds: z.array(z.string()).optional(),
 });
 
 type TestObjectFormValues = z.infer<typeof testObjectSchema>;
@@ -61,6 +55,7 @@ export const TestObjectForm = React.forwardRef<
   const t = useTranslations();
   const [isLoading, setIsLoading] = React.useState(false);
   const [allFiles, setAllFiles] = React.useState<File[]>([]);
+  const [selectedTags, setSelectedTags] = React.useState<Tag[]>([]);
 
   // Use custom hooks
   const { labels } = useLabelsData('TEST_OBJECT');
@@ -69,26 +64,77 @@ export const TestObjectForm = React.forwardRef<
     setAllFiles
   );
 
+  // Convert labels to tags format for suggestions
+  const labelSuggestions: Tag[] = React.useMemo(
+    () => labels.map((label) => ({ id: label.id, name: label.name, color: label.color ?? undefined })),
+    [labels]
+  );
+
   const form = useForm<TestObjectFormValues>({
     resolver: zodResolver(testObjectSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
-      labelId: defaultValues?.labelId ?? undefined,
+      labelIds: defaultValues?.labelIds ?? [],
     },
   });
+
+  // Initialize selectedTags from defaultValues
+  React.useEffect(() => {
+    if (defaultValues?.labelIds && defaultValues.labelIds.length > 0 && labels.length > 0) {
+      const tags = defaultValues.labelIds
+        .map((id) => {
+          const label = labels.find((l) => l.id === id);
+          return label ? { id: label.id, name: label.name, color: label.color ?? undefined } : null;
+        })
+        .filter((tag): tag is Tag => tag !== null);
+      setSelectedTags(tags);
+    }
+  }, [defaultValues?.labelIds, labels]);
 
   async function onSubmit(data: TestObjectFormValues) {
     setIsLoading(true);
 
     try {
+      // Handle label creation for new tags
+      const labelIds: string[] = [];
+
+      for (const tag of selectedTags) {
+        // Check if this is a new tag (starts with "new-")
+        if (tag.id.startsWith('new-')) {
+          // Create new label
+          const labelResponse = await fetch('/api/labels', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: tag.name,
+              type: 'TEST_OBJECT',
+              color: tag.color || '#3b82f6',
+            }),
+          });
+
+          if (labelResponse.ok) {
+            const newLabel = await labelResponse.json();
+            labelIds.push(newLabel.id);
+          }
+        } else {
+          labelIds.push(tag.id);
+        }
+      }
+
       // Create test object
       const response = await fetch('/api/test-objects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          title: data.title,
+          description: data.description,
+          labelIds,
+        }),
       });
 
       if (!response.ok) {
@@ -128,6 +174,7 @@ export const TestObjectForm = React.forwardRef<
       toast.success('Test-Objekt erfolgreich erstellt');
       form.reset();
       setAllFiles([]);
+      setSelectedTags([]);
       onSuccess?.();
 
       // Reload page to show new data
@@ -194,30 +241,24 @@ export const TestObjectForm = React.forwardRef<
         />
         <FormField
           control={form.control}
-          name="labelId"
+          name="labelIds"
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('testObjects.table.label')}</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value || undefined}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={t('testObjects.table.label_placeholder')}
-                    />
-                  </SelectTrigger>
-                </FormControl>
-
-                <SelectContent>
-                  {labels.map((label) => (
-                    <SelectItem key={label.id} value={label.id}>
-                      {label.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <TagsInput
+                  value={selectedTags}
+                  onChange={(tags) => {
+                    setSelectedTags(tags);
+                    // Update form field with all tag ids
+                    field.onChange(tags.map((t) => t.id));
+                  }}
+                  suggestions={labelSuggestions}
+                  placeholder={t('testObjects.table.label_placeholder')}
+                  maxTags={5}
+                  allowCreate={true}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
