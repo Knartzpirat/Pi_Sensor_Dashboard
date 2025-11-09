@@ -67,7 +67,6 @@ interface SensorReading {
 }
 
 const VISIBILITY_STORAGE_KEY = 'sensor_entity_visibility';
-const GRAPH_DATA_STORAGE_KEY = 'sensor_graph_data';
 
 // Load visibility settings from localStorage
 const loadVisibilitySettings = (): Record<string, boolean> => {
@@ -93,53 +92,6 @@ const saveVisibilitySettings = (settings: Record<string, boolean>) => {
   }
 };
 
-// Load graph data from localStorage
-const loadGraphData = (retentionTime: number): DataPoint[] => {
-  if (typeof window === 'undefined') return [];
-
-  try {
-    const saved = localStorage.getItem(GRAPH_DATA_STORAGE_KEY);
-    if (!saved) return [];
-
-    const { data, timestamp } = JSON.parse(saved);
-    const now = Date.now();
-
-    // Check if data is still valid based on retention time
-    if (now - timestamp > retentionTime) {
-      // Data expired, clear it
-      localStorage.removeItem(GRAPH_DATA_STORAGE_KEY);
-      return [];
-    }
-
-    // Validate that data is an array and has the right format
-    if (!Array.isArray(data) || data.length === 0) {
-      return [];
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Failed to load graph data:', error);
-    // Clear corrupted data
-    localStorage.removeItem(GRAPH_DATA_STORAGE_KEY);
-    return [];
-  }
-};
-
-// Save graph data to localStorage with timestamp
-const saveGraphData = (data: DataPoint[]) => {
-  if (typeof window === 'undefined') return;
-
-  try {
-    const payload = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(GRAPH_DATA_STORAGE_KEY, JSON.stringify(payload));
-  } catch (error) {
-    console.error('Failed to save graph data:', error);
-  }
-};
-
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
 
@@ -149,6 +101,11 @@ export default function DashboardPage() {
   const [activeMeasurement, setActiveMeasurement] = React.useState<Measurement | null>(null);
   const [graphData, setGraphData] = React.useState<DataPoint[]>([]);
   const [updateInterval, setUpdateInterval] = React.useState<number>(5000);
+  const [timeRange, setTimeRange] = React.useState<string>('5m'); // Default to 5 minutes
+  const [isLivePaused, setIsLivePaused] = React.useState(false); // Pause/Play toggle
+
+  // Use ref for retentionTime so it doesn't trigger effect re-runs
+  const retentionTimeRef = React.useRef<number>(3600000); // Default 1 hour
 
   // Load hardware config and sensors from API (only on mount)
   React.useEffect(() => {
@@ -164,19 +121,35 @@ export default function DashboardPage() {
           configUpdateInterval = config.dashboardUpdateInterval || 5000;
           configRetention = config.graphDataRetentionTime || 3600000;
           setUpdateInterval(configUpdateInterval);
+          retentionTimeRef.current = configRetention;
         }
 
-        // Load graph data from localStorage based on retention time
-        const savedGraphData = loadGraphData(configRetention);
-        if (savedGraphData.length > 0) {
-          setGraphData(savedGraphData);
-        } else {
-          // Initialize with empty data if no saved data
+        // Load historical graph data from database
+        try {
           const now = Date.now();
-          const initialData = Array.from({ length: 20 }, (_, i) => ({
-            timestamp: now - (19 - i) * configUpdateInterval,
-          }));
-          setGraphData(initialData);
+          const from = now - configRetention; // Load data for retention period
+
+          const readingsResponse = await fetch(
+            `/api/sensor-readings?from=${from}&to=${now}`
+          );
+
+          if (readingsResponse.ok) {
+            const readingsData = await readingsResponse.json();
+            if (readingsData.success && readingsData.data.length > 0) {
+              console.log(`Loaded ${readingsData.data.length} historical data points from database`);
+              setGraphData(readingsData.data);
+            } else {
+              // No data in database yet, initialize with empty array
+              console.log('No historical data found, starting fresh');
+              setGraphData([]);
+            }
+          } else {
+            console.warn('Failed to load historical data, starting fresh');
+            setGraphData([]);
+          }
+        } catch (error) {
+          console.error('Error loading historical data:', error);
+          setGraphData([]);
         }
 
         // Load sensors
@@ -370,16 +343,17 @@ export default function DashboardPage() {
     sensorsRef.current = sensors;
   }, [sensors]);
 
-  // Poll sensor readings
+  // Poll sensor readings for current values only
+  // Background service handles data collection to database
   React.useEffect(() => {
     if (sensors.length === 0 || !sensorsRegistered) return;
 
-    const pollSensorData = async () => {
+    const pollCurrentValues = async () => {
       try {
         // Use ref to get latest sensors without recreating interval
         const currentSensors = sensorsRef.current;
 
-        // Read all enabled sensors
+        // Read all enabled sensors for current values only
         const readingsPromises = currentSensors.map(async (sensor) => {
           try {
             const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
@@ -399,44 +373,7 @@ export default function DashboardPage() {
 
         const results = await Promise.all(readingsPromises);
 
-        // Update graph data and current values
-        setGraphData((prev) => {
-          const newData = [...prev.slice(1)];
-          const newPoint: DataPoint = {
-            timestamp: Date.now(),
-          };
-
-          // Add readings to new point
-          // Map backend entity_ids to database entity ids
-          results.forEach((result) => {
-            if (result && result.readings) {
-              result.readings.forEach((reading: SensorReading) => {
-                // Backend entity_id format: "sensorId_EntityName"
-                // Extract entity name from backend entity_id
-                const parts = reading.entity_id.split('_');
-                const entityName = parts.slice(1).join('_'); // Get everything after first underscore
-
-                // Find corresponding entity in our sensors by name
-                const sensor = currentSensors.find((s) => s.id === result.sensorId);
-                if (sensor) {
-                  const entity = sensor.entities.find((e) => e.name === entityName);
-                  if (entity) {
-                    newPoint[entity.id] = reading.value;
-                  }
-                }
-              });
-            }
-          });
-
-          newData.push(newPoint);
-
-          // Save updated graph data to localStorage
-          saveGraphData(newData);
-
-          return newData;
-        });
-
-        // Update current values in sensors
+        // Update current values in sensors (for display in controls card)
         setSensors((prev) =>
           prev.map((sensor) => {
             const sensorResult = results.find((r) => r?.sensorId === sensor.id);
@@ -465,12 +402,39 @@ export default function DashboardPage() {
     };
 
     // Poll immediately
-    pollSensorData();
+    pollCurrentValues();
 
     // Then poll at configured interval
-    const interval = setInterval(pollSensorData, updateInterval);
+    const interval = setInterval(pollCurrentValues, updateInterval);
     return () => clearInterval(interval);
   }, [sensors.length, updateInterval, sensorsRegistered]);
+
+  // Periodically load new graph data from database (only when not paused)
+  React.useEffect(() => {
+    if (sensors.length === 0 || isLivePaused) return;
+
+    const loadGraphDataFromDB = async () => {
+      try {
+        const now = Date.now();
+        const from = now - retentionTimeRef.current;
+
+        const response = await fetch(`/api/sensor-readings?from=${from}&to=${now}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.length > 0) {
+            setGraphData(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading graph data from database:', error);
+      }
+    };
+
+    // Load new data every update interval
+    const interval = setInterval(loadGraphDataFromDB, updateInterval);
+    return () => clearInterval(interval);
+  }, [sensors.length, updateInterval, isLivePaused]);
 
   const handleEntityVisibilityChange = (
     sensorId: string,
@@ -606,7 +570,11 @@ export default function DashboardPage() {
           <SensorGraphCard
             data={graphData}
             entities={allEntities}
-            isRealTime={true}
+            isRealTime={!isLivePaused}
+            isPaused={isLivePaused}
+            onPauseToggle={() => setIsLivePaused(!isLivePaused)}
+            timeRange={timeRange}
+            onTimeRangeChange={setTimeRange}
           />
 
           {/* Active Measurement Progress */}
