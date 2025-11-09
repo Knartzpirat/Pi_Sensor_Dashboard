@@ -35,30 +35,41 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Pi Sensor Dashboard Backend")
 
     # Initialize sensor manager with board
-    board_config = BoardConfig(
-        board_type=settings.board_type,
-        name="Main Board",
-        i2c_enabled=True,
-        spi_enabled=False,
-        i2c_bus=settings.i2c_bus,
-        spi_bus=settings.spi_bus,
-        spi_device=settings.spi_device,
-        voltage_level=VoltageLevel.V3_3,
-    )
+    # Note: This may fail on non-Raspberry Pi platforms (Windows, macOS, etc.)
+    # The new sensor API (/api/sensors/) works independently and doesn't require this
+    try:
+        board_config = BoardConfig(
+            board_type=settings.board_type,
+            name="Main Board",
+            i2c_enabled=True,
+            spi_enabled=False,
+            i2c_bus=settings.i2c_bus,
+            spi_bus=settings.spi_bus,
+            spi_device=settings.spi_device,
+            voltage_level=VoltageLevel.V3_3,
+        )
 
-    manager = SensorManager.get_instance()
-    success = await manager.initialize(board_config)
+        manager = SensorManager.get_instance()
+        success = await manager.initialize(board_config)
 
-    if not success:
-        logger.error("Failed to initialize sensor manager")
-    else:
-        logger.info("Sensor manager initialized successfully")
+        if not success:
+            logger.warning("Sensor manager initialization failed - running in limited mode")
+            logger.info("Sensor API endpoints will still work with USE_DUMMY_DRIVERS=true")
+        else:
+            logger.info("Sensor manager initialized successfully")
+    except Exception as e:
+        logger.warning(f"Could not initialize sensor manager: {e}")
+        logger.info("Running in limited mode - sensor API endpoints will still work with dummy drivers")
 
     yield
 
     # Shutdown
     logger.info("Shutting down Pi Sensor Dashboard Backend")
-    await manager.shutdown()
+    try:
+        manager = SensorManager.get_instance()
+        await manager.shutdown()
+    except Exception as e:
+        logger.warning(f"Error during shutdown: {e}")
 
 
 # Create FastAPI app
