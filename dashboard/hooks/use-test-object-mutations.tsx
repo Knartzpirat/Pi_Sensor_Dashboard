@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 interface TestObject {
   title?: string;
   description?: string | null;
-  labelId?: string | null;
+  labelIds?: string[];
 }
 
 interface UseMutationOptions {
@@ -75,8 +75,8 @@ export function useTestObjectMutations(
   );
 
   const updateLabel = React.useCallback(
-    async (newLabelId: string) => {
-      return updateTestObject({ labelId: newLabelId || null });
+    async (newLabelIds: string[]) => {
+      return updateTestObject({ labelIds: newLabelIds });
     },
     [updateTestObject]
   );

@@ -13,9 +13,17 @@ export async function GET(request: NextRequest) {
     const pictureLimit = searchParams.get('pictureLimit'); // z.B. nur erstes Bild
 
     const testObjects = await prisma.testObject.findMany({
-      where: labelId ? { labelId } : undefined,
+      where: labelId
+        ? {
+            labels: {
+              some: {
+                id: labelId,
+              },
+            },
+          }
+        : undefined,
       include: {
-        label: true,
+        labels: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -56,7 +64,7 @@ export async function GET(request: NextRequest) {
 // POST - Neues TestObject erstellen
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, labelId } = await request.json();
+    const { title, description, labelIds } = await request.json();
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -66,10 +74,14 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        labelId,
+        labels: labelIds && labelIds.length > 0
+          ? {
+              connect: labelIds.map((id: string) => ({ id })),
+            }
+          : undefined,
       },
       include: {
-        label: true,
+        labels: true,
       },
     });
 

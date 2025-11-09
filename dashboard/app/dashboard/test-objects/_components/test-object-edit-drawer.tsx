@@ -87,10 +87,25 @@ export function TestObjectEditDrawer({
       {
         title: testObject?.title,
         description: testObject?.description,
-        labelId: testObject?.labelId,
+        labelIds: testObject?.labels?.map(l => l.id) || [],
       },
       { onSuccess }
     );
+
+  const handleTitleUpdate = React.useCallback(async (newTitle: string) => {
+    await updateTitle(newTitle);
+    await refetch();
+  }, [updateTitle, refetch]);
+
+  const handleDescriptionUpdate = React.useCallback(async (newDescription: string) => {
+    await updateDescription(newDescription);
+    await refetch();
+  }, [updateDescription, refetch]);
+
+  const handleLabelUpdate = React.useCallback(async (labelIds: string[]) => {
+    await updateLabel(labelIds);
+    await refetch();
+  }, [updateLabel, refetch]);
 
   const { uploadWithDebounce, isUploading } = useFileUpload();
 
@@ -231,11 +246,11 @@ export function TestObjectEditDrawer({
               <EditableInfoSection
                 title={testObject?.title || ''}
                 description={testObject?.description || null}
-                labelId={testObject?.labelId || null}
+                labelIds={testObject?.labels?.map(l => l.id) || []}
                 labels={labels}
-                onTitleUpdate={updateTitle}
-                onDescriptionUpdate={updateDescription}
-                onLabelUpdate={updateLabel}
+                onTitleUpdate={handleTitleUpdate}
+                onDescriptionUpdate={handleDescriptionUpdate}
+                onLabelUpdate={handleLabelUpdate}
               />
 
               {(localPictures.length > 0 || localDocuments.length > 0) && (

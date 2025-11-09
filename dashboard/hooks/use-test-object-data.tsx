@@ -26,8 +26,7 @@ interface TestObject {
   id: string;
   title: string;
   description: string | null;
-  labelId: string | null;
-  label: Label | null;
+  labels: Label[];
 }
 
 interface TestObjectData {
