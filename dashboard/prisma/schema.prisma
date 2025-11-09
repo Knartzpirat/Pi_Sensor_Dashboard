@@ -295,11 +295,13 @@ model SensorReading {
 
 // Hardware-Konfiguration
 model HardwareConfig {
-  id          String   @id @default(cuid())
-  boardType   String   @default("GPIO") // "GPIO" oder "CUSTOM"
+  id                      String   @id @default(cuid())
+  boardType               String   @default("GPIO") // "GPIO" oder "CUSTOM"
+  dashboardUpdateInterval Int      @default(5000)   // Dashboard update interval in ms (default: 5 seconds)
+  graphDataRetentionTime  Int      @default(3600000) // Graph data retention in ms (default: 1 hour)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   @@map("hardware_config")
 }
