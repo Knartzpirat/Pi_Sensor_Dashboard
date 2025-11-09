@@ -84,7 +84,7 @@ async function getHardwareConfig() {
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/hardware/config`, {
+    const response = await fetch(`${baseUrl}/api/settings/hardware`, {
       cache: 'no-store',
     });
 
@@ -92,8 +92,7 @@ async function getHardwareConfig() {
       return null;
     }
 
-    const data = await response.json();
-    return data.config;
+    return await response.json();
   } catch (error) {
     console.error('Error fetching hardware config:', error);
     return null;
