@@ -88,10 +88,10 @@ export async function DELETE(
       );
     }
 
-    // Delete from backend
+    // Delete from backend (use sensor.id because that's what was used when creating)
     try {
       const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
-      await fetch(`${backendUrl}/sensors/${sensor.name}`, {
+      await fetch(`${backendUrl}/sensors/${sensor.id}`, {
         method: 'DELETE',
       });
     } catch (backendError) {
