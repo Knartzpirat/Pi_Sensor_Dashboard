@@ -220,6 +220,14 @@
         "custom": "Custom Board",
         "customDescription": "Custom board with 8 channels and voltage control. Select channels when adding sensors."
       },
+      "dashboardUpdateInterval": "Dashboard Update Interval",
+      "dashboardUpdateIntervalDescription": "How often the dashboard refreshes sensor data when no measurement is running.",
+      "dashboardUpdateIntervalNote": "Note: When a measurement is active, the dashboard will update according to the measurement interval instead.",
+      "graphDataRetentionTime": "Graph Data Retention Time",
+      "graphDataRetentionTimeDescription": "How long graph data should be kept in browser storage before being cleared.",
+      "graphDataRetentionTimeNote": "Graph data is saved automatically and restored when you reload the page, as long as it's within this retention period.",
+      "minutes": "min",
+      "hours": "h",
       "configSaved": "Hardware configuration saved successfully",
       "configError": "Failed to save hardware configuration"
     }
