@@ -82,10 +82,11 @@ export const TestObjectForm = React.forwardRef<
   // Initialize selectedTags from defaultValues
   React.useEffect(() => {
     if (defaultValues?.labelIds && defaultValues.labelIds.length > 0 && labels.length > 0) {
-      const tags = defaultValues.labelIds
+      const tags: Tag[] = defaultValues.labelIds
         .map((id) => {
           const label = labels.find((l) => l.id === id);
-          return label ? { id: label.id, name: label.name, color: label.color ?? undefined } : null;
+          if (!label) return null;
+          return { id: label.id, name: label.name, color: label.color ?? undefined } as Tag;
         })
         .filter((tag): tag is Tag => tag !== null);
       setSelectedTags(tags);
