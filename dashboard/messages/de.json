@@ -18,11 +18,27 @@
       "startedAt": "Gestartet um",
       "estimatedCompletion": "Geschätzte Fertigstellung"
     },
+
     "sensors": {
       "title": "Sensoren",
       "showInGraph": "Im Graph anzeigen",
       "hideFromGraph": "Aus Graph ausblenden",
       "noEntities": "Keine Messgrößen verfügbar"
+    },
+
+    "completedMeasurement": {
+      "title": "Abgeschlossene Messungen",
+      "noCompletedMeasurements": "Keine abgeschlossenen Messungen",
+      "repeat": "Messung wiederholen",
+      "clear": "Abgeschlossene Messungen löschen",
+      "confirmClear": "Möchten Sie alle abgeschlossenen Messungen zurücksetzen?",
+      "confirmClearDescription": "Ihre abgeschlossenen Messungen finden Sie unter Messungen.",
+      "startedAt": "Gestartet um",
+      "completedAt": "Abgeschlossen um",
+      "duration": "Dauer",
+      "readingsCount": "Anzahl der Messungen",
+      "errorCount": "Fehleranzahl",
+      "viewReport": "Bericht anzeigen"
     }
   },
 
@@ -427,10 +443,6 @@
       "hardware": "Hardware"
     },
     "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
-    "tabs": {
-      "general": "Allgemein",
-      "hardware": "Hardware"
-    },
     "hardware": {
       "title": "Hardware-Konfiguration",
       "description": "Wählen Sie Ihren Board-Typ. Pin- und Kanal-Zuweisungen werden beim Hinzufügen von Sensoren konfiguriert.",

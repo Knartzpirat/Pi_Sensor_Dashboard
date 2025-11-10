@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { SensorGraphCard } from './_components/sensor-graph-card';
 import { SensorControlsCard } from './_components/sensor-controls-card';
 import { MeasurementProgressCard } from './_components/measurement-progress-card';
+import { CompletedMeasurementCard } from './_components/completed-measurement-card';
 import { StartMeasurementDrawer } from '@/components/start-measurement-drawer';
 import { Button } from '@/components/ui/button';
 import { PlayCircle } from 'lucide-react';
@@ -53,6 +54,20 @@ interface Measurement {
   startedAt: Date;
   estimatedCompletion?: Date;
   measurementSensors?: MeasurementSensor[];
+}
+
+interface CompletedMeasurement {
+  id: string;
+  sessionId: string;
+  title: string;
+  description?: string | null;
+  startedAt: Date;
+  endedAt: Date;
+  duration: number;
+  readingsCount: number;
+  errorCount: number;
+  measurementSensors?: MeasurementSensor[];
+  interval: number;
 }
 
 interface APISensor {
@@ -115,6 +130,7 @@ export default function DashboardPage() {
   const [isLoadingSensors, setIsLoadingSensors] = React.useState(true);
   const [sensorsRegistered, setSensorsRegistered] = React.useState(false);
   const [activeMeasurement, setActiveMeasurement] = React.useState<Measurement | null>(null);
+  const [completedMeasurement, setCompletedMeasurement] = React.useState<CompletedMeasurement | null>(null);
   const [graphData, setGraphData] = React.useState<DataPoint[]>([]);
   const [updateInterval, setUpdateInterval] = React.useState<number>(5000);
   const [timeRange, setTimeRange] = React.useState<string>('5m'); // Default to 5 minutes
@@ -453,9 +469,9 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [sensors.length, updateInterval, sensorsRegistered]);
 
-  // Periodically load new graph data from database (only when not paused)
+  // Periodically load new graph data from database (only when not paused and no completed measurement)
   React.useEffect(() => {
-    if (sensors.length === 0 || isLivePaused) return;
+    if (sensors.length === 0 || isLivePaused || completedMeasurement) return;
 
     const loadGraphDataFromDB = async () => {
       try {
@@ -478,7 +494,7 @@ export default function DashboardPage() {
     // Load new data every update interval
     const interval = setInterval(loadGraphDataFromDB, updateInterval);
     return () => clearInterval(interval);
-  }, [sensors.length, updateInterval, isLivePaused]);
+  }, [sensors.length, updateInterval, isLivePaused, completedMeasurement]);
 
   // Poll for active measurement updates
   React.useEffect(() => {
@@ -503,16 +519,94 @@ export default function DashboardPage() {
               ? new Date(startedAt.getTime() + duration * 1000)
               : undefined;
 
-            setActiveMeasurement({
+            // Check if measurement is complete (progress >= 100%)
+            if (progress >= 100 && duration) {
+              // Stop the measurement automatically
+              try {
+                const stopResponse = await fetch(`/api/measurements/${runningMeasurement.id}/stop`, {
+                  method: 'POST',
+                });
+
+                if (stopResponse.ok) {
+                  const stoppedMeasurement = await stopResponse.json();
+                  const endedAt = new Date(stoppedMeasurement.measurement.endTime);
+                  const durationInSeconds = Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000);
+
+                  setActiveMeasurement(null);
+                  setCompletedMeasurement({
+                    id: stoppedMeasurement.measurement.id,
+                    sessionId: stoppedMeasurement.measurement.sessionId,
+                    title: stoppedMeasurement.measurement.title,
+                    description: stoppedMeasurement.measurement.description,
+                    startedAt,
+                    endedAt,
+                    duration: durationInSeconds,
+                    readingsCount: stoppedMeasurement.measurement.readingsCount || 0,
+                    errorCount: stoppedMeasurement.measurement.errorCount || 0,
+                    measurementSensors: stoppedMeasurement.measurement.measurementSensors || [],
+                    interval: stoppedMeasurement.measurement.interval || 1.0,
+                  });
+
+                  // Load final graph data
+                  const graphResponse = await fetch(`/api/sensor-readings?from=${startedAt.getTime()}&to=${endedAt.getTime()}`);
+                  if (graphResponse.ok) {
+                    const graphData = await graphResponse.json();
+                    if (graphData.success && graphData.data.length > 0) {
+                      setGraphData(graphData.data);
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error('Error auto-stopping measurement:', error);
+              }
+            } else {
+              // Still running, update progress
+              setActiveMeasurement({
+                id: runningMeasurement.id,
+                title: runningMeasurement.title,
+                progress,
+                startedAt,
+                estimatedCompletion,
+                measurementSensors: runningMeasurement.measurementSensors || [],
+              });
+            }
+          } else if (runningMeasurement && runningMeasurement.status === 'COMPLETED') {
+            // Measurement completed - show completed card and freeze graph
+            const startedAt = new Date(runningMeasurement.startTime);
+            const endedAt = new Date(runningMeasurement.endTime);
+            const durationInSeconds = Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000);
+
+            setActiveMeasurement(null);
+            setCompletedMeasurement({
               id: runningMeasurement.id,
+              sessionId: runningMeasurement.sessionId,
               title: runningMeasurement.title,
-              progress,
+              description: runningMeasurement.description,
               startedAt,
-              estimatedCompletion,
+              endedAt,
+              duration: durationInSeconds,
+              readingsCount: runningMeasurement.readingsCount || 0,
+              errorCount: runningMeasurement.errorCount || 0,
               measurementSensors: runningMeasurement.measurementSensors || [],
+              interval: runningMeasurement.interval || 1.0,
             });
+
+            // Load final graph data for this measurement and freeze
+            try {
+              const startTime = startedAt.getTime();
+              const endTime = endedAt.getTime();
+              const response = await fetch(`/api/sensor-readings?from=${startTime}&to=${endTime}`);
+              if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data.length > 0) {
+                  setGraphData(data.data);
+                }
+              }
+            } catch (error) {
+              console.error('Error loading completed measurement graph data:', error);
+            }
           } else {
-            // Measurement completed or cancelled
+            // Measurement was cancelled
             setActiveMeasurement(null);
           }
         }
@@ -626,6 +720,9 @@ export default function DashboardPage() {
   };
 
   const handleMeasurementStarted = async () => {
+    // Clear completed measurement when starting a new one
+    setCompletedMeasurement(null);
+
     // Reload measurements after starting a new one
     try {
       const measurementsResponse = await fetch('/api/measurements');
@@ -657,6 +754,21 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error loading measurement after start:', error);
     }
+  };
+
+  const handleClearCompletedMeasurement = () => {
+    setCompletedMeasurement(null);
+    // Graph will automatically return to live mode when completedMeasurement is null
+  };
+
+  const handleRepeatMeasurement = async (measurement: CompletedMeasurement) => {
+    // Clear the completed measurement to show the "Start Measurement" button
+    setCompletedMeasurement(null);
+
+    // Show a toast to inform the user
+    toast.success('Bereit für neue Messung', {
+      description: 'Klicken Sie auf "Messung starten" um eine neue Messung zu beginnen',
+    });
   };
 
   // Flatten all visible entities for graph
@@ -699,7 +811,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        {!activeMeasurement && sensors.length > 0 && (
+        {!activeMeasurement && !completedMeasurement && sensors.length > 0 && (
           <StartMeasurementDrawer
             trigger={
               <Button size="lg" className="gap-2">
@@ -730,6 +842,15 @@ export default function DashboardPage() {
             <MeasurementProgressCard
               measurement={activeMeasurement}
               onCancel={handleCancelMeasurement}
+            />
+          )}
+
+          {/* Completed Measurement */}
+          {completedMeasurement && (
+            <CompletedMeasurementCard
+              measurement={completedMeasurement}
+              onClear={handleClearCompletedMeasurement}
+              onRepeat={handleRepeatMeasurement}
             />
           )}
         </div>
