@@ -26,6 +26,53 @@
     }
   },
 
+  "measurements": {
+    "startMeasurement": "Messung starten",
+    "startMeasurementDescription": "Konfigurieren Sie eine neue Messung mit ausgewählten Sensoren",
+    "measurementTitle": "Messungstitel",
+    "measurementTitlePlaceholder": "z.B. Test Objekt #1 - Temperaturmessung",
+    "measurementDescription": "Beschreibung (Optional)",
+    "measurementDescriptionPlaceholder": "Zusätzliche Details zur Messung...",
+    "duration": "Messdauer",
+    "durationPlaceholder": "z.B. 60",
+    "durationUnit": "Einheit",
+    "interval": "Messintervall",
+    "intervalPlaceholder": "z.B. 1.0",
+    "intervalSeconds": "Sekunden",
+    "testObject": "Testobjekt zuweisen (Optional)",
+    "testObjectPlaceholder": "Wählen Sie ein Testobjekt",
+    "noTestObjects": "Keine Testobjekte verfügbar",
+    "noTestObject": "Kein Testobjekt",
+    "selectSensors": "Sensoren auswählen",
+    "selectSensorsDescription": "Wählen Sie die Sensoren und Entitäten aus, die gemessen werden sollen",
+    "noSensorsAvailable": "Keine Sensoren verfügbar",
+    "allEntities": "Alle Messgrößen",
+    "entities": "Messgrößen",
+    "driver": "Treiber",
+    "sensor": "Sensor",
+    "sensors": "Sensoren",
+    "selected": "ausgewählt",
+    "basicInfo": "Grundinformationen",
+    "timeSettings": "Zeiteinstellungen",
+    "startButton": "Messung starten",
+    "cancel": "Abbrechen",
+    "timeUnits": {
+      "seconds": "Sekunden",
+      "minutes": "Minuten",
+      "hours": "Stunden"
+    },
+    "validation": {
+      "titleRequired": "Titel ist erforderlich",
+      "durationRequired": "Dauer ist erforderlich",
+      "durationPositive": "Dauer muss positiv sein",
+      "intervalRequired": "Intervall ist erforderlich",
+      "intervalPositive": "Intervall muss positiv sein",
+      "sensorsRequired": "Mindestens ein Sensor muss ausgewählt werden"
+    },
+    "success": "Messung erfolgreich gestartet",
+    "error": "Fehler beim Starten der Messung"
+  },
+
   "sidebar": {
     "title": "Pi Sensor Dashboard",
 
@@ -55,7 +102,8 @@
     "download": "Herunterladen",
     "view": "Anzeigen",
     "edit": "Bearbeiten",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "selectAll": "Alle auswählen"
   },
 
   "deleteDialog": {

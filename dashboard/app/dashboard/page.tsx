@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 import { SensorGraphCard } from './_components/sensor-graph-card';
 import { SensorControlsCard } from './_components/sensor-controls-card';
 import { MeasurementProgressCard } from './_components/measurement-progress-card';
+import { StartMeasurementDrawer } from '@/components/start-measurement-drawer';
+import { Button } from '@/components/ui/button';
+import { PlayCircle } from 'lucide-react';
 
 interface SensorEntity {
   id: string;
@@ -32,12 +35,24 @@ interface DataPoint {
   [key: string]: number;
 }
 
+interface MeasurementSensor {
+  sensor: {
+    id: string;
+    name: string;
+  };
+  testObject?: {
+    id: string;
+    title: string;
+  } | null;
+}
+
 interface Measurement {
   id: string;
   title: string;
   progress: number;
   startedAt: Date;
   estimatedCompletion?: Date;
+  measurementSensors?: MeasurementSensor[];
 }
 
 interface APISensor {
@@ -94,6 +109,7 @@ const saveVisibilitySettings = (settings: Record<string, boolean>) => {
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const tMeasurements = useTranslations('measurements');
 
   const [sensors, setSensors] = React.useState<Sensor[]>([]);
   const [isLoadingSensors, setIsLoadingSensors] = React.useState(true);
@@ -122,6 +138,34 @@ export default function DashboardPage() {
           configRetention = config.graphDataRetentionTime || 3600000;
           setUpdateInterval(configUpdateInterval);
           retentionTimeRef.current = configRetention;
+        }
+
+        // Load active measurements
+        const measurementsResponse = await fetch('/api/measurements');
+        if (measurementsResponse.ok) {
+          const measurementsData = await measurementsResponse.json();
+          const runningMeasurement = measurementsData.measurements?.find(
+            (m: any) => m.status === 'RUNNING' || m.status === 'STARTING'
+          );
+
+          if (runningMeasurement) {
+            const startedAt = new Date(runningMeasurement.startTime);
+            const duration = runningMeasurement.duration;
+            const elapsed = (Date.now() - startedAt.getTime()) / 1000; // elapsed in seconds
+            const progress = duration ? Math.min((elapsed / duration) * 100, 100) : 0;
+            const estimatedCompletion = duration
+              ? new Date(startedAt.getTime() + duration * 1000)
+              : undefined;
+
+            setActiveMeasurement({
+              id: runningMeasurement.id,
+              title: runningMeasurement.title,
+              progress,
+              startedAt,
+              estimatedCompletion,
+              measurementSensors: runningMeasurement.measurementSensors || [],
+            });
+          }
         }
 
         // Load historical graph data from database
@@ -436,6 +480,52 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [sensors.length, updateInterval, isLivePaused]);
 
+  // Poll for active measurement updates
+  React.useEffect(() => {
+    if (!activeMeasurement) return;
+
+    const updateMeasurementProgress = async () => {
+      try {
+        const response = await fetch('/api/measurements');
+        if (response.ok) {
+          const data = await response.json();
+          const runningMeasurement = data.measurements?.find(
+            (m: any) => m.id === activeMeasurement.id
+          );
+
+          if (runningMeasurement &&
+              (runningMeasurement.status === 'RUNNING' || runningMeasurement.status === 'STARTING')) {
+            const startedAt = new Date(runningMeasurement.startTime);
+            const duration = runningMeasurement.duration;
+            const elapsed = (Date.now() - startedAt.getTime()) / 1000;
+            const progress = duration ? Math.min((elapsed / duration) * 100, 100) : 0;
+            const estimatedCompletion = duration
+              ? new Date(startedAt.getTime() + duration * 1000)
+              : undefined;
+
+            setActiveMeasurement({
+              id: runningMeasurement.id,
+              title: runningMeasurement.title,
+              progress,
+              startedAt,
+              estimatedCompletion,
+              measurementSensors: runningMeasurement.measurementSensors || [],
+            });
+          } else {
+            // Measurement completed or cancelled
+            setActiveMeasurement(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error updating measurement progress:', error);
+      }
+    };
+
+    // Update every 2 seconds
+    const interval = setInterval(updateMeasurementProgress, 2000);
+    return () => clearInterval(interval);
+  }, [activeMeasurement]);
+
   const handleEntityVisibilityChange = (
     sensorId: string,
     entityId: string,
@@ -518,10 +608,55 @@ export default function DashboardPage() {
   };
 
   const handleCancelMeasurement = async (measurementId: string) => {
-    // TODO: Implement actual API call to cancel measurement
-    console.log('Cancelling measurement:', measurementId);
-    toast.success('Measurement cancelled');
-    setActiveMeasurement(null);
+    try {
+      const response = await fetch(`/api/measurements/${measurementId}/stop`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel measurement');
+      }
+
+      toast.success('Measurement cancelled');
+      setActiveMeasurement(null);
+    } catch (error) {
+      console.error('Error cancelling measurement:', error);
+      toast.error('Failed to cancel measurement');
+    }
+  };
+
+  const handleMeasurementStarted = async () => {
+    // Reload measurements after starting a new one
+    try {
+      const measurementsResponse = await fetch('/api/measurements');
+      if (measurementsResponse.ok) {
+        const measurementsData = await measurementsResponse.json();
+        const runningMeasurement = measurementsData.measurements?.find(
+          (m: any) => m.status === 'RUNNING' || m.status === 'STARTING'
+        );
+
+        if (runningMeasurement) {
+          const startedAt = new Date(runningMeasurement.startTime);
+          const duration = runningMeasurement.duration;
+          const elapsed = (Date.now() - startedAt.getTime()) / 1000;
+          const progress = duration ? Math.min((elapsed / duration) * 100, 100) : 0;
+          const estimatedCompletion = duration
+            ? new Date(startedAt.getTime() + duration * 1000)
+            : undefined;
+
+          setActiveMeasurement({
+            id: runningMeasurement.id,
+            title: runningMeasurement.title,
+            progress,
+            startedAt,
+            estimatedCompletion,
+            measurementSensors: runningMeasurement.measurementSensors || [],
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading measurement after start:', error);
+    }
   };
 
   // Flatten all visible entities for graph
@@ -559,9 +694,22 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
-        <p className="text-muted-foreground">{t('description')}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
+        </div>
+        {!activeMeasurement && sensors.length > 0 && (
+          <StartMeasurementDrawer
+            trigger={
+              <Button size="lg" className="gap-2">
+                <PlayCircle className="h-5 w-5" />
+                {tMeasurements('startMeasurement')}
+              </Button>
+            }
+            onMeasurementStarted={handleMeasurementStarted}
+          />
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
@@ -596,27 +744,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* TODO Button - For testing measurement progress */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => {
-            if (activeMeasurement) {
-              setActiveMeasurement(null);
-            } else {
-              setActiveMeasurement({
-                id: 'measurement-1',
-                title: 'Test Measurement for Object #123',
-                progress: 45,
-                startedAt: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
-                estimatedCompletion: new Date(Date.now() + 1000 * 60 * 12), // 12 minutes from now
-              });
-            }
-          }}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md shadow-lg hover:bg-primary/90 text-sm font-medium"
-        >
-          {activeMeasurement ? 'Hide' : 'Show'} Test Measurement
-        </button>
-      </div>
     </div>
   );
 }

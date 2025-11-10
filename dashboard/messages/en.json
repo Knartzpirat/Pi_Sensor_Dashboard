@@ -25,6 +25,53 @@
       "noEntities": "No measurement entities available"
     }
   },
+
+  "measurements": {
+    "startMeasurement": "Start Measurement",
+    "startMeasurementDescription": "Configure a new measurement with selected sensors",
+    "measurementTitle": "Measurement Title",
+    "measurementTitlePlaceholder": "e.g. Test Object #1 - Temperature Measurement",
+    "measurementDescription": "Description (Optional)",
+    "measurementDescriptionPlaceholder": "Additional details about this measurement...",
+    "duration": "Measurement Duration",
+    "durationPlaceholder": "e.g. 60",
+    "durationUnit": "Unit",
+    "interval": "Measurement Interval",
+    "intervalPlaceholder": "e.g. 1.0",
+    "intervalSeconds": "Seconds",
+    "testObject": "Assign Test Object (Optional)",
+    "testObjectPlaceholder": "Select a test object",
+    "noTestObjects": "No test objects available",
+    "noTestObject": "No test object",
+    "selectSensors": "Select Sensors",
+    "selectSensorsDescription": "Choose the sensors and entities to measure",
+    "noSensorsAvailable": "No sensors available",
+    "allEntities": "All Entities",
+    "entities": "Entities",
+    "driver": "Driver",
+    "sensor": "Sensor",
+    "sensors": "Sensors",
+    "selected": "selected",
+    "basicInfo": "Basic Information",
+    "timeSettings": "Time Settings",
+    "startButton": "Start Measurement",
+    "cancel": "Cancel",
+    "timeUnits": {
+      "seconds": "Seconds",
+      "minutes": "Minutes",
+      "hours": "Hours"
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "durationRequired": "Duration is required",
+      "durationPositive": "Duration must be positive",
+      "intervalRequired": "Interval is required",
+      "intervalPositive": "Interval must be positive",
+      "sensorsRequired": "At least one sensor must be selected"
+    },
+    "success": "Measurement started successfully",
+    "error": "Failed to start measurement"
+  },
   "common": {
     "redirectingIn": "Redirecting in {seconds} seconds...",
     "noResults": "No results found.",
@@ -39,7 +86,8 @@
     "download": "Download",
     "view": "View",
     "edit": "Edit",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "selectAll": "Select All"
   },
   "inputs": {
     "username": "Username",
