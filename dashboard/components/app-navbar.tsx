@@ -12,8 +12,11 @@ export function AppNavbar() {
   const t = useTranslations();
   const pathname = usePathname();
 
-  // Nimm den letzten Teil der URL (z. B. "/dashboard" -> "dashboard")
-  const pageName = pathname.split('/').filter(Boolean).pop() || 'Home';
+  // Extract the main section from the URL, handling nested routes
+  // E.g., "/dashboard/measurements" -> "measurements"
+  // E.g., "/dashboard/measurements/[id]" -> "measurements"
+  const pathParts = pathname.split('/').filter(Boolean);
+  const pageName = pathParts.length > 1 ? pathParts[1] : pathParts[0] || 'Home';
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
