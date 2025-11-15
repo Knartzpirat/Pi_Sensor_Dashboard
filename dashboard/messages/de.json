@@ -119,7 +119,8 @@
     "view": "Anzeigen",
     "edit": "Bearbeiten",
     "loading": "Laden...",
-    "selectAll": "Alle auswählen"
+    "selectAll": "Alle auswählen",
+    "actions": "Aktionen"
   },
 
   "deleteDialog": {
@@ -497,6 +498,71 @@
       "mmddyyyy": "MM/TT/JJJJ (z.B. 12/31/2024)",
       "yyyymmdd": "JJJJ-MM-TT (z.B. 2024-12-31)",
       "ddmmyyyy_slash": "TT/MM/JJJJ (z.B. 31/12/2024)"
+    }
+  },
+  "measurementsPage": {
+    "title": "Messungen",
+    "description": "Übersicht und Analyse aller durchgeführten Messungen",
+    "table": {
+      "title": "Titel",
+      "startTime": "Startzeit",
+      "duration": "Dauer",
+      "status": "Status",
+      "testObjects": "Testobjekte",
+      "readings": "Messwerte",
+      "errors": "Fehler",
+      "noTestObject": "Kein Testobjekt"
+    },
+    "status": {
+      "starting": "Wird gestartet",
+      "running": "Läuft",
+      "completed": "Abgeschlossen",
+      "error": "Fehler",
+      "cancelled": "Abgebrochen"
+    },
+    "actions": {
+      "view": "Details anzeigen",
+      "delete": "Löschen"
+    },
+    "deleteDialog": {
+      "description": "Sind Sie sicher, dass Sie {count, plural, one {diese Messung} other {# Messungen}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "success": "{count, plural, one {Messung erfolgreich gelöscht} other {# Messungen erfolgreich gelöscht}}",
+      "error": "Fehler beim Löschen der Messung(en)"
+    },
+    "detail": {
+      "startTime": "Startzeit",
+      "duration": "Dauer",
+      "interval": "Intervall",
+      "readings": "Messwerte",
+      "dataPoints": "Datenpunkte",
+      "errors": "Fehler",
+      "errorCount": "Fehleranzahl",
+      "sensorsAndTestObjects": "Sensoren und Testobjekte",
+      "sensorsDescription": "Verwendete Sensoren und zugewiesene Testobjekte",
+      "entities": "Messgrößen",
+      "noTestObject": "Kein Testobjekt"
+    },
+    "analysis": {
+      "title": "Analyse",
+      "description": "Interaktive Werkzeuge zur Analyse der Messdaten",
+      "chartConfig": "Diagramm-Konfiguration",
+      "chartConfigDescription": "Wählen Sie Diagrammtyp und Datenreihen",
+      "chartType": "Diagrammtyp",
+      "lineChart": "Liniendiagramm",
+      "barChart": "Balkendiagramm",
+      "scatterChart": "Streudiagramm",
+      "selectData": "Datenreihen auswählen",
+      "visualization": "Visualisierung",
+      "dataSeriesSelected": "Datenreihen ausgewählt",
+      "noData": "Keine Daten verfügbar",
+      "statistics": "Statistiken",
+      "statisticsDescription": "Berechnete statistische Kennzahlen",
+      "mean": "Mittelwert",
+      "median": "Median",
+      "std": "Standardabw.",
+      "min": "Minimum",
+      "max": "Maximum",
+      "count": "Anzahl"
     }
   }
 }
