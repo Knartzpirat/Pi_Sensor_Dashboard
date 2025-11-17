@@ -10,14 +10,14 @@ import { DataTableSortList } from '@/components/data-table/data-table-sort-list'
 import { useFeatureFlags } from '@/components/data-table/feature-flags-provider';
 import { useDataTable } from '@/hooks/use-data-table';
 import { useTablePersistence, useColumnVisibilityPersistence } from '@/hooks/use-table-persistence';
-import { useTranslations } from 'next-intl';
-import { getColumns } from './measurements-table-columns';
+import { useTranslations, useLocale } from 'next-intl';
+import { getColumns, type MeasurementTableData } from './measurements-table-columns';
 
 const TABLE_VIEW_KEY = 'measurements-table-view';
 
 interface MeasurementsTableProps {
   data: {
-    data: any[];
+    data: MeasurementTableData[];
     pageCount: number;
   };
 }
@@ -25,8 +25,9 @@ interface MeasurementsTableProps {
 export function MeasurementsTable({ data: { data, pageCount } }: MeasurementsTableProps) {
   const { enableAdvancedFilter, filterFlag } = useFeatureFlags();
   const t = useTranslations();
+  const locale = useLocale();
 
-  const columns = React.useMemo(() => getColumns({ t }), [t]);
+  const columns = React.useMemo(() => getColumns({ t, locale }), [t, locale]);
 
   const { savedState: savedColumnVisibility } = useTablePersistence(
     TABLE_VIEW_KEY,
