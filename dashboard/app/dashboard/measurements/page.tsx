@@ -53,6 +53,19 @@ async function MeasurementsTableWrapper(props: MeasurementsProps) {
     }
   }
 
+  // Parse sort
+  let parsedSort: { id: string; desc: boolean }[] | undefined;
+  if (search.sort) {
+    try {
+      parsedSort = typeof search.sort === 'string'
+        ? JSON.parse(search.sort)
+        : search.sort;
+    } catch (e) {
+      console.error('Error parsing sort:', e);
+      parsedSort = undefined;
+    }
+  }
+
   // Column filters
   const columnFilters: { id: string; value: unknown }[] = [];
 
@@ -81,7 +94,7 @@ async function MeasurementsTableWrapper(props: MeasurementsProps) {
   const data = await getMeasurements({
     page: search.page,
     perPage: search.perPage,
-    sort: search.sort || undefined,
+    sort: parsedSort,
     filters: validFilters,
   });
 
