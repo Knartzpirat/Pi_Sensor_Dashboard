@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, EntityType } from '@prisma/client';
+import { EntityType } from '@prisma/client';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { getPrismaClient } from '@/lib/prisma';
+import { withAuth } from '@/lib/auth-helpers';
+import {
+  validateUploadedFile,
+  generateSecureFilename,
+} from '@/lib/file-security';
+import {
+  ALLOWED_IMAGE_TYPES,
+  ALLOWED_DOCUMENT_TYPES,
+  MAX_IMAGE_SIZE,
+  MAX_DOCUMENT_SIZE,
+} from '@/lib/validations/files';
 
-export async function POST(request: NextRequest) {
-  const prisma = new PrismaClient();
+// Allowed file extensions (extracted from MIME types)
+const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'] as const;
+const ALLOWED_DOCUMENT_EXTENSIONS = ['pdf'] as const;
+
+export const POST = withAuth(async (request, user) => {
+  const prisma = getPrismaClient();
 
   try {
     const formData = await request.formData();
@@ -18,6 +34,14 @@ export async function POST(request: NextRequest) {
     if (!entityId || !entityType) {
       return NextResponse.json(
         { error: 'entityId and entityType are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate entityType
+    if (!Object.values(EntityType).includes(entityType as EntityType)) {
+      return NextResponse.json(
+        { error: 'Invalid entity type' },
         { status: 400 }
       );
     }
@@ -53,6 +77,8 @@ export async function POST(request: NextRequest) {
     console.log('Processing images:', images.length, 'files');
 
     const savedImages = [];
+    const validationErrors = [];
+
     for (let i = 0; i < images.length; i++) {
       const file = images[i];
       console.log('Image file:', { name: file?.name, size: file?.size, type: file?.type });
@@ -63,29 +89,40 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      if (file.size === 0) {
-        console.log('Skipping empty or invalid image file');
-        continue;
-      }
-
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Eindeutigen Dateinamen generieren
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const ext = file.name.split('.').pop();
-      const filename = `${timestamp}-${random}.${ext}`;
+      // ✅ Comprehensive security validation
+      const validation = validateUploadedFile(
+        file,
+        buffer,
+        ALLOWED_IMAGE_EXTENSIONS,
+        ALLOWED_IMAGE_TYPES,
+        MAX_IMAGE_SIZE
+      );
+
+      if (!validation.valid) {
+        console.error(`Image validation failed for ${file.name}:`, validation.error);
+        validationErrors.push({
+          file: file.name,
+          error: validation.error,
+        });
+        continue;
+      }
+
+      // ✅ Generate cryptographically secure filename
+      const ext = validation.sanitizedFilename!.split('.').pop()!;
+      const filename = generateSecureFilename(ext);
       const filepath = join(imagesDir, filename);
 
       await writeFile(filepath, buffer);
 
-      // In Datenbank speichern
+      // In Datenbank speichern mit validiertem MIME-Type
       const picture = await prisma.picture.create({
         data: {
           filename,
-          originalName: file.name,
-          mimeType: file.type,
+          originalName: validation.sanitizedFilename!,
+          mimeType: validation.detectedMimeType!, // Use detected MIME type, not client-provided
           size: file.size,
           url: `/uploads/images/${filename}`,
           order: imageOrders[i.toString()] ?? i,
@@ -95,6 +132,17 @@ export async function POST(request: NextRequest) {
       });
 
       savedImages.push(picture);
+    }
+
+    // Return validation errors if any
+    if (validationErrors.length > 0 && savedImages.length === 0) {
+      return NextResponse.json(
+        {
+          error: 'All image uploads failed validation',
+          errors: validationErrors,
+        },
+        { status: 400 }
+      );
     }
 
     // PDFs verarbeiten
@@ -112,6 +160,7 @@ export async function POST(request: NextRequest) {
     console.log('Processing documents:', documents.length, 'files');
 
     const savedDocuments = [];
+
     for (let i = 0; i < documents.length; i++) {
       const file = documents[i];
       console.log('Document file:', { name: file?.name, size: file?.size, type: file?.type });
@@ -122,29 +171,40 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      if (file.size === 0) {
-        console.log('Skipping empty or invalid document file');
-        continue;
-      }
-
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Eindeutigen Dateinamen generieren
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const ext = file.name.split('.').pop();
-      const filename = `${timestamp}-${random}.${ext}`;
+      // ✅ Comprehensive security validation
+      const validation = validateUploadedFile(
+        file,
+        buffer,
+        ALLOWED_DOCUMENT_EXTENSIONS,
+        ALLOWED_DOCUMENT_TYPES,
+        MAX_DOCUMENT_SIZE
+      );
+
+      if (!validation.valid) {
+        console.error(`Document validation failed for ${file.name}:`, validation.error);
+        validationErrors.push({
+          file: file.name,
+          error: validation.error,
+        });
+        continue;
+      }
+
+      // ✅ Generate cryptographically secure filename
+      const ext = validation.sanitizedFilename!.split('.').pop()!;
+      const filename = generateSecureFilename(ext);
       const filepath = join(documentsDir, filename);
 
       await writeFile(filepath, buffer);
 
-      // In Datenbank speichern
+      // In Datenbank speichern mit validiertem MIME-Type
       const document = await prisma.document.create({
         data: {
           filename,
-          originalName: file.name,
-          mimeType: file.type,
+          originalName: validation.sanitizedFilename!,
+          mimeType: validation.detectedMimeType!, // Use detected MIME type, not client-provided
           size: file.size,
           url: `/uploads/documents/${filename}`,
           order: documentOrders[i.toString()] ?? i,
@@ -164,6 +224,12 @@ export async function POST(request: NextRequest) {
         images: savedImages,
         documents: savedDocuments,
       },
+      ...(validationErrors.length > 0 && {
+        warnings: {
+          message: 'Some files failed validation and were skipped',
+          errors: validationErrors,
+        },
+      }),
     });
 
   } catch (error) {
@@ -175,7 +241,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
-}
+});
