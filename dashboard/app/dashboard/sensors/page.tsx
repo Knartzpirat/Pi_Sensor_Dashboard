@@ -1,21 +1,31 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import { SensorsPageClient } from './_components/sensors-page-client';
+import { getPrismaClient } from '@/lib/prisma';
+
+const prisma = getPrismaClient();
 
 async function getSensors() {
   noStore();
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/sensors`, {
-      cache: 'no-store',
+    // Get current board type first
+    const hardwareConfig = await prisma.hardwareConfig.findFirst();
+    const boardType = hardwareConfig?.boardType || 'GPIO';
+
+    // Fetch sensors directly from database (server-side)
+    const sensors = await prisma.sensor.findMany({
+      where: {
+        boardType,
+      },
+      include: {
+        entities: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch sensors');
-    }
-
-    const data = await response.json();
-    return data.sensors || [];
+    return sensors;
   } catch (error) {
     console.error('Error fetching sensors:', error);
     return [];
@@ -26,17 +36,9 @@ async function getHardwareConfig() {
   noStore();
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/hardware/config`, {
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return { boardType: 'GPIO' };
-    }
-
-    const data = await response.json();
-    return data.config;
+    // Fetch directly from database (server-side)
+    const config = await prisma.hardwareConfig.findFirst();
+    return config || { boardType: 'GPIO' };
   } catch (error) {
     console.error('Error fetching hardware config:', error);
     return { boardType: 'GPIO' };
