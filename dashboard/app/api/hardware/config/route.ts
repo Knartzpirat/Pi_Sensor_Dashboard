@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { env } from '@/lib/env';
 
 const prisma = getPrismaClient();
 
@@ -59,9 +60,7 @@ export async function PATCH(request: NextRequest) {
 
     // Send configuration to Python backend
     try {
-      const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
-
-      await fetch(`${backendUrl}/board/configure`, {
+      await fetch(`${env.backendUrl}/board/configure`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

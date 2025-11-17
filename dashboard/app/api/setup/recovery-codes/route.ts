@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { verifyRefreshToken } from '@/lib/token-helper';
+import { getPrismaClient } from '@/lib/prisma';
 
 export async function GET() {
-  const prisma = new PrismaClient();
+  const prisma = getPrismaClient();
 
   try {
     // Hole Refresh Token aus Cookie
@@ -70,7 +70,5 @@ export async function GET() {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

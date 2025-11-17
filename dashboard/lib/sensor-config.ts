@@ -24,13 +24,14 @@ export function getGPIOBoardOptions(
 ): PinOption[] {
   if (connectionType === 'i2c') {
     // I2C uses fixed pins (GPIO 2/3)
-    const available = isI2CAvailable(usedPins);
+    // Multiple I2C sensors can share the same pins with different addresses
+    // So I2C pins are never "used" - they're always available
     return [
       {
         value: 2,
         label: 'I2C1 (GPIO 2/3)',
-        description: 'Primary I2C bus',
-        disabled: !available,
+        description: 'Primary I2C bus (supports multiple sensors with different addresses)',
+        disabled: false, // Always available for I2C
       },
     ];
   }
@@ -61,11 +62,12 @@ export function getCustomBoardOptions(
   const channels: PinOption[] = [];
 
   for (let i = 1; i <= 8; i++) {
-    const isUsed = usedChannels.includes(i);
+    // For I2C, channels are never "used" since multiple sensors can share via multiplexer
+    const isUsed = connectionType === 'i2c' ? false : usedChannels.includes(i);
 
     let description = '';
     if (connectionType === 'i2c') {
-      description = 'I2C capable';
+      description = 'I2C capable (supports multiple sensors with I2C multiplexer)';
     } else if (connectionType === 'adc') {
       description = 'Analog input with ADC';
     } else if (connectionType === 'io') {

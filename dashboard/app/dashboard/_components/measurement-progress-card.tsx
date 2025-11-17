@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { AlertCircle, XCircle } from 'lucide-react';
 
 import {
@@ -26,12 +26,24 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { formatDate } from '@/lib/format';
 
+interface MeasurementSensor {
+  sensor: {
+    id: string;
+    name: string;
+  };
+  testObject?: {
+    id: string;
+    title: string;
+  } | null;
+}
+
 interface Measurement {
   id: string;
   title: string;
   progress: number; // 0-100
   startedAt: Date;
   estimatedCompletion?: Date;
+  measurementSensors?: MeasurementSensor[];
 }
 
 interface MeasurementProgressCardProps {
@@ -44,6 +56,9 @@ export function MeasurementProgressCard({
   onCancel,
 }: MeasurementProgressCardProps) {
   const t = useTranslations('dashboard.measurement');
+  const tMeasurements = useTranslations('measurements');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
   const [isCancelling, setIsCancelling] = React.useState(false);
 
   const handleCancel = async () => {
@@ -86,7 +101,7 @@ export function MeasurementProgressCard({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>
-                  {useTranslations('common')('cancel')}
+                  {tCommon('cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleCancel}
@@ -103,7 +118,7 @@ export function MeasurementProgressCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{t('progress')}</span>
-            <span className="font-medium">{measurement.progress}%</span>
+            <span className="font-medium">{measurement.progress.toFixed(2)}%</span>
           </div>
           <Progress value={measurement.progress} className="h-2" />
         </div>
@@ -112,18 +127,46 @@ export function MeasurementProgressCard({
           <div>
             <p className="text-muted-foreground">{t('startedAt')}</p>
             <p className="font-medium">
-              {formatDate(measurement.startedAt, 'dateTime')}
+              {formatDate(measurement.startedAt, 'dateTime', {}, locale)}
             </p>
           </div>
           {measurement.estimatedCompletion && (
             <div>
               <p className="text-muted-foreground">{t('estimatedCompletion')}</p>
               <p className="font-medium">
-                {formatDate(measurement.estimatedCompletion, 'dateTime')}
+                {formatDate(measurement.estimatedCompletion, 'dateTime', {}, locale)}
               </p>
             </div>
           )}
         </div>
+
+        {/* Sensor-TestObject Assignments */}
+        {measurement.measurementSensors && measurement.measurementSensors.length > 0 && (
+          <div className="space-y-2 pt-2 border-t">
+            <p className="text-sm font-medium text-muted-foreground">
+              {tMeasurements('sensors')}
+            </p>
+            <div className="space-y-1.5">
+              {measurement.measurementSensors.map((ms) => (
+                <div
+                  key={ms.sensor.id}
+                  className="flex items-center justify-between text-sm px-2 py-1.5 rounded-md bg-muted/50"
+                >
+                  <span className="font-medium">{ms.sensor.name}</span>
+                  {ms.testObject ? (
+                    <span className="text-xs text-muted-foreground">
+                      {ms.testObject.title}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">
+                      {tMeasurements('noTestObject')}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

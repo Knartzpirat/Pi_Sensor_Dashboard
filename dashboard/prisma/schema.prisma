@@ -120,9 +120,10 @@ model TestObject {
   labels       Label[]       @relation("TestObjectLabels")
 
   // Relationen
-  measurements Measurement[]
+  measurementSensors MeasurementSensor[] // Sensoren können verschiedene TestObjects pro Messung untersuchen
 
   @@index([createdAt])
+  @@index([updatedAt])
 }
 
 // Bilder-Tabelle mit Reihenfolge
@@ -191,7 +192,7 @@ model Sensor {
 
   // Relationen
   entities         SensorEntity[]
-  measurements     Measurement[]       @relation("MeasurementSensors")
+  measurementSensors MeasurementSensor[]
 
   @@index([enabled])
   @@index([boardType])
@@ -235,7 +236,6 @@ model Measurement {
   sessionId       String            @unique // Eindeutige Session-ID vom Backend
   title           String
   description     String?           @db.Text
-  testObjectId    String?           // Optional: Zuordnung zu einem Testobjekt
 
   status          MeasurementStatus @default(RUNNING)
   interval        Float             @default(1.0) // Messintervall in Sekunden
@@ -251,15 +251,34 @@ model Measurement {
   updatedAt       DateTime          @updatedAt
 
   // Relationen
-  testObject      TestObject?       @relation(fields: [testObjectId], references: [id], onDelete: SetNull)
-  sensors         Sensor[]          @relation("MeasurementSensors")
+  measurementSensors MeasurementSensor[] // Sensoren mit ihren TestObject-Zuordnungen
   readings        SensorReading[]
 
   @@index([sessionId])
   @@index([status])
-  @@index([testObjectId])
   @@index([startTime])
   @@map("measurements")
+}
+
+// Zwischentabelle für Sensor-TestObject-Zuordnung pro Messung
+model MeasurementSensor {
+  id              String      @id @default(cuid())
+  measurementId   String
+  sensorId        String
+  testObjectId    String?     // Optional: Welches TestObject untersucht dieser Sensor
+
+  createdAt       DateTime    @default(now())
+
+  // Relationen
+  measurement     Measurement @relation(fields: [measurementId], references: [id], onDelete: Cascade)
+  sensor          Sensor      @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  testObject      TestObject? @relation(fields: [testObjectId], references: [id], onDelete: SetNull)
+
+  @@unique([measurementId, sensorId]) // Ein Sensor kann nur einmal pro Messung vorkommen
+  @@index([measurementId])
+  @@index([sensorId])
+  @@index([testObjectId])
+  @@map("measurement_sensors")
 }
 
 // Enum für Messungs-Status
@@ -288,6 +307,7 @@ model SensorReading {
   entity        SensorEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   @@index([measurementId, timestamp])
+  @@index([measurementId, entityId]) // For queries filtering by both measurement and entity
   @@index([entityId, timestamp]) // For efficient time-range queries
   @@index([timestamp]) // For cleanup queries
   @@map("sensor_readings")

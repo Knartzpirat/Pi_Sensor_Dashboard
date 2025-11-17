@@ -1,0 +1,113 @@
+'use client';
+
+import * as React from 'react';
+import { TrashIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
+
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import type { MeasurementTableData } from './measurements-table-columns';
+
+interface DeleteMeasurementsDialogProps {
+  measurements: MeasurementTableData[];
+  onSuccess?: () => void;
+  trigger?: React.ReactNode;
+  showIcon?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function DeleteMeasurementsDialog({
+  measurements,
+  onSuccess,
+  trigger,
+  showIcon = true,
+  open: controlledOpen,
+  onOpenChange,
+}: DeleteMeasurementsDialogProps) {
+  const t = useTranslations();
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
+
+  async function handleDelete() {
+    setIsDeleting(true);
+
+    try {
+      // Delete all selected measurements
+      await Promise.all(
+        measurements.map((measurement) =>
+          fetch(`/api/measurements/${measurement.id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
+
+      toast.success(
+        t('measurementsPage.deleteDialog.success', {
+          count: measurements.length,
+        })
+      );
+
+      setOpen(false);
+      onSuccess?.();
+
+      // Reload page to refresh data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting measurements:', error);
+      toast.error(t('measurementsPage.deleteDialog.error'));
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {!trigger && controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            {showIcon && <TrashIcon className="mr-2 size-4" aria-hidden="true" />}
+            {t('deleteDialog.confirm')} ({measurements.length})
+          </Button>
+        </DialogTrigger>
+      )}
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('deleteDialog.title')}</DialogTitle>
+          <DialogDescription>
+            {t('measurementsPage.deleteDialog.description', {
+              count: measurements.length,
+            })}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:space-x-0">
+          <DialogClose asChild>
+            <Button variant="outline">{t('deleteDialog.cancel')}</Button>
+          </DialogClose>
+          <Button
+            aria-label="Delete selected rows"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? t('deleteDialog.loading') : t('deleteDialog.confirm')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

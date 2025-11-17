@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { env } from '@/lib/env';
 
 import {
   Drawer,
@@ -39,7 +40,7 @@ interface Sensor {
   name: string;
   driver: string;
   connectionType: string;
-  pin?: number;
+  pin: number | null;
   enabled: boolean;
   entities: Array<{
     id: string;
@@ -98,8 +99,7 @@ export function EditSensorDrawer({ sensor, boardType, usedPins, open, onOpenChan
   React.useEffect(() => {
     const loadSupportedSensors = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-        const response = await fetch(`${backendUrl}/sensors/supported?board_type=${boardType}`);
+        const response = await fetch(`${env.clientBackendUrl}/sensors/supported?board_type=${boardType}`);
         const data = await response.json();
         setSupportedSensors(data.sensors || []);
       } catch (error) {
@@ -119,7 +119,7 @@ export function EditSensorDrawer({ sensor, boardType, usedPins, open, onOpenChan
       setDriver(sensor.driver);
       setOriginalDriver(sensor.driver);
       setConnectionType(sensor.connectionType as SensorConnectionType);
-      setPin(sensor.pin);
+      setPin(sensor.pin ?? undefined);
     }
   }, [sensor]);
 
@@ -290,7 +290,7 @@ export function EditSensorDrawer({ sensor, boardType, usedPins, open, onOpenChan
                   <Label htmlFor="edit-pin">
                     {boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')}
                   </Label>
-                  <Select value={pin?.toString()} onValueChange={(v) => setPin(parseInt(v))}>
+                  <Select value={pin?.toString() || ''} onValueChange={(v) => setPin(parseInt(v))}>
                     <SelectTrigger id="edit-pin">
                       <SelectValue placeholder={boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')}>
                         {pin !== undefined && pinOptions.find(o => o.value === pin)?.label}

@@ -1,8 +1,9 @@
 // app/api/test-objects/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, Picture } from '@prisma/client';
+import { Picture } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Einzelnes TestObject (mit Bildern)
 export async function GET(
@@ -52,8 +53,6 @@ export async function GET(
       { error: 'Failed to fetch test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -96,8 +95,6 @@ export async function PUT(
       { error: 'Failed to update test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -147,7 +144,5 @@ export async function DELETE(
       { error: 'Failed to delete test object' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

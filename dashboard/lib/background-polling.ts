@@ -7,6 +7,8 @@
  * The service is initialized once when the server starts and runs until shutdown.
  */
 
+import { env } from './env';
+
 let pollingInterval: NodeJS.Timeout | null = null;
 let isPolling = false;
 
@@ -65,8 +67,7 @@ async function pollSensorData() {
 
   try {
     // Call our own API route to collect sensor data
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/sensor-readings/collect`, {
+    const response = await fetch(`${env.appUrl}/api/sensor-readings/collect`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,10 +102,9 @@ async function pollSensorData() {
 export async function cleanupOldReadings(retentionTimeMs: number = 24 * 60 * 60 * 1000) {
   try {
     const cutoffTime = Date.now() - retentionTimeMs;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     const response = await fetch(
-      `${baseUrl}/api/sensor-readings?before=${cutoffTime}`,
+      `${env.appUrl}/api/sensor-readings?before=${cutoffTime}`,
       {
         method: 'DELETE',
         headers: {

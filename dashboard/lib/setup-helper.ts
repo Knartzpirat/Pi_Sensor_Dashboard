@@ -7,6 +7,8 @@ import fs from 'fs';
 import path from 'path';
 import { generateRefreshToken } from '@/lib/token-helper';
 import { getClientInfo } from '@/lib/request-utils';
+import { getPrismaClient } from '@/lib/prisma';
+import { env } from '@/lib/env';
 
 export interface SetupProgress {
   step: string;
@@ -351,17 +353,15 @@ async function updateEnvFile(databaseUrl: string): Promise<void> {
 
 export async function isSetupAllowed(): Promise<boolean> {
   // Umgebungsvariable checken
-  if (process.env.ALLOW_SETUP_AGAIN === 'true') {
+  if (env.ALLOW_SETUP_AGAIN) {
     return true;
   }
 
   // Datenbank checken
   try {
-    const client = new PrismaClient();
-    await client.$connect();
+    const client = getPrismaClient();
 
     const setupStatus = await client.setupStatus.findFirst();
-    await client.$disconnect();
 
     // Setup erlaubt wenn noch nicht abgeschlossen
     return !setupStatus?.isCompleted;

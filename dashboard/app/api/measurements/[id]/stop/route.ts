@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { env } from '@/lib/env';
 
 const prisma = getPrismaClient();
 
@@ -9,11 +10,13 @@ const prisma = getPrismaClient();
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     const measurement = await prisma.measurement.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!measurement) {
@@ -32,8 +35,7 @@ export async function POST(
 
     // Stop measurement on backend
     try {
-      const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
-      await fetch(`${backendUrl}/measurements/${measurement.sessionId}/stop`, {
+      await fetch(`${env.backendUrl}/measurements/${measurement.sessionId}/stop`, {
         method: 'POST',
       });
     } catch (backendError) {
@@ -43,14 +45,18 @@ export async function POST(
 
     // Update measurement status
     const updated = await prisma.measurement.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'COMPLETED',
         endTime: new Date(),
       },
       include: {
-        sensors: true,
-        testObject: true,
+        measurementSensors: {
+          include: {
+            sensor: true,
+            testObject: true,
+          },
+        },
       },
     });
 

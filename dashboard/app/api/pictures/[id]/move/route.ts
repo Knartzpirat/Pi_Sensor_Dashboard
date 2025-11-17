@@ -1,8 +1,8 @@
 // app/api/pictures/[id]/move/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // POST - Bild hoch oder runter verschieben
 export async function POST(
@@ -84,7 +84,5 @@ export async function POST(
       { error: 'Failed to move picture' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

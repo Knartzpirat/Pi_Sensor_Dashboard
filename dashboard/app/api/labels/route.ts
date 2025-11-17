@@ -1,11 +1,15 @@
 // app/api/labels/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, EntityType } from '@prisma/client';
+import { EntityType } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
+import { withAuth } from '@/lib/auth-helpers';
+import { withAuthAndValidation } from '@/lib/validation-helpers';
+import { createLabelSchema } from '@/lib/validations/labels';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Labels abrufen (mit optionalem Type-Filter)
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request, user) => {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') as EntityType | null;
@@ -27,48 +31,37 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch labels' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
-}
+});
 
 // POST - Label erstellen
-export async function POST(request: NextRequest) {
-  try {
-    const { name, color, type } = await request.json();
+export const POST = withAuthAndValidation(
+  createLabelSchema,
+  async (request, user, data) => {
+    try {
+      const label = await prisma.label.create({
+        data: {
+          name: data.name,
+          color: data.color,
+          type: data.type,
+        },
+      });
 
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
+      return NextResponse.json(label, { status: 201 });
+    } catch (error) {
+      console.error('Error creating label:', error);
 
-    // Validiere EntityType
-    if (!Object.values(EntityType).includes(type)) {
+      if (error instanceof Error && error.message.includes('Unique constraint')) {
+        return NextResponse.json(
+          { error: 'Label with this name and type already exists' },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json(
-        { error: 'Invalid entity type' },
-        { status: 400 }
+        { error: 'Failed to create label' },
+        { status: 500 }
       );
     }
-
-    const label = await prisma.label.create({
-      data: { name, color, type },
-    });
-
-    return NextResponse.json(label, { status: 201 });
-  } catch (error) {
-    console.error('Error creating label:', error);
-
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return NextResponse.json(
-        { error: 'Label with this name and type already exists' },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Failed to create label' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
   }
-}
+);

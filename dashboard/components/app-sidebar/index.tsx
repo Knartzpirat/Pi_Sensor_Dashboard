@@ -34,7 +34,7 @@ const data = {
     },
     {
       key: 'measurements',
-      url: '#',
+      url: '/dashboard/measurements',
       icon: ChartSpline,
     },
     {

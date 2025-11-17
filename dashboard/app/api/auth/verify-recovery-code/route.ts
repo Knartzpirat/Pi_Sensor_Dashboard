@@ -1,69 +1,66 @@
 // app/api/auth/verify-recovery-code/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { getPrismaClient } from '@/lib/prisma';
+import { withValidation } from '@/lib/validation-helpers';
+import { verifyRecoveryCodeSchema } from '@/lib/validations/auth';
+import { AuthenticationError, handleError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
-export async function POST(request: NextRequest) {
-  const prisma = new PrismaClient();
+export const POST = withValidation(
+  verifyRecoveryCodeSchema,
+  async (request, data) => {
+    const prisma = getPrismaClient();
 
-  try {
-    const { recoveryCode } = await request.json();
-
-    if (!recoveryCode) {
-      return NextResponse.json(
-        { error: 'Recovery code is required' },
-        { status: 400 }
+    try {
+      // Get all unused recovery codes
+      const recoveryCodes = await logger.trackPerformance(
+        'Find unused recovery codes',
+        async () => {
+          return await prisma.recoveryCode.findMany({
+            where: {
+              used: false,
+            },
+            include: {
+              user: true,
+            },
+          });
+        }
       );
-    }
 
-    // Normalisiere Code Format (entferne Bindestriche, Großbuchstaben)
-    const normalizedCode = recoveryCode.toUpperCase().replace(/-/g, '');
+      // Compare with all codes (hashed codes in DB)
+      let foundCode = null;
+      for (const code of recoveryCodes) {
+        // data.recoveryCode is already normalized (uppercase, without dashes)
+        // via transform() in schema
+        const isValid = await bcrypt.compare(data.recoveryCode, code.code);
 
-    // Hole alle unverwendeten Recovery Codes
-    const recoveryCodes = await prisma.recoveryCode.findMany({
-      where: {
-        used: false,
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    // Vergleiche mit allen Codes (gehashte Codes in DB)
-    let foundCode = null;
-    for (const code of recoveryCodes) {
-      // Vergleiche mit Bindestrichen
-      const isValid = await bcrypt.compare(recoveryCode, code.code);
-
-      // Vergleiche auch ohne Bindestriche (falls User sie vergessen hat)
-      const isValidNormalized = await bcrypt.compare(normalizedCode, code.code);
-
-      if (isValid || isValidNormalized) {
-        foundCode = code;
-        break;
+        if (isValid) {
+          foundCode = code;
+          break;
+        }
       }
-    }
 
-    if (!foundCode) {
-      return NextResponse.json(
-        { error: 'Invalid or already used recovery code' },
-        { status: 401 }
-      );
-    }
+      if (!foundCode) {
+        logger.warn('Recovery code verification failed', {
+          codePreview: data.recoveryCode.substring(0, 3) + '...',
+        });
+        throw new AuthenticationError('Invalid or already used recovery code');
+      }
 
-    // Code ist gültig - gebe UserId zurück
-    return NextResponse.json({
-      success: true,
-      userId: foundCode.userId,
-      username: foundCode.user.username,
-    });
-  } catch (error) {
-    console.error('Recovery code verification error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+      logger.info('Recovery code verified successfully', {
+        userId: foundCode.userId,
+        username: foundCode.user.username,
+      });
+
+      // Code is valid - return userId
+      return NextResponse.json({
+        success: true,
+        userId: foundCode.userId,
+        username: foundCode.user.username,
+      });
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
+);

@@ -1,11 +1,12 @@
 // app/api/pictures/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, EntityType } from '@prisma/client';
+import { EntityType } from '@prisma/client';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
+import { getPrismaClient } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Bilder abrufen (gefiltert nach entityType und entityId)
 export async function GET(request: NextRequest) {
@@ -33,8 +34,6 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch pictures' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -108,7 +107,5 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to upload picture' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

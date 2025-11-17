@@ -18,12 +18,75 @@
       "startedAt": "Gestartet um",
       "estimatedCompletion": "Geschätzte Fertigstellung"
     },
+
     "sensors": {
       "title": "Sensoren",
       "showInGraph": "Im Graph anzeigen",
       "hideFromGraph": "Aus Graph ausblenden",
       "noEntities": "Keine Messgrößen verfügbar"
+    },
+
+    "completedMeasurement": {
+      "title": "Abgeschlossene Messungen",
+      "noCompletedMeasurements": "Keine abgeschlossenen Messungen",
+      "repeat": "Messung wiederholen",
+      "clear": "Abgeschlossene Messungen löschen",
+      "confirmClear": "Möchten Sie alle abgeschlossenen Messungen zurücksetzen?",
+      "confirmClearDescription": "Ihre abgeschlossenen Messungen finden Sie unter Messungen.",
+      "startedAt": "Gestartet um",
+      "completedAt": "Abgeschlossen um",
+      "duration": "Dauer",
+      "readingsCount": "Anzahl der Messungen",
+      "errorCount": "Fehleranzahl",
+      "viewReport": "Bericht anzeigen"
     }
+  },
+
+  "measurements": {
+    "startMeasurement": "Messung starten",
+    "startMeasurementDescription": "Konfigurieren Sie eine neue Messung mit ausgewählten Sensoren",
+    "measurementTitle": "Messungstitel",
+    "measurementTitlePlaceholder": "z.B. Test Objekt #1 - Temperaturmessung",
+    "measurementDescription": "Beschreibung (Optional)",
+    "measurementDescriptionPlaceholder": "Zusätzliche Details zur Messung...",
+    "duration": "Messdauer",
+    "durationPlaceholder": "z.B. 60",
+    "durationUnit": "Einheit",
+    "interval": "Messintervall",
+    "intervalPlaceholder": "z.B. 1.0",
+    "intervalSeconds": "Sekunden",
+    "testObject": "Testobjekt zuweisen (Optional)",
+    "testObjectPlaceholder": "Wählen Sie ein Testobjekt",
+    "noTestObjects": "Keine Testobjekte verfügbar",
+    "noTestObject": "Kein Testobjekt",
+    "selectSensors": "Sensoren auswählen",
+    "selectSensorsDescription": "Wählen Sie die Sensoren und Entitäten aus, die gemessen werden sollen",
+    "noSensorsAvailable": "Keine Sensoren verfügbar",
+    "allEntities": "Alle Messgrößen",
+    "entities": "Messgrößen",
+    "driver": "Treiber",
+    "sensor": "Sensor",
+    "sensors": "Sensoren",
+    "selected": "ausgewählt",
+    "basicInfo": "Grundinformationen",
+    "timeSettings": "Zeiteinstellungen",
+    "startButton": "Messung starten",
+    "cancel": "Abbrechen",
+    "timeUnits": {
+      "seconds": "Sekunden",
+      "minutes": "Minuten",
+      "hours": "Stunden"
+    },
+    "validation": {
+      "titleRequired": "Titel ist erforderlich",
+      "durationRequired": "Dauer ist erforderlich",
+      "durationPositive": "Dauer muss positiv sein",
+      "intervalRequired": "Intervall ist erforderlich",
+      "intervalPositive": "Intervall muss positiv sein",
+      "sensorsRequired": "Mindestens ein Sensor muss ausgewählt werden"
+    },
+    "success": "Messung erfolgreich gestartet",
+    "error": "Fehler beim Starten der Messung"
   },
 
   "sidebar": {
@@ -55,7 +118,10 @@
     "download": "Herunterladen",
     "view": "Anzeigen",
     "edit": "Bearbeiten",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "selectAll": "Alle auswählen",
+    "actions": "Aktionen",
+    "dateTimeSeparator": "um"
   },
 
   "deleteDialog": {
@@ -232,8 +298,14 @@
       "title": "Testobjekt erstellen",
       "description": "Erstellen Sie ein neues Testobjekt, um Ihre Sensoren zu organisieren."
     },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
     "deleteDialog": {
-      "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht."
+      "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht.",
+      "success": "{count, plural, one {Testobjekt} other {# Testobjekte}} erfolgreich gelöscht",
+      "error": "Fehler beim Löschen der Testobjekt(e)"
     },
     "edit": {
       "title": "Testobjekt bearbeiten",
@@ -379,10 +451,6 @@
       "hardware": "Hardware"
     },
     "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen.",
-    "tabs": {
-      "general": "Allgemein",
-      "hardware": "Hardware"
-    },
     "hardware": {
       "title": "Hardware-Konfiguration",
       "description": "Wählen Sie Ihren Board-Typ. Pin- und Kanal-Zuweisungen werden beim Hinzufügen von Sensoren konfiguriert.",
@@ -437,6 +505,71 @@
       "mmddyyyy": "MM/TT/JJJJ (z.B. 12/31/2024)",
       "yyyymmdd": "JJJJ-MM-TT (z.B. 2024-12-31)",
       "ddmmyyyy_slash": "TT/MM/JJJJ (z.B. 31/12/2024)"
+    }
+  },
+  "measurementsPage": {
+    "title": "Messungen",
+    "description": "Übersicht und Analyse aller durchgeführten Messungen",
+    "table": {
+      "title": "Titel",
+      "startTime": "Startzeit",
+      "duration": "Dauer",
+      "status": "Status",
+      "testObjects": "Testobjekte",
+      "readings": "Messwerte",
+      "errors": "Fehler",
+      "noTestObject": "Kein Testobjekt"
+    },
+    "status": {
+      "starting": "Wird gestartet",
+      "running": "Läuft",
+      "completed": "Abgeschlossen",
+      "error": "Fehler",
+      "cancelled": "Abgebrochen"
+    },
+    "actions": {
+      "view": "Details anzeigen",
+      "delete": "Löschen"
+    },
+    "deleteDialog": {
+      "description": "Sind Sie sicher, dass Sie {count, plural, one {diese Messung} other {# Messungen}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "success": "{count, plural, one {Messung erfolgreich gelöscht} other {# Messungen erfolgreich gelöscht}}",
+      "error": "Fehler beim Löschen der Messung(en)"
+    },
+    "detail": {
+      "startTime": "Startzeit",
+      "duration": "Dauer",
+      "interval": "Intervall",
+      "readings": "Messwerte",
+      "dataPoints": "Datenpunkte",
+      "errors": "Fehler",
+      "errorCount": "Fehleranzahl",
+      "sensorsAndTestObjects": "Sensoren und Testobjekte",
+      "sensorsDescription": "Verwendete Sensoren und zugewiesene Testobjekte",
+      "entities": "Messgrößen",
+      "noTestObject": "Kein Testobjekt"
+    },
+    "analysis": {
+      "title": "Analyse",
+      "description": "Interaktive Werkzeuge zur Analyse der Messdaten",
+      "chartConfig": "Diagramm-Konfiguration",
+      "chartConfigDescription": "Wählen Sie Diagrammtyp und Datenreihen",
+      "chartType": "Diagrammtyp",
+      "lineChart": "Liniendiagramm",
+      "barChart": "Balkendiagramm",
+      "scatterChart": "Streudiagramm",
+      "selectData": "Datenreihen auswählen",
+      "visualization": "Visualisierung",
+      "dataSeriesSelected": "Datenreihen ausgewählt",
+      "noData": "Keine Daten verfügbar",
+      "statistics": "Statistiken",
+      "statisticsDescription": "Berechnete statistische Kennzahlen",
+      "mean": "Mittelwert",
+      "median": "Median",
+      "std": "Standardabw.",
+      "min": "Minimum",
+      "max": "Maximum",
+      "count": "Anzahl"
     }
   }
 }

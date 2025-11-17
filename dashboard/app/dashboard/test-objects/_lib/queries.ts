@@ -1,11 +1,13 @@
 import 'server-only';
 
 import { unstable_noStore as noStore } from 'next/cache';
+import { cookies } from 'next/headers';
 import type {
   GetTestObjectsParams,
   TestObjectsTableData,
   TestObjectWithLabel,
 } from '@/types/test-object';
+import { env } from '@/lib/env';
 
 export async function getTestObjects(
   params: GetTestObjectsParams
@@ -15,9 +17,15 @@ export async function getTestObjects(
   const { page = 1, perPage = 10, sort, filters } = params;
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/test-objects?includePictures=true`, {
+    // Get cookies to pass to internal API request
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.toString();
+
+    const response = await fetch(`${env.appUrl}/api/test-objects?includePictures=true`, {
       cache: 'no-store',
+      headers: {
+        Cookie: cookieHeader,
+      },
     });
 
     if (!response.ok) {
@@ -266,9 +274,15 @@ export async function getLabelCounts(): Promise<Record<string, number>> {
   noStore();
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/test-objects`, {
+    // Get cookies to pass to internal API request
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.toString();
+
+    const response = await fetch(`${env.appUrl}/api/test-objects`, {
       cache: 'no-store',
+      headers: {
+        Cookie: cookieHeader,
+      },
     });
 
     if (!response.ok) {

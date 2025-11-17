@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { env } from '@/lib/env';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -165,7 +166,7 @@ export function SetupForm() {
                   document.cookie = `refreshToken=${
                     data.refreshToken
                   }; path=/; max-age=${maxAge}; SameSite=Strict${
-                    process.env.NODE_ENV === 'production' ? '; Secure' : ''
+                    env.isProduction ? '; Secure' : ''
                   }`;
 
                   console.log('Refresh token cookie set, maxAge:', maxAge);

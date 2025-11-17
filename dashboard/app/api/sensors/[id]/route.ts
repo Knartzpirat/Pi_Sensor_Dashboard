@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { withAuth } from '@/lib/auth-helpers';
+import { validateParams, validateBody } from '@/lib/validation-helpers';
+import { sensorIdSchema, updateSensorSchema } from '@/lib/validations/sensors';
+import { handleError, NotFoundError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import { env } from '@/lib/env';
 
 const prisma = getPrismaClient();
 
@@ -7,108 +13,140 @@ const prisma = getPrismaClient();
  * GET /api/sensors/[id]
  * Get a single sensor
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const sensor = await prisma.sensor.findUnique({
-      where: { id },
-      include: {
-        entities: true,
-      },
-    });
-
-    if (!sensor) {
-      return NextResponse.json(
-        { error: 'Sensor not found' },
-        { status: 404 }
+export const GET = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = await validateParams(params, sensorIdSchema);
+      const sensor = await logger.trackPerformance(
+        'Find sensor by ID',
+        async () => {
+          return await prisma.sensor.findUnique({
+            where: { id },
+            include: {
+              entities: true,
+            },
+          });
+        },
+        { userId: user.userId, sensorId: id }
       );
-    }
 
-    return NextResponse.json({ sensor });
-  } catch (error) {
-    console.error('Error fetching sensor:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch sensor' },
-      { status: 500 }
-    );
+      if (!sensor) {
+        throw new NotFoundError('Sensor', id);
+      }
+
+      logger.info('Sensor fetched successfully', {
+        userId: user.userId,
+        sensorId: id,
+      });
+
+      return NextResponse.json({ sensor });
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
+);
 
 /**
  * PATCH /api/sensors/[id]
  * Update a sensor
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
+export const PATCH = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = await validateParams(params, sensorIdSchema);
+      const data = await validateBody(request, updateSensorSchema);
 
-    const sensor = await prisma.sensor.update({
-      where: { id },
-      data: body,
-      include: {
-        entities: true,
-      },
-    });
+      const sensor = await logger.trackPerformance(
+        'Update sensor',
+        async () => {
+          return await prisma.sensor.update({
+            where: { id },
+            data,
+            include: {
+              entities: true,
+            },
+          });
+        },
+        { userId: user.userId, sensorId: id }
+      );
 
-    return NextResponse.json({ sensor });
-  } catch (error) {
-    console.error('Error updating sensor:', error);
-    return NextResponse.json(
-      { error: 'Failed to update sensor' },
-      { status: 500 }
-    );
+      logger.info('Sensor updated successfully', {
+        userId: user.userId,
+        sensorId: id,
+      });
+
+      return NextResponse.json({ sensor });
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
+);
 
 /**
  * DELETE /api/sensors/[id]
  * Delete a sensor
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const sensor = await prisma.sensor.findUnique({
-      where: { id },
-    });
-
-    if (!sensor) {
-      return NextResponse.json(
-        { error: 'Sensor not found' },
-        { status: 404 }
-      );
-    }
-
-    // Delete from backend (use sensor.id because that's what was used when creating)
+export const DELETE = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    context: { params: { id: string } }
+  ) => {
     try {
-      const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
-      await fetch(`${backendUrl}/sensors/${sensor.id}`, {
-        method: 'DELETE',
+      const { params } = context;
+      const { id } = await validateParams(params, sensorIdSchema);
+      const sensor = await prisma.sensor.findUnique({
+        where: { id },
       });
-    } catch (backendError) {
-      console.error('Backend delete error:', backendError);
+
+      if (!sensor) {
+        throw new NotFoundError('Sensor', id);
+      }
+
+      // Delete from backend (use sensor.id because that's what was used when creating)
+      try {
+        await logger.trackPerformance(
+          'Delete sensor from backend',
+          async () => {
+            await fetch(`${env.backendUrl}/sensors/${sensor.id}`, {
+              method: 'DELETE',
+            });
+          },
+          { sensorId: id }
+        );
+      } catch (backendError) {
+        logger.warn('Backend delete error (continuing with database delete)', backendError, {
+          sensorId: id,
+        });
+      }
+
+      // Delete from database
+      await logger.trackPerformance(
+        'Delete sensor from database',
+        async () => {
+          await prisma.sensor.delete({
+            where: { id },
+          });
+        },
+        { userId: user.userId, sensorId: id }
+      );
+
+      logger.info('Sensor deleted successfully', {
+        userId: user.userId,
+        sensorId: id,
+      });
+
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      return handleError(error);
     }
-
-    // Delete from database
-    await prisma.sensor.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting sensor:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete sensor' },
-      { status: 500 }
-    );
   }
-}
+);

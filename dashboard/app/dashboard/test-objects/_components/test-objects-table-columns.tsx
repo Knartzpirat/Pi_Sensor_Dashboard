@@ -8,14 +8,22 @@ import type { TestObjectsTableData } from '@/types/test-object';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tag, Pencil } from 'lucide-react';
+import { Tag, MoreHorizontal, Pencil, Trash } from 'lucide-react';
 import { ImageThumbnailPreview } from '@/components/ui/image-thumbnail-preview';
 import { TestObjectEditDrawer } from './test-object-edit-drawer';
+import { DeleteTestObjectsDialog } from './delete-test-objects-dialog';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 
 
@@ -241,6 +249,7 @@ export function getColumns(
       id: 'actions',
       cell: function Cell({ row }) {
         const [isEditDrawerOpen, setIsEditDrawerOpen] = React.useState(false);
+        const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
         const router = useRouter();
         const hasChangesRef = React.useRef(false);
 
@@ -260,20 +269,60 @@ export function getColumns(
 
         return (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsEditDrawerOpen(true)}
-            >
-              <Pencil className="h-4 w-4" />
-              <span className="sr-only">Edit</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">{t('common.actions')}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditDrawerOpen(true);
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  {t('testObjects.actions.edit')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeleteDialog(true);
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  {t('testObjects.actions.delete')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <TestObjectEditDrawer
               testObjectId={row.original.id}
               open={isEditDrawerOpen}
               onOpenChange={handleOpenChange}
               onSuccess={handleSuccess}
             />
+
+            {showDeleteDialog && (
+              <DeleteTestObjectsDialog
+                testObjects={[row.original]}
+                onSuccess={() => {
+                  setShowDeleteDialog(false);
+                  router.refresh();
+                }}
+                open={showDeleteDialog}
+                onOpenChange={setShowDeleteDialog}
+              />
+            )}
           </>
         );
       },

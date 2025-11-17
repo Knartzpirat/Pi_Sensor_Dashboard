@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import type { SensorReadingWhereInput, GraphDataPoint } from '@/types';
 
 const prisma = getPrismaClient();
 
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     const entityIds = entityIdsParam ? entityIdsParam.split(',') : undefined;
 
     // Build where clause
-    const where: any = {
+    const where: SensorReadingWhereInput = {
       timestamp: {
         gte: fromDate,
         lte: toDate,
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Group readings by timestamp for graph data
-    const dataPoints: Record<string, any> = {};
+    const dataPoints: Record<string, GraphDataPoint> = {};
 
     readings.forEach((reading) => {
       const timestamp = reading.timestamp.getTime();
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Convert to array and sort by timestamp
-    const graphData = Object.values(dataPoints).sort((a, b) => a.timestamp - b.timestamp);
+    const graphData: GraphDataPoint[] = Object.values(dataPoints).sort((a, b) => a.timestamp - b.timestamp);
 
     return NextResponse.json({
       success: true,
