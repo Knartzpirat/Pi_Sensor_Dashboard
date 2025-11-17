@@ -1,89 +1,109 @@
 // app/api/labels/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '@/lib/prisma';
+import { withAuth } from '@/lib/auth-helpers';
+import { validateParams, validateBody } from '@/lib/validation-helpers';
+import { labelIdSchema, updateLabelSchema } from '@/lib/validations/labels';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 // GET - Einzelnes Label
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const label = await prisma.label.findUnique({
-      where: { id: params.id },
-      include: {
-        _count: {
-          select: { testObjects: true }
-        }
-      }
-    });
+export const GET = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = await validateParams(params, labelIdSchema);
 
-    if (!label) {
+      const label = await prisma.label.findUnique({
+        where: { id },
+        include: {
+          _count: {
+            select: { testObjects: true }
+          }
+        }
+      });
+
+      if (!label) {
+        return NextResponse.json(
+          { error: 'Label not found' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json(label);
+    } catch (error) {
+      if (error instanceof NextResponse) {
+        return error;
+      }
+      console.error('Error fetching label:', error);
       return NextResponse.json(
-        { error: 'Label not found' },
-        { status: 404 }
+        { error: 'Failed to fetch label' },
+        { status: 500 }
       );
     }
-
-    return NextResponse.json(label);
-  } catch (error) {
-    console.error('Error fetching label:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch label' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
   }
-}
+);
 
 // PATCH - Label bearbeiten
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { name, color } = await request.json();
+export const PATCH = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = await validateParams(params, labelIdSchema);
+      const data = await validateBody(request, updateLabelSchema);
 
-    const label = await prisma.label.update({
-      where: { id: params.id },
-      data: { 
-        ...(name && { name }),
-        ...(color !== undefined && { color })
-      },
-    });
+      const label = await prisma.label.update({
+        where: { id },
+        data: {
+          ...(data.name && { name: data.name }),
+          ...(data.color !== undefined && { color: data.color })
+        },
+      });
 
-    return NextResponse.json(label);
-  } catch (error) {
-    console.error('Error updating label:', error);
-    return NextResponse.json(
-      { error: 'Failed to update label' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+      return NextResponse.json(label);
+    } catch (error) {
+      if (error instanceof NextResponse) {
+        return error;
+      }
+      console.error('Error updating label:', error);
+      return NextResponse.json(
+        { error: 'Failed to update label' },
+        { status: 500 }
+      );
+    }
   }
-}
+);
 
 // DELETE - Label löschen
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.label.delete({
-      where: { id: params.id },
-    });
+export const DELETE = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = await validateParams(params, labelIdSchema);
 
-    return NextResponse.json({ message: 'Label deleted' });
-  } catch (error) {
-    console.error('Error deleting label:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete label' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+      await prisma.label.delete({
+        where: { id },
+      });
+
+      return NextResponse.json({ message: 'Label deleted' });
+    } catch (error) {
+      if (error instanceof NextResponse) {
+        return error;
+      }
+      console.error('Error deleting label:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete label' },
+        { status: 500 }
+      );
+    }
   }
-}
+);
