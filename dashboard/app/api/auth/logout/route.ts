@@ -1,32 +1,46 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { PrismaClient } from '@prisma/client';
 import { revokeRefreshToken } from '@/lib/token-helper';
+import { getPrismaClient } from '@/lib/prisma';
+import { handleError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import { env } from '@/lib/env';
 
-const prisma = new PrismaClient();
+const prisma = getPrismaClient();
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
 
-    // Refresh-Token aus Cookie holen
+    // Get refresh token from cookie
     const refreshToken = cookieStore.get('refreshToken')?.value;
 
     if (refreshToken) {
-      // Refresh-Token aus der Datenbank löschen
-      await revokeRefreshToken(prisma, refreshToken);
+      // Revoke refresh token from database
+      await logger.trackPerformance(
+        'Revoke refresh token',
+        async () => {
+          await revokeRefreshToken(prisma, refreshToken);
+        }
+      );
+
+      logger.info('User logged out successfully', {
+        hasRefreshToken: !!refreshToken,
+      });
+    } else {
+      logger.info('Logout attempt without refresh token');
     }
 
-    // Response mit gelöschten Cookies erstellen
+    // Create response with cleared cookies
     const response = NextResponse.json(
-      { message: 'Logout erfolgreich' },
+      { message: 'Logout successful' },
       { status: 200 }
     );
 
-    // Refresh Token Cookie löschen
+    // Clear refresh token cookie
     response.cookies.set('refreshToken', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProduction,
       sameSite: 'lax',
       maxAge: 0,
       path: '/',
@@ -34,24 +48,22 @@ export async function POST() {
 
     return response;
   } catch (error) {
-    console.error('Logout Fehler:', error);
+    logger.error('Logout failed', error);
 
-    // Auch bei Fehler die Cookies löschen
+    // Even on error, clear the cookies
     const response = NextResponse.json(
-      { error: 'Logout fehlgeschlagen' },
+      { error: 'Logout failed' },
       { status: 500 }
     );
 
     response.cookies.set('refreshToken', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProduction,
       sameSite: 'lax',
       maxAge: 0,
       path: '/',
     });
 
     return response;
-  } finally {
-    await prisma.$disconnect();
   }
 }
