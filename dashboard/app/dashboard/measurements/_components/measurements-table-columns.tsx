@@ -15,7 +15,6 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import { formatDate } from '@/lib/format';
 import { Clock, FlaskConical, MoreHorizontal, Eye, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
 import { DeleteMeasurementsDialog } from './delete-measurements-dialog';
 
 export interface MeasurementTableData {
