@@ -39,6 +39,11 @@ export type DateFormatConfig = {
    * Options for time only formatting
    */
   timeOptions: Intl.DateTimeFormatOptions;
+
+  /**
+   * Separator word between date and time (e.g., "at" in English, "um" in German)
+   */
+  dateTimeSeparator: string;
 };
 
 /**
@@ -52,23 +57,23 @@ export type DateFormatConfig = {
 export const defaultDateFormatConfig: DateFormatConfig = {
   locale: 'de-DE', // Default to German locale
 
-  // Standard date format: 15. Januar 2025
+  // Standard date format: 11.11.2025 (short format for tables and display)
   dateOptions: {
-    day: 'numeric',
-    month: 'long',
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
   },
 
-  // Date with time: 15. Januar 2025, 14:30
+  // Date with time: 11.11.2025, 14:30
   dateTimeOptions: {
-    day: 'numeric',
-    month: 'long',
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   },
 
-  // Short date for tables: 15.01.2025
+  // Short date for tables: 11.11.2025
   shortDateOptions: {
     day: '2-digit',
     month: '2-digit',
@@ -88,6 +93,9 @@ export const defaultDateFormatConfig: DateFormatConfig = {
     hour: '2-digit',
     minute: '2-digit',
   },
+
+  // Separator between date and time
+  dateTimeSeparator: 'um',
 };
 
 /**
@@ -97,13 +105,13 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
   'de-DE': {
     locale: 'de-DE',
     dateOptions: {
-      day: 'numeric',
-      month: 'long',
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
     },
     dateTimeOptions: {
-      day: 'numeric',
-      month: 'long',
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -123,22 +131,23 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
       hour: '2-digit',
       minute: '2-digit',
     },
+    dateTimeSeparator: 'um',
   },
 
   'en-US': {
     locale: 'en-US',
     dateOptions: {
-      month: 'long',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       year: 'numeric',
     },
     dateTimeOptions: {
-      month: 'long',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       year: 'numeric',
-      hour: 'numeric',
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
+      hour12: false,
     },
     shortDateOptions: {
       month: '2-digit',
@@ -152,22 +161,23 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
       year: 'numeric',
     },
     timeOptions: {
-      hour: 'numeric',
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
+      hour12: false,
     },
+    dateTimeSeparator: 'at',
   },
 
   'en-GB': {
     locale: 'en-GB',
     dateOptions: {
-      day: 'numeric',
-      month: 'long',
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
     },
     dateTimeOptions: {
-      day: 'numeric',
-      month: 'long',
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -187,6 +197,7 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
       hour: '2-digit',
       minute: '2-digit',
     },
+    dateTimeSeparator: 'at',
   },
 
   'ISO-8601': {
@@ -220,6 +231,7 @@ export const dateFormatPresets: Record<string, DateFormatConfig> = {
       minute: '2-digit',
       second: '2-digit',
     },
+    dateTimeSeparator: 'at',
   },
 };
 
