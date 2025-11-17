@@ -35,7 +35,7 @@ interface Sensor {
   name: string;
   driver: string;
   connectionType: string;
-  pin?: number;
+  pin: number | null;
   enabled: boolean;
   entities: Array<{
     id: string;
