@@ -23,6 +23,20 @@
       "showInGraph": "Show in graph",
       "hideFromGraph": "Hide from graph",
       "noEntities": "No measurement entities available"
+    },
+    "completedMeasurement": {
+      "title": "Completed Measurements",
+      "noCompletedMeasurements": "No completed measurements",
+      "repeat": "Repeat measurement",
+      "clear": "Clear completed measurements",
+      "confirmClear": "Do you want to reset all completed measurements?",
+      "confirmClearDescription": "Your completed measurements can be found under Measurements.",
+      "startedAt": "Started at",
+      "completedAt": "Completed at",
+      "duration": "Duration",
+      "readingsCount": "Number of readings",
+      "errorCount": "Error count",
+      "viewReport": "View report"
     }
   },
 
@@ -72,6 +86,21 @@
     "success": "Measurement started successfully",
     "error": "Failed to start measurement"
   },
+
+  "sidebar": {
+    "title": "Pi Sensor Dashboard",
+    "pages": {
+      "dashboard": "Dashboard",
+      "settings": "Settings",
+      "search": "Search",
+      "measurements": "Measurements",
+      "sensors": "Sensors",
+      "reports": "Reports",
+      "help": "Help",
+      "test-objects": "Test Objects"
+    }
+  },
+
   "common": {
     "redirectingIn": "Redirecting in {seconds} seconds...",
     "noResults": "No results found.",
@@ -88,8 +117,18 @@
     "edit": "Edit",
     "loading": "Loading...",
     "selectAll": "Select All",
-    "actions": "Actions"
+    "actions": "Actions",
+    "dateTimeSeparator": "at"
   },
+
+  "deleteDialog": {
+    "title": "Are you sure?",
+    "description": "Do you really want to delete this item? This action cannot be undone.",
+    "cancel": "Cancel",
+    "loading": "Deleting...",
+    "confirm": "Delete"
+  },
+
   "inputs": {
     "username": "Username",
     "password": "Password",
@@ -107,6 +146,7 @@
     "title": "Test Title",
     "description": "This is a test description."
   },
+
   "sensors": {
     "addSensor": "Add Sensor",
     "addSensorDescription": "Configure a new sensor by selecting the type and connection details",
@@ -144,21 +184,154 @@
     "confirmSaveDescriptionWithDriverChange": "You are changing the sensor type. This requires different hardware to be connected.",
     "driverChangeWarningDetailed": "DANGER: Connecting the wrong sensor type could damage your hardware! Verify that the correct physical sensor is connected before saving."
   },
+
   "buttons": {
     "setup": "Set Up",
     "login": "Log In",
     "logout": "Log Out",
     "loading": "Loading...",
+    "continue": "Continue",
+    "cancel": "Cancel",
     "showPassword": "Show Password",
     "hidePassword": "Hide Password",
     "switchTheme": "Switch Theme",
     "changeLanguage": "Change Language",
+    "switchLocale": "Switch Language",
     "gotologin": "Go to Login",
     "backtologin": "Back to Login",
     "copyall": "Copy All",
     "download": "Download",
     "verify": "Verify",
-    "resetpassword": "Reset Password"
+    "resetpassword": "Reset Password",
+    "startmeasurements": "Start Measurements",
+    "addsensor": "Add Sensor"
+  },
+
+  "loading": {
+    "creating": "Creating..."
+  },
+
+  "table": {
+    "title": "Title",
+    "description": "Description",
+    "thumbnail": "Thumbnail",
+    "image": "Image",
+    "noImage": "No Image",
+    "status": "Status",
+    "actions": "Actions",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "asc": "Ascending",
+    "desc": "Descending",
+    "hide": "Hide",
+    "view": "View",
+    "clearFilter": "Clear filter",
+    "sort": "Sort",
+    "sortby": "Sort by",
+    "nosortingapplied": "No sorting applied",
+    "modifysortingdescription": "Modify sorting to organize your rows.",
+    "addsortingdescription": "Add sorting to organize your rows.",
+    "addsort": "Add sorting",
+    "resetsorting": "Reset sorting",
+    "selectionInfo": "{selectedCount, plural, =0 {No rows selected} one {{selectedCount} of {totalCount} row selected} other {{selectedCount} of {totalCount} rows selected}}",
+    "pageInfo": "Page {currentPage} of {totalPages}",
+    "rowsPerPage": "Rows per page",
+    "Filter": "Filter",
+    "addFilter": "Add filter"
+  },
+
+  "filters": {
+    "title": "Filters",
+    "addFilter": "Add filter",
+    "noFiltersApplied": "No filters applied",
+    "addDescription": "Add filters to refine your rows.",
+    "noOptionsFound": "No options found.",
+    "modifyDescription": "Modify filters to refine your rows.",
+    "where": "Where",
+    "resetFilters": "Reset filters",
+    "enterValue": "Enter value",
+    "searchOptions": "Search options...",
+    "pickDate": "Pick date"
+  },
+
+  "FeatureFlags": {
+    "advancedFilters": {
+      "label": "Advanced Filters",
+      "tooltipTitle": "Advanced Filters",
+      "tooltipDescription": "Airtable-like advanced filters for filtering rows."
+    },
+    "commandFilters": {
+      "label": "Command Filters",
+      "tooltipTitle": "Command Filter Chips",
+      "tooltipDescription": "Linear-like command palette for filtering rows."
+    }
+  },
+
+  "testObjects": {
+    "title": "Test Objects",
+    "description": "Describe your test objects and their properties. You can assign sensors to them to organize measurements and generate reports.",
+    "table": {
+      "thumbnail": "Thumbnail",
+      "title": "Title",
+      "title_description": "Test object title",
+      "description": "Description",
+      "description_placeholder": "Test object description (Optional)",
+      "label": "Type",
+      "label_placeholder": "Select type (Optional)",
+      "type": "Type",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "form": {
+      "files": "Files",
+      "files_description": "Upload images and PDF documents. Files are automatically sorted by type.",
+      "images": "Images",
+      "images_description": "The first image will be used as thumbnail. Sort images via drag & drop.",
+      "documents": "Documents (PDF)",
+      "documents_description": "PDFs will be exported as attachments in reports in order. Sort via drag & drop.",
+      "dropzone_combined_title": "Add images and PDFs via drag & drop or click",
+      "dropzone_combined_description": "Up to 30 files, max 10MB per file",
+      "dropzone_title": "Add images via drag & drop or click",
+      "dropzone_description": "Up to 10 images, max 5MB per file",
+      "dropzone_pdf_title": "Add PDF files via drag & drop or click",
+      "dropzone_pdf_description": "Up to 20 PDFs, max 10MB per file",
+      "select_files": "Select files"
+    },
+    "createTestObject": {
+      "title": "Create Test Object",
+      "description": "Create a new test object to organize your sensors."
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "permanentDelete": "This action cannot be undone. {count, plural, =0 {No test objects} one {{count} test object} other {{count} test objects}} will be permanently deleted.",
+      "success": "{count, plural, one {Test object} other {# test objects}} deleted successfully",
+      "error": "Failed to delete test object(s)"
+    },
+    "edit": {
+      "title": "Edit Test Object",
+      "description": "Edit test object details and manage uploaded files.",
+      "success": "Test object updated successfully",
+      "error": "Failed to update test object",
+      "loadError": "Failed to load test object",
+      "documentNameUpdated": "Document name updated successfully",
+      "documentNameError": "Failed to update document name",
+      "orderUpdated": "Order updated successfully",
+      "orderUpdateError": "Failed to update order",
+      "uploadNewFiles": "Upload more files",
+      "filesSelected": "file(s) selected",
+      "uploading": "Uploading...",
+      "upload": "Upload",
+      "uploadSuccess": "Files uploaded successfully",
+      "uploadError": "Failed to upload files",
+      "deleteTitle": "Delete file?",
+      "deleteDescription": "Do you really want to delete '{name}'? This action cannot be undone.",
+      "deleteSuccess": "File deleted successfully",
+      "deleteError": "Failed to delete file"
+    }
   },
 
   "errors": {
@@ -190,8 +363,17 @@
     },
     "recoverycode": {
       "title": "Recovery Code",
-      "description": "Write down this code to recover your administrator user."
-    }
+      "description": "Write down this code to recover your administrator user.",
+      "nocodefound": "No recovery code found. Please restart the setup process.",
+      "invalidformat": "Invalid recovery code format. Please check the code and try again.",
+      "allcopied": "All recovery codes have been copied to clipboard.",
+      "codecopied": "Recovery code {number} has been copied to clipboard.",
+      "downloaded": "Recovery codes have been downloaded as file.",
+      "validating": "Validating recovery code...",
+      "sessionexpired": "Session expired. Please restart the setup process."
+    },
+    "Success": "Setup completed successfully!",
+    "Error": "Setup failed. Please try again."
   },
 
   "login": {
@@ -199,23 +381,89 @@
     "description": "Log in with your username and password.",
     "forgotPassword": "Forgot password?",
     "stayedLoggedIn": "Stay logged in",
-    "success": "Successfully logged in."
+    "success": "Successfully logged in.",
+    "error": "Login failed. Please check your credentials.",
+    "redirecting": "Successfully logged in. Redirecting..."
   },
 
   "forgotPassword": {
     "title": "Forgot Password",
     "description_recoverycode": "Enter a recovery code to reset your password.",
-    "success": "Password reset instructions have been sent to your registered email address."
+    "success": "Password reset instructions have been sent to your registered email address.",
+    "codeVerified": "Recovery code verified successfully. You can now reset your password.",
+    "error": "Failed to request password reset. Please try again."
   },
+
   "resetPassword": {
     "title": "Reset Password",
     "description": "Reset your password by entering a new password.",
-    "success": "Your password has been successfully reset."
+    "success": "Your password has been successfully reset.",
+    "error": "Failed to reset password. Please try again.",
+    "unexpectedError": "Unexpected error. Please try again.",
+    "redirecting": "Password reset successfully. Redirecting to login..."
+  },
+
+  "validation": {
+    "username": {
+      "min": "Username must be at least 3 characters",
+      "max": "Username must be at most 20 characters"
+    },
+    "password": {
+      "min": "Password must be at least 8 characters",
+      "max": "Password must be at most 100 characters",
+      "mismatch": "Passwords do not match"
+    },
+    "dbHost": {
+      "required": "Database host is required"
+    },
+    "dbPort": {
+      "min": "Port must be at least 1",
+      "max": "Port must be at most 65535"
+    },
+    "dbUser": {
+      "required": "Database user is required"
+    },
+    "dbPassword": {
+      "required": "Database password is required"
+    },
+    "dbName": {
+      "required": "Database name is required"
+    },
+    "recoveryCode": {
+      "required": "Recovery code is required",
+      "format": "Invalid recovery code format"
+    }
   },
 
   "language": {
     "german": "German",
     "english": "English"
+  },
+
+  "operators": {
+    "contains": "Contains",
+    "doesNotContain": "Does not contain",
+    "is": "Is",
+    "isNot": "Is not",
+    "isEmpty": "Is empty",
+    "isNotEmpty": "Is not empty",
+    "isAfter": "Is after",
+    "isBefore": "Is before",
+    "isOnOrAfter": "Is on or after",
+    "isOnOrBefore": "Is on or before",
+    "isLessThan": "Is less than",
+    "isLessThanOrEqualTo": "Is less than or equal to",
+    "isGreaterThan": "Is greater than",
+    "isGreaterThanOrEqualTo": "Is greater than or equal to",
+    "isBetween": "Is between",
+    "isRelativeToToday": "Is relative to today",
+    "hasAnyOf": "Has any of",
+    "hasNoneOf": "Has none of"
+  },
+
+  "sort": {
+    "asc": "Asc",
+    "desc": "Desc"
   },
 
   "settings": {
@@ -281,6 +529,7 @@
       "configError": "Failed to save hardware configuration"
     }
   },
+
   "measurementsPage": {
     "title": "Measurements",
     "description": "Overview and analysis of all measurements",
@@ -309,6 +558,41 @@
       "description": "Are you sure you want to delete {count, plural, one {this measurement} other {# measurements}}? This action cannot be undone.",
       "success": "{count, plural, one {Measurement deleted successfully} other {# measurements deleted successfully}}",
       "error": "Failed to delete measurement(s)"
+    },
+    "detail": {
+      "startTime": "Start time",
+      "duration": "Duration",
+      "interval": "Interval",
+      "readings": "Readings",
+      "dataPoints": "Data points",
+      "errors": "Errors",
+      "errorCount": "Error count",
+      "sensorsAndTestObjects": "Sensors and Test Objects",
+      "sensorsDescription": "Sensors used and assigned test objects",
+      "entities": "Entities",
+      "noTestObject": "No test object"
+    },
+    "analysis": {
+      "title": "Analysis",
+      "description": "Interactive tools for analyzing measurement data",
+      "chartConfig": "Chart Configuration",
+      "chartConfigDescription": "Select chart type and data series",
+      "chartType": "Chart Type",
+      "lineChart": "Line Chart",
+      "barChart": "Bar Chart",
+      "scatterChart": "Scatter Chart",
+      "selectData": "Select Data Series",
+      "visualization": "Visualization",
+      "dataSeriesSelected": "data series selected",
+      "noData": "No data available",
+      "statistics": "Statistics",
+      "statisticsDescription": "Calculated statistical metrics",
+      "mean": "Mean",
+      "median": "Median",
+      "std": "Std. Dev.",
+      "min": "Minimum",
+      "max": "Maximum",
+      "count": "Count"
     }
   }
 }
