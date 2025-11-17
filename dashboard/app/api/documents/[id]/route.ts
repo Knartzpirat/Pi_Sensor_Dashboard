@@ -1,99 +1,113 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
-import { EntityType } from '@prisma/client';
 import { unlink } from 'fs/promises';
 import path from 'path';
+import { withAuth } from '@/lib/auth-helpers';
+import { validateParams, validateBody } from '@/lib/validation-helpers';
+import { fileIdSchema, updateDocumentSchema } from '@/lib/validations/files';
+import { handleError, NotFoundError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import { reorderDocuments } from '@/lib/file-helpers';
 
 const prisma = getPrismaClient();
 
 // PATCH - Update document name or order
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const { originalName, order } = body;
+export const PATCH = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
+    try {
+      const { id } = await validateParams(params, fileIdSchema);
+      const data = await validateBody(request, updateDocumentSchema);
 
-    if (!originalName && order === undefined) {
-      return NextResponse.json(
-        { error: 'originalName or order is required' },
-        { status: 400 }
+      const updateData: { originalName?: string; order?: number } = {};
+      if (data.originalName) updateData.originalName = data.originalName;
+      if (data.order !== undefined) updateData.order = data.order;
+
+      const document = await logger.trackPerformance(
+        'Update document',
+        async () => {
+          return await prisma.document.update({
+            where: { id },
+            data: updateData,
+          });
+        },
+        { userId: user.userId, documentId: id, updateFields: Object.keys(updateData) }
       );
+
+      logger.info('Document updated successfully', {
+        userId: user.userId,
+        documentId: id,
+        updatedFields: Object.keys(updateData),
+      });
+
+      return NextResponse.json(document);
+    } catch (error) {
+      return handleError(error);
     }
-
-    const updateData: { originalName?: string; order?: number } = {};
-    if (originalName) updateData.originalName = originalName;
-    if (order !== undefined) updateData.order = order;
-
-    const document = await prisma.document.update({
-      where: { id },
-      data: updateData,
-    });
-
-    return NextResponse.json(document);
-  } catch (error) {
-    console.error('Error updating document:', error);
-    return NextResponse.json(
-      { error: 'Failed to update document' },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE - Delete document
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const document = await prisma.document.findUnique({
-      where: { id },
-    });
-
-    if (!document) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
-    }
-
-    // Delete file from filesystem
+export const DELETE = withAuth(
+  async (
+    request: NextRequest,
+    user,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
     try {
-      const filepath = path.join(process.cwd(), 'public', document.url);
-      await unlink(filepath);
-    } catch (fileError) {
-      console.warn('Could not delete file:', fileError);
+      const { id } = await validateParams(params, fileIdSchema);
+      const document = await prisma.document.findUnique({
+        where: { id },
+      });
+
+      if (!document) {
+        throw new NotFoundError('Document', id);
+      }
+
+      // Delete file from filesystem
+      try {
+        const filepath = path.join(process.cwd(), 'public', document.url);
+        await logger.trackPerformance(
+          'Delete document file from filesystem',
+          async () => {
+            await unlink(filepath);
+          },
+          { documentId: id, filepath }
+        );
+      } catch (fileError) {
+        logger.warn('Could not delete document file from filesystem (continuing with database delete)', fileError, {
+          documentId: id,
+          filepath: document.url,
+        });
+      }
+
+      // Delete from database
+      await logger.trackPerformance(
+        'Delete document from database',
+        async () => {
+          await prisma.document.delete({
+            where: { id },
+          });
+        },
+        { userId: user.userId, documentId: id }
+      );
+
+      // Reorder remaining documents using shared helper
+      await reorderDocuments(document.entityType, document.entityId);
+
+      logger.info('Document deleted successfully', {
+        userId: user.userId,
+        documentId: id,
+        entityType: document.entityType,
+        entityId: document.entityId,
+      });
+
+      return NextResponse.json({ message: 'Document deleted successfully' });
+    } catch (error) {
+      return handleError(error);
     }
-
-    // Delete from database
-    await prisma.document.delete({
-      where: { id },
-    });
-
-    // Reorder remaining documents
-    await reorderDocuments(document.entityType, document.entityId);
-
-    return NextResponse.json({ message: 'Document deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting document:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete document' },
-      { status: 500 }
-    );
   }
-}
-
-// Helper to reorder documents
-async function reorderDocuments(entityType: EntityType, entityId: string) {
-  const documents = await prisma.document.findMany({
-    where: { entityType, entityId },
-    orderBy: { order: 'asc' },
-  });
-
-  for (let i = 0; i < documents.length; i++) {
-    await prisma.document.update({
-      where: { id: documents[i].id },
-      data: { order: i },
-    });
-  }
-}
+);
