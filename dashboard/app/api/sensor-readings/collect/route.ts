@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { env } from '@/lib/env';
 
 const prisma = getPrismaClient();
 
@@ -10,29 +11,54 @@ const prisma = getPrismaClient();
  */
 export async function POST(request: NextRequest) {
   try {
-    // Get all enabled sensors
+    // Get current board type from hardware config
+    const hardwareConfig = await prisma.hardwareConfig.findFirst();
+    const currentBoardType = hardwareConfig?.boardType || 'GPIO';
+
+    // Check if there's an active measurement
+    const activeMeasurement = await prisma.measurement.findFirst({
+      where: {
+        status: {
+          in: ['STARTING', 'RUNNING']
+        }
+      },
+      include: {
+        measurementSensors: {
+          include: {
+            sensor: true
+          }
+        }
+      }
+    });
+
+    // Get all enabled sensors for the CURRENT board only
     const sensors = await prisma.sensor.findMany({
-      where: { enabled: true },
+      where: {
+        enabled: true,
+        boardType: currentBoardType,
+      },
       include: { entities: true },
     });
 
     if (sensors.length === 0) {
       return NextResponse.json({
         success: true,
-        message: 'No enabled sensors found',
+        message: `No enabled sensors found for board type ${currentBoardType}`,
         readingsCount: 0
       });
     }
 
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     const timestamp = new Date();
     let totalReadings = 0;
+
+    // Track readings per measurement
+    const measurementReadingCounts = new Map<string, number>();
 
     // Collect readings from all sensors
     for (const sensor of sensors) {
       try {
         // Read sensor data from backend
-        const response = await fetch(`${backendUrl}/sensors/${sensor.id}/read`);
+        const response = await fetch(`${env.backendUrl}/sensors/${sensor.id}/read`);
 
         if (!response.ok) {
           console.error(`Failed to read sensor ${sensor.name}: ${response.statusText}`);
@@ -61,6 +87,20 @@ export async function POST(request: NextRequest) {
             continue;
           }
 
+          // Check if this sensor is part of the active measurement
+          let measurementId = null;
+          if (activeMeasurement) {
+            const isSensorInMeasurement = activeMeasurement.measurementSensors.some(
+              (ms) => ms.sensorId === sensor.id
+            );
+            if (isSensorInMeasurement) {
+              measurementId = activeMeasurement.id;
+              // Track count for this measurement
+              const currentCount = measurementReadingCounts.get(measurementId) || 0;
+              measurementReadingCounts.set(measurementId, currentCount + 1);
+            }
+          }
+
           // Create sensor reading in database
           await prisma.sensorReading.create({
             data: {
@@ -68,7 +108,7 @@ export async function POST(request: NextRequest) {
               value: reading.value,
               quality: reading.quality ?? 1.0,
               timestamp,
-              measurementId: null, // No measurement - this is continuous background collection
+              measurementId, // Link to measurement if this sensor is part of one
             },
           });
 
@@ -78,6 +118,18 @@ export async function POST(request: NextRequest) {
         console.error(`Error collecting data from sensor ${sensor.name}:`, error);
         // Continue with next sensor even if one fails
       }
+    }
+
+    // Update readingsCount for all measurements that received new readings
+    for (const [measurementId, newReadings] of measurementReadingCounts.entries()) {
+      await prisma.measurement.update({
+        where: { id: measurementId },
+        data: {
+          readingsCount: {
+            increment: newReadings
+          }
+        }
+      });
     }
 
     return NextResponse.json({
