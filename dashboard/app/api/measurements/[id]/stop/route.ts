@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { env } from '@/lib/env';
 
 const prisma = getPrismaClient();
 
@@ -34,8 +35,7 @@ export async function POST(
 
     // Stop measurement on backend
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-      await fetch(`${backendUrl}/measurements/${measurement.sessionId}/stop`, {
+      await fetch(`${env.backendUrl}/measurements/${measurement.sessionId}/stop`, {
         method: 'POST',
       });
     } catch (backendError) {
