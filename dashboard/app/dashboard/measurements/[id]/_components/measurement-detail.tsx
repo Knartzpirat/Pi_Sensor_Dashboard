@@ -10,9 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { formatDate } from '@/lib/format';
 import { MeasurementAnalysis } from './measurement-analysis';
+import type { Measurement } from '@/types';
 
 interface MeasurementDetailProps {
-  measurement: any;
+  measurement: Measurement;
 }
 
 export function MeasurementDetail({ measurement }: MeasurementDetailProps) {
@@ -101,7 +102,7 @@ export function MeasurementDetail({ measurement }: MeasurementDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {measurement.readingsCount.toLocaleString()}
+              {(measurement.readings?.length || measurement.readingsCount || 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               {t('measurementsPage.detail.dataPoints')}
@@ -138,7 +139,7 @@ export function MeasurementDetail({ measurement }: MeasurementDetailProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {measurement.measurementSensors?.map((ms: any) => (
+            {measurement.measurementSensors?.map((ms) => (
               <div
                 key={ms.id}
                 className="flex items-start justify-between rounded-lg border p-4"
@@ -150,7 +151,7 @@ export function MeasurementDetail({ measurement }: MeasurementDetailProps) {
                   </p>
                   {ms.sensor.entities && ms.sensor.entities.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {ms.sensor.entities.map((entity: any) => (
+                      {ms.sensor.entities.map((entity) => (
                         <Badge key={entity.id} variant="outline" className="text-xs">
                           {entity.name} ({entity.unit})
                         </Badge>
