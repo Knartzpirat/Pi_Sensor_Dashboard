@@ -41,8 +41,8 @@ export function NavMain({
         const sensorsRes = await fetch('/api/sensors');
         const sensorsData = await sensorsRes.json();
         const pins = (sensorsData.sensors || [])
-          .filter((s: any) => s.pin !== null && s.pin !== undefined)
-          .map((s: any) => s.pin);
+          .filter((s: { pin?: number | null }) => s.pin !== null && s.pin !== undefined)
+          .map((s: { pin: number }) => s.pin);
         setUsedPins(pins);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -51,14 +51,14 @@ export function NavMain({
     loadData();
   }, []);
 
-  const handleSensorAdded = async () => {
+  const handleSensorAdded = async (): Promise<void> => {
     // Reload used pins after sensor is added
     try {
       const sensorsRes = await fetch('/api/sensors');
       const sensorsData = await sensorsRes.json();
       const pins = (sensorsData.sensors || [])
-        .filter((s: any) => s.pin !== null && s.pin !== undefined)
-        .map((s: any) => s.pin);
+        .filter((s: { pin?: number | null }) => s.pin !== null && s.pin !== undefined)
+        .map((s: { pin: number }) => s.pin);
       setUsedPins(pins);
     } catch (error) {
       console.error('Error reloading sensors:', error);
