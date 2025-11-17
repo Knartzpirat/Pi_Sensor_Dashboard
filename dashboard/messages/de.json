@@ -120,7 +120,8 @@
     "edit": "Bearbeiten",
     "loading": "Laden...",
     "selectAll": "Alle auswählen",
-    "actions": "Aktionen"
+    "actions": "Aktionen",
+    "dateTimeSeparator": "um"
   },
 
   "deleteDialog": {
@@ -297,8 +298,14 @@
       "title": "Testobjekt erstellen",
       "description": "Erstellen Sie ein neues Testobjekt, um Ihre Sensoren zu organisieren."
     },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
     "deleteDialog": {
-      "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht."
+      "permanentDelete": "Diese Aktion kann nicht rückgängig gemacht werden. {count, plural, =0 {Es werden keine Test-Objekte} one {Es wird {count} Test-Objekt} other {Es werden {count} Test-Objekte}} permanent gelöscht.",
+      "success": "{count, plural, one {Testobjekt} other {# Testobjekte}} erfolgreich gelöscht",
+      "error": "Fehler beim Löschen der Testobjekt(e)"
     },
     "edit": {
       "title": "Testobjekt bearbeiten",
