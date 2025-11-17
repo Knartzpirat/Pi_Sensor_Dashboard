@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { AlertCircle, XCircle } from 'lucide-react';
 
 import {
@@ -58,6 +58,7 @@ export function MeasurementProgressCard({
   const t = useTranslations('dashboard.measurement');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const [isCancelling, setIsCancelling] = React.useState(false);
 
   const handleCancel = async () => {
@@ -126,14 +127,14 @@ export function MeasurementProgressCard({
           <div>
             <p className="text-muted-foreground">{t('startedAt')}</p>
             <p className="font-medium">
-              {formatDate(measurement.startedAt, 'dateTime')}
+              {formatDate(measurement.startedAt, 'dateTime', {}, locale)}
             </p>
           </div>
           {measurement.estimatedCompletion && (
             <div>
               <p className="text-muted-foreground">{t('estimatedCompletion')}</p>
               <p className="font-medium">
-                {formatDate(measurement.estimatedCompletion, 'dateTime')}
+                {formatDate(measurement.estimatedCompletion, 'dateTime', {}, locale)}
               </p>
             </div>
           )}
