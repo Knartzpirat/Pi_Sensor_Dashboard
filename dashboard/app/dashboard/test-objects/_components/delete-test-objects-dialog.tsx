@@ -21,15 +21,26 @@ import type { TestObjectsTableData } from '@/types/test-object';
 interface DeleteTestObjectsDialogProps {
   testObjects: TestObjectsTableData[];
   onSuccess?: () => void;
+  trigger?: React.ReactNode;
+  showIcon?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function DeleteTestObjectsDialog({
   testObjects,
   onSuccess,
+  trigger,
+  showIcon = true,
+  open: controlledOpen,
+  onOpenChange,
 }: DeleteTestObjectsDialogProps) {
   const t = useTranslations();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -65,12 +76,15 @@ export function DeleteTestObjectsDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <TrashIcon className="mr-2 size-4" aria-hidden="true" />
-          {t('deleteDialog.confirm')} ({testObjects.length})
-        </Button>
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {!trigger && controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            {showIcon && <TrashIcon className="mr-2 size-4" aria-hidden="true" />}
+            {t('deleteDialog.confirm')} ({testObjects.length})
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('deleteDialog.title')}</DialogTitle>
