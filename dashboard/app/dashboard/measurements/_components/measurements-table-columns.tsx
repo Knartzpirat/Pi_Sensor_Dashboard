@@ -15,6 +15,7 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import { formatDate } from '@/lib/format';
 import { Clock, FlaskConical, MoreHorizontal, Eye, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { DeleteMeasurementsDialog } from './delete-measurements-dialog';
 
 export interface MeasurementTableData {
@@ -42,16 +43,20 @@ export interface MeasurementTableData {
 }
 
 interface GetColumnsProps {
-  t: any;
+  t: (key: string) => string;
+  locale: string;
 }
 
-export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableData>[] {
+export function getColumns({ t, locale }: GetColumnsProps): ColumnDef<MeasurementTableData>[] {
   return [
     {
       id: 'title',
       accessorKey: 'title',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.title')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.title')}
+        />
       ),
       cell: ({ row }) => {
         return (
@@ -76,22 +81,33 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
     {
       accessorKey: 'startTime',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.startTime')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.startTime')}
+        />
       ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(row.original.startTime, 'dateTime')}</span>
+            <span>{formatDate(row.original.startTime, 'dateTime', {}, locale)}</span>
           </div>
         );
       },
+      enableColumnFilter: true,
       enableSorting: true,
+      meta: {
+        label: t('measurementsPage.table.startTime'),
+        variant: 'date',
+      },
     },
     {
       accessorKey: 'duration',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.duration')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.duration')}
+        />
       ),
       cell: ({ row }) => {
         const duration = row.original.duration;
@@ -108,20 +124,28 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
         );
       },
       enableSorting: true,
+      meta: {
+        label: t('measurementsPage.table.duration'),
+      },
     },
     {
       id: 'status',
       accessorKey: 'status',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.status')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.status')}
+        />
       ),
       cell: ({ row }) => {
         const status = row.original.status;
-        let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'default';
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' =
+          'default';
 
         if (status === 'COMPLETED') variant = 'default';
         else if (status === 'RUNNING') variant = 'secondary';
-        else if (status === 'ERROR' || status === 'CANCELLED') variant = 'destructive';
+        else if (status === 'ERROR' || status === 'CANCELLED')
+          variant = 'destructive';
         else if (status === 'STARTING') variant = 'outline';
 
         return (
@@ -150,13 +174,19 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
     {
       accessorKey: 'testObject',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.testObjects')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.testObjects')}
+        />
       ),
       cell: ({ row }) => {
         const sensors = row.original.measurementSensors || [];
         const testObjects = sensors
           .map((ms) => ms.testObject)
-          .filter((to): to is NonNullable<typeof to> => to !== null && to !== undefined);
+          .filter(
+            (to): to is NonNullable<typeof to> =>
+              to !== null && to !== undefined
+          );
 
         // Get unique test objects
         const uniqueTestObjects = Array.from(
@@ -164,7 +194,11 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
         );
 
         if (uniqueTestObjects.length === 0) {
-          return <span className="text-muted-foreground italic">{t('measurementsPage.table.noTestObject')}</span>;
+          return (
+            <span className="text-muted-foreground italic">
+              {t('measurementsPage.table.noTestObject')}
+            </span>
+          );
         }
 
         return (
@@ -181,12 +215,19 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
           </div>
         );
       },
-      enableSorting: false,
+      enableColumnFilter: true,
+      enableSorting: true,
+      meta: {
+        label: t('measurementsPage.table.testObjects'),
+      },
     },
     {
       accessorKey: 'readingsCount',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} label={t('measurementsPage.table.readings')} />
+        <DataTableColumnHeader
+          column={column}
+          label={t('measurementsPage.table.readings')}
+        />
       ),
       cell: ({ row }) => {
         return (
@@ -201,6 +242,9 @@ export function getColumns({ t }: GetColumnsProps): ColumnDef<MeasurementTableDa
         );
       },
       enableSorting: true,
+      meta: {
+        label: t('measurementsPage.table.readings'),
+      },
     },
     {
       id: 'actions',
