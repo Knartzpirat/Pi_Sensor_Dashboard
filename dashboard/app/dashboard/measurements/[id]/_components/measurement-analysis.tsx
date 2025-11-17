@@ -18,16 +18,16 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { BarChart3, LineChart as LineChartIcon, ScatterChart as ScatterIcon, Calculator } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { Measurement } from '@/types';
 
 type ChartType = 'line' | 'bar' | 'scatter';
 
 interface MeasurementAnalysisProps {
-  measurement: any;
+  measurement: Measurement;
 }
 
 interface ChartData {
@@ -54,8 +54,8 @@ export function MeasurementAnalysis({ measurement }: MeasurementAnalysisProps) {
   // Get all available entities from sensors
   const allEntities = React.useMemo(() => {
     const entities: Array<{ id: string; name: string; unit: string; sensorName: string; color: string }> = [];
-    measurement.measurementSensors?.forEach((ms: any) => {
-      ms.sensor.entities?.forEach((entity: any) => {
+    measurement.measurementSensors?.forEach((ms) => {
+      ms.sensor.entities?.forEach((entity) => {
         entities.push({
           id: entity.id,
           name: entity.name,
@@ -84,7 +84,7 @@ export function MeasurementAnalysis({ measurement }: MeasurementAnalysisProps) {
     // Group readings by timestamp
     const groupedByTimestamp = new Map<number, Record<string, number>>();
 
-    measurement.readings.forEach((reading: any) => {
+    measurement.readings.forEach((reading) => {
       const timestamp = new Date(reading.timestamp).getTime();
       if (!groupedByTimestamp.has(timestamp)) {
         groupedByTimestamp.set(timestamp, {});
@@ -95,13 +95,15 @@ export function MeasurementAnalysis({ measurement }: MeasurementAnalysisProps) {
     });
 
     // Convert to array and format
-    return Array.from(groupedByTimestamp.entries())
+    const data = Array.from(groupedByTimestamp.entries())
       .map(([timestamp, values]) => ({
         timestamp,
         formattedTime: new Date(timestamp).toLocaleTimeString(),
         ...values,
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
+
+    return data;
   }, [measurement.readings]);
 
   // Calculate statistics for selected entities
@@ -161,8 +163,25 @@ export function MeasurementAnalysis({ measurement }: MeasurementAnalysisProps) {
   const renderChart = () => {
     if (chartData.length === 0) {
       return (
-        <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-          {t('measurementsPage.analysis.noData')}
+        <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground space-y-4">
+          <div className="text-center">
+            <p className="text-lg font-medium">{t('measurementsPage.analysis.noData')}</p>
+            <div className="mt-4 text-sm space-y-2">
+              <p>Readings: {measurement.readings?.length || 0}</p>
+              <p>Sensors: {measurement.measurementSensors?.length || 0}</p>
+              <p>Entities: {allEntities.length}</p>
+              {measurement.readings?.length === 0 && (
+                <p className="text-yellow-600 mt-4">
+                  No sensor readings found. Start the measurement to collect data.
+                </p>
+              )}
+              {allEntities.length === 0 && measurement.readings && measurement.readings.length > 0 && (
+                <p className="text-yellow-600 mt-4">
+                  Sensors have no entities configured. Check sensor configuration.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       );
     }
@@ -192,19 +211,41 @@ export function MeasurementAnalysis({ measurement }: MeasurementAnalysisProps) {
           {allEntities
             .filter((entity) => selectedEntities.has(entity.id))
             .map((entity) => {
-              const DataComponent = chartType === 'line' ? Line : chartType === 'bar' ? Bar : Scatter;
+              const name = `${entity.sensorName} - ${entity.name}`;
 
-              return (
-                <DataComponent
-                  key={entity.id}
-                  type={chartType === 'line' ? 'monotone' : undefined}
-                  dataKey={entity.id}
-                  name={`${entity.sensorName} - ${entity.name}`}
-                  stroke={entity.color}
-                  fill={entity.color}
-                  strokeWidth={2}
-                />
-              );
+              if (chartType === 'line') {
+                return (
+                  <Line
+                    key={entity.id}
+                    type="monotone"
+                    dataKey={entity.id}
+                    name={name}
+                    stroke={entity.color}
+                    fill={entity.color}
+                    strokeWidth={2}
+                  />
+                );
+              } else if (chartType === 'bar') {
+                return (
+                  <Bar
+                    key={entity.id}
+                    dataKey={entity.id}
+                    name={name}
+                    stroke={entity.color}
+                    fill={entity.color}
+                    strokeWidth={2}
+                  />
+                );
+              } else {
+                return (
+                  <Scatter
+                    key={entity.id}
+                    dataKey={entity.id}
+                    name={name}
+                    fill={entity.color}
+                  />
+                );
+              }
             })}
         </ChartComponent>
       </ResponsiveContainer>
