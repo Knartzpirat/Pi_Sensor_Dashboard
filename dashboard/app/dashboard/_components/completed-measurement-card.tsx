@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CheckCircle, Trash2, RotateCw } from 'lucide-react';
 
 import {
@@ -64,6 +64,7 @@ export function CompletedMeasurementCard({
   const t = useTranslations('dashboard.completedMeasurement');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
 
   const totalDurationMinutes = Math.floor(measurement.duration / 60);
   const totalDurationSeconds = measurement.duration % 60;
@@ -122,13 +123,13 @@ export function CompletedMeasurementCard({
           <div>
             <p className="text-muted-foreground">{t('startedAt')}</p>
             <p className="font-medium">
-              {formatDate(measurement.startedAt, 'dateTime')}
+              {formatDate(measurement.startedAt, 'dateTime', {}, locale)}
             </p>
           </div>
           <div>
             <p className="text-muted-foreground">{t('completedAt')}</p>
             <p className="font-medium">
-              {formatDate(measurement.endedAt, 'dateTime')}
+              {formatDate(measurement.endedAt, 'dateTime', {}, locale)}
             </p>
           </div>
         </div>
