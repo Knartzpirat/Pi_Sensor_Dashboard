@@ -7,6 +7,8 @@ import { AccountSettingsSection } from './_components/account-settings-section';
 import { PreferencesSettingsSection } from './_components/preferences-settings-section';
 import { HardwareSettingsSection } from './_components/hardware-settings-section';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { env } from '@/lib/env';
+
 async function getUserProfile() {
   noStore();
 
@@ -18,8 +20,7 @@ async function getUserProfile() {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/user/profile`, {
+    const response = await fetch(`${env.appUrl}/api/user/profile`, {
       headers: {
         Cookie: `refreshToken=${refreshToken}`,
       },
@@ -48,8 +49,7 @@ async function getUserPreferences() {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/user/preferences`, {
+    const response = await fetch(`${env.appUrl}/api/user/preferences`, {
       headers: {
         Cookie: `refreshToken=${refreshToken}`,
       },
@@ -83,8 +83,7 @@ async function getHardwareConfig() {
   noStore();
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/settings/hardware`, {
+    const response = await fetch(`${env.appUrl}/api/settings/hardware`, {
       cache: 'no-store',
     });
 
