@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import type { IncomingSensorReading, SensorReadingData } from '@/types';
 
 const prisma = getPrismaClient();
 
@@ -60,13 +61,13 @@ export async function POST(
     });
 
     // Prepare readings for bulk insert
-    const readingsData = readings
-      .filter((r: any) => entityMap.has(r.entity_id))
-      .map((r: any) => ({
+    const readingsData: SensorReadingData[] = (readings as IncomingSensorReading[])
+      .filter((r) => entityMap.has(r.entity_id))
+      .map((r) => ({
         measurementId: params.id,
         entityId: r.entity_id,
         value: r.value,
-        quality: r.quality || 1.0,
+        quality: r.quality ?? 1.0,
         timestamp: new Date(r.timestamp),
       }));
 
