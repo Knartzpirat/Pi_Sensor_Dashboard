@@ -21,7 +21,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Command,
   CommandEmpty,
@@ -116,7 +115,7 @@ export function StartMeasurementDrawer({ trigger, onMeasurementStarted }: StartM
         setSensors(enabledSensors);
 
         // Pre-select all sensors
-        const allSensorIds = new Set(enabledSensors.map((s: Sensor) => s.id));
+        const allSensorIds = new Set<string>(enabledSensors.map((s: Sensor) => s.id));
         setSelectedSensors(allSensorIds);
       }
 
@@ -206,7 +205,7 @@ export function StartMeasurementDrawer({ trigger, onMeasurementStarted }: StartM
         throw new Error(errorData.error || 'Failed to start measurement');
       }
 
-      const result = await response.json();
+      await response.json();
 
       toast.success(t('success'));
 
@@ -263,7 +262,7 @@ export function StartMeasurementDrawer({ trigger, onMeasurementStarted }: StartM
         {trigger}
       </DrawerTrigger>
       <DrawerContent className="max-h-[95vh] flex flex-col">
-        <DrawerHeader className="border-b flex-shrink-0">
+        <DrawerHeader className="border-b shrink-0">
           <DrawerTitle className="flex items-center gap-2 text-xl">
             <Beaker className="h-5 w-5" />
             {t('startMeasurement')}
@@ -569,7 +568,7 @@ export function StartMeasurementDrawer({ trigger, onMeasurementStarted }: StartM
             </div>
           </div>
 
-          <DrawerFooter className="border-t bg-muted/30 flex-shrink-0">
+          <DrawerFooter className="border-t bg-muted/30 shrink-0">
             <div className="flex gap-3 w-full">
               <DrawerClose asChild>
                 <Button type="button" variant="outline" className="flex-1 h-11">
