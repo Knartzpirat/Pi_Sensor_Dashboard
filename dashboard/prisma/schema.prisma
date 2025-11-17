@@ -123,6 +123,7 @@ model TestObject {
   measurementSensors MeasurementSensor[] // Sensoren können verschiedene TestObjects pro Messung untersuchen
 
   @@index([createdAt])
+  @@index([updatedAt])
 }
 
 // Bilder-Tabelle mit Reihenfolge
@@ -306,6 +307,7 @@ model SensorReading {
   entity        SensorEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   @@index([measurementId, timestamp])
+  @@index([measurementId, entityId]) // For queries filtering by both measurement and entity
   @@index([entityId, timestamp]) // For efficient time-range queries
   @@index([timestamp]) // For cleanup queries
   @@map("sensor_readings")
