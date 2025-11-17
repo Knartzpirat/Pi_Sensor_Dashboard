@@ -1,96 +1,140 @@
 // app/api/test-objects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrismaClient } from '@/lib/prisma';
+import { withAuth } from '@/lib/auth-helpers';
+import { withAuthAndValidation } from '@/lib/validation-helpers';
+import { createTestObjectSchema } from '@/lib/validations/test-objects';
+import { handleError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
 const prisma = getPrismaClient();
 
-// GET - Alle TestObjects (mit optionalen Bildern)
-export async function GET(request: NextRequest) {
+// GET - All test objects (with optional pictures)
+export const GET = withAuth(async (request, user) => {
   try {
     const { searchParams } = new URL(request.url);
     const labelId = searchParams.get('labelId');
     const includePictures = searchParams.get('includePictures') === 'true';
-    const pictureLimit = searchParams.get('pictureLimit'); // z.B. nur erstes Bild
+    const pictureLimit = searchParams.get('pictureLimit');
 
-    const testObjects = await prisma.testObject.findMany({
-      where: labelId
-        ? {
-            labels: {
-              some: {
-                id: labelId,
-              },
-            },
-          }
-        : undefined,
-      include: {
-        labels: true,
+    const testObjects = await logger.trackPerformance(
+      'Fetch test objects',
+      async () => {
+        return await prisma.testObject.findMany({
+          where: labelId
+            ? {
+                labels: {
+                  some: {
+                    id: labelId,
+                  },
+                },
+              }
+            : undefined,
+          include: {
+            labels: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        });
       },
-      orderBy: { createdAt: 'desc' },
-    });
+      { userId: user.userId, labelId, includePictures }
+    );
 
-    // Wenn Bilder gewünscht sind, lade sie separat
+    // Optimized: Load all pictures in a single query instead of N+1 queries
     if (includePictures) {
-      const testObjectsWithPictures = await Promise.all(
-        testObjects.map(async (testObject) => {
-          const pictures = await prisma.picture.findMany({
+      // Extract all test object IDs
+      const testObjectIds = testObjects.map((obj) => obj.id);
+
+      // Single query to fetch all pictures for all test objects
+      const allPictures = await logger.trackPerformance(
+        'Fetch pictures for test objects',
+        async () => {
+          return await prisma.picture.findMany({
             where: {
               entityType: 'TEST_OBJECT',
-              entityId: testObject.id,
+              entityId: { in: testObjectIds },
             },
             orderBy: { order: 'asc' },
-            ...(pictureLimit ? { take: parseInt(pictureLimit) } : {}),
           });
-
-          return {
-            ...testObject,
-            pictures,
-          };
-        })
+        },
+        { testObjectCount: testObjectIds.length }
       );
+
+      // Group pictures by entityId for efficient lookup
+      const picturesByEntityId = new Map<string, typeof allPictures>();
+      for (const picture of allPictures) {
+        const existing = picturesByEntityId.get(picture.entityId) || [];
+        existing.push(picture);
+        picturesByEntityId.set(picture.entityId, existing);
+      }
+
+      // Attach pictures to test objects (with optional limit)
+      const testObjectsWithPictures = testObjects.map((testObject) => {
+        const pictures = picturesByEntityId.get(testObject.id) || [];
+        const limitedPictures = pictureLimit
+          ? pictures.slice(0, parseInt(pictureLimit))
+          : pictures;
+
+        return {
+          ...testObject,
+          pictures: limitedPictures,
+        };
+      });
+
+      logger.info('Test objects with pictures fetched successfully', {
+        userId: user.userId,
+        count: testObjectsWithPictures.length,
+        totalPictures: allPictures.length,
+      });
 
       return NextResponse.json(testObjectsWithPictures);
     }
 
-    return NextResponse.json(testObjects);
-  } catch (error) {
-    console.error('Error fetching test objects:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch test objects' },
-      { status: 500 }
-    );
-  }
-}
-
-// POST - Neues TestObject erstellen
-export async function POST(request: NextRequest) {
-  try {
-    const { title, description, labelIds } = await request.json();
-
-    if (!title) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
-
-    const testObject = await prisma.testObject.create({
-      data: {
-        title,
-        description,
-        labels: labelIds && labelIds.length > 0
-          ? {
-              connect: labelIds.map((id: string) => ({ id })),
-            }
-          : undefined,
-      },
-      include: {
-        labels: true,
-      },
+    logger.info('Test objects fetched successfully', {
+      userId: user.userId,
+      count: testObjects.length,
     });
 
-    return NextResponse.json(testObject, { status: 201 });
+    return NextResponse.json(testObjects);
   } catch (error) {
-    console.error('Error creating test object:', error);
-    return NextResponse.json(
-      { error: 'Failed to create test object' },
-      { status: 500 }
-    );
+    return handleError(error);
   }
-}
+});
+
+// POST - Create new test object
+export const POST = withAuthAndValidation(
+  createTestObjectSchema,
+  async (request, user, data) => {
+    try {
+      const testObject = await logger.trackPerformance(
+        'Create test object',
+        async () => {
+          return await prisma.testObject.create({
+            data: {
+              title: data.title,
+              description: data.description,
+              labels: data.labelIds && data.labelIds.length > 0
+                ? {
+                    connect: data.labelIds.map((id) => ({ id })),
+                  }
+                : undefined,
+            },
+            include: {
+              labels: true,
+            },
+          });
+        },
+        { userId: user.userId, labelCount: data.labelIds?.length || 0 }
+      );
+
+      logger.info('Test object created successfully', {
+        userId: user.userId,
+        testObjectId: testObject.id,
+        title: testObject.title,
+      });
+
+      return NextResponse.json(testObject, { status: 201 });
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+);
