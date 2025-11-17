@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { env } from '@/lib/env';
 
 import {
   Drawer,
@@ -71,13 +72,13 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
   React.useEffect(() => {
     const loadSupportedSensors = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-        const response = await fetch(`${backendUrl}/sensors/supported?board_type=${boardType}`);
+        const response = await fetch(`${env.clientBackendUrl}/sensors/supported?board_type=${boardType}`);
+        if (!response.ok) throw new Error('Backend not available');
         const data = await response.json();
         setSupportedSensors(data.sensors || []);
       } catch (error) {
-        console.error('Failed to load supported sensors:', error);
-        // Fallback to empty list
+        console.warn('Backend not available, using manual driver input:', error);
+        // Backend not available - user can enter driver manually
         setSupportedSensors([]);
       } finally {
         setIsLoading(false);
@@ -120,6 +121,12 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
     }
   };
 
+  // Manual driver input change
+  const handleManualDriverChange = (value: string) => {
+    setDriver(value);
+    // Don't auto-select connection type for manual input
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,28 +144,51 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
       }
 
       // Prepare connection params
-      const connectionParams: any = {};
+      const connectionParams: Record<string, string> = {};
       if (connectionType === 'i2c' && boardType === 'GPIO') {
         // Only GPIO Board needs I2C address, Custom Board uses TCA9548A multiplexer
         connectionParams.i2c_address = i2cAddress;
+      }
+
+      // Get poll interval from selected sensor metadata
+      const selectedSensor = supportedSensors.find((s) => s.driverName === driver);
+      // Backend sends minPollInterval in seconds, convert to milliseconds
+      const pollIntervalSeconds = selectedSensor?.minPollInterval || 1;
+      const pollInterval = pollIntervalSeconds * 1000; // Convert to milliseconds
+
+      // Prepare request body - only include defined values
+      const requestBody: Record<string, unknown> = {
+        name,
+        driver,
+        connectionType,
+        boardType: String(boardType),
+        pollInterval,
+        enabled: true,
+      };
+
+      if (pin !== undefined && pin !== null) {
+        requestBody.pin = pin;
+      }
+
+      if (Object.keys(connectionParams).length > 0) {
+        requestBody.connectionParams = connectionParams;
       }
 
       // Create sensor
       const response = await fetch('/api/sensors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          driver,
-          connectionType,
-          pin,
-          connectionParams: Object.keys(connectionParams).length > 0 ? connectionParams : null,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create sensor');
+        const errorText = await response.text();
+        try {
+          const error = JSON.parse(errorText);
+          throw new Error(error.error || 'Failed to create sensor');
+        } catch {
+          throw new Error(`Failed to create sensor: ${errorText}`);
+        }
       }
 
       toast.success('Sensor added successfully');
@@ -256,7 +286,7 @@ export function AddSensorDrawer({ boardType, usedPins, onSensorAdded }: AddSenso
                 <Label htmlFor="pin">
                   {boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')}
                 </Label>
-                <Select value={pin?.toString()} onValueChange={(v) => setPin(parseInt(v))}>
+                <Select value={pin?.toString() || ''} onValueChange={(v) => setPin(parseInt(v))}>
                   <SelectTrigger id="pin">
                     <SelectValue placeholder={boardType === 'GPIO' ? tSensors('selectPin') : tSensors('selectChannel')}>
                       {pin !== undefined && pinOptions.find(o => o.value === pin)?.label}
