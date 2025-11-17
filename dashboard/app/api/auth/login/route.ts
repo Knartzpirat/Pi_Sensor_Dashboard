@@ -1,85 +1,100 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
 import { generateRefreshToken } from '@/lib/token-helper';
 import { getClientInfo } from '@/lib/request-utils';
+import { getPrismaClient } from '@/lib/prisma';
+import { withValidation } from '@/lib/validation-helpers';
+import { loginSchema } from '@/lib/validations/auth';
+import { AuthenticationError, handleError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import { env } from '@/lib/env';
 
-export async function POST(request: NextRequest) {
-  const prisma = new PrismaClient();
+export const POST = withValidation(
+  loginSchema,
+  async (request, data) => {
+    const prisma = getPrismaClient();
 
-  try {
-    const { username, password, stayLoggedIn } = await request.json();
-    const { ipAddress, userAgent } = getClientInfo(request);
+    try {
+      const { ipAddress, userAgent } = getClientInfo(request);
 
-    // Validierung der Eingabedaten
-    if (!username || !password) {
-      return NextResponse.json(
-        { error: 'Username and password are required' },
-        { status: 400 }
+      // Find user
+      const user = await logger.trackPerformance(
+        'Find user by username',
+        async () => {
+          return await prisma.user.findUnique({
+            where: { username: data.username },
+          });
+        },
+        { username: data.username }
       );
-    }
 
-    // User finden
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
+      if (!user) {
+        logger.warn('Login attempt with invalid username', {
+          username: data.username,
+          ipAddress,
+        });
+        throw new AuthenticationError('Invalid credentials');
+      }
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
+      // Verify password
+      const isValidPassword = await bcrypt.compare(data.password, user.password);
+
+      if (!isValidPassword) {
+        logger.warn('Login attempt with invalid password', {
+          userId: user.id,
+          username: user.username,
+          ipAddress,
+        });
+        throw new AuthenticationError('Invalid credentials');
+      }
+
+      // Generate refresh token with expiry
+      const { token: refreshToken, expiresAt } = await logger.trackPerformance(
+        'Generate refresh token',
+        async () => {
+          return await generateRefreshToken(
+            prisma,
+            user.id,
+            data.stayLoggedIn || false,
+            ipAddress,
+            userAgent
+          );
+        },
+        { userId: user.id, stayLoggedIn: data.stayLoggedIn }
       );
-    }
 
-    // Passwort prüfen
-    const isValidPassword = await bcrypt.compare(password, user.password);
+      // Set cookies
+      const cookieStore = await cookies();
 
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
+      // Set refresh token cookie with maxAge from DB
+      const maxAge = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+      cookieStore.set('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: env.isProduction,
+        sameSite: 'strict',
+        maxAge,
+        path: '/',
+      });
 
-    // Generiere Refresh Token mit expiresAt
-    const { token: refreshToken, expiresAt } = await generateRefreshToken(
-      prisma,
-      user.id,
-      stayLoggedIn || false,
-      ipAddress,
-      userAgent
-    );
-
-    // Setze Cookies
-    const cookieStore = await cookies();
-
-    // ✅ Refresh Token Cookie mit maxAge aus DB
-    const maxAge = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
-    cookieStore.set('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge,
-      path: '/',
-    });
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
+      logger.info('User logged in successfully', {
+        userId: user.id,
         username: user.username,
-        role: user.role,
-      },
-      expiresAt: expiresAt.toISOString(),
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+        ipAddress,
+        stayLoggedIn: data.stayLoggedIn || false,
+      });
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+        },
+        expiresAt: expiresAt.toISOString(),
+      });
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
+);
