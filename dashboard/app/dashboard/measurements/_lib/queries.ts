@@ -2,6 +2,7 @@ import 'server-only';
 
 import { unstable_noStore as noStore } from 'next/cache';
 import { getPrismaClient } from '@/lib/prisma';
+import type { MeasurementWhereInput } from '@/types';
 
 const prisma = getPrismaClient();
 
@@ -31,7 +32,7 @@ export async function getMeasurements(input: GetMeasurementsInput) {
   const offset = (page - 1) * perPage;
 
   // Build where clause from filters
-  const where: any = {};
+  const where: MeasurementWhereInput = {};
 
   for (const filter of filters) {
     if (filter.id === 'title') {
@@ -44,16 +45,76 @@ export async function getMeasurements(input: GetMeasurementsInput) {
     if (filter.id === 'status') {
       if (Array.isArray(filter.value)) {
         where.status = {
-          in: filter.value,
+          in: filter.value as string[],
         };
       } else {
-        where.status = filter.value;
+        where.status = filter.value as string;
       }
     }
 
     if (filter.id === 'startTime') {
-      // Handle date filters
-      where.startTime = filter.value;
+      // Handle date filters - convert timestamp to Date range
+      const value = filter.value;
+
+      if (typeof value === 'string') {
+        // If it's a timestamp string, convert to Date range for whole day
+        const timestamp = parseInt(value, 10);
+        if (!isNaN(timestamp)) {
+          const date = new Date(timestamp);
+          // Set to start of day
+          const startOfDay = new Date(date);
+          startOfDay.setHours(0, 0, 0, 0);
+          // Set to end of day
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+
+          where.startTime = {
+            gte: startOfDay,
+            lte: endOfDay,
+          };
+        }
+      } else if (typeof value === 'number') {
+        // Single timestamp - convert to date range for whole day
+        const date = new Date(value);
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        where.startTime = {
+          gte: startOfDay,
+          lte: endOfDay,
+        };
+      } else if (value instanceof Date) {
+        // Single Date - convert to date range for whole day
+        const startOfDay = new Date(value);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(value);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        where.startTime = {
+          gte: startOfDay,
+          lte: endOfDay,
+        };
+      } else if (typeof value === 'object' && value !== null) {
+        // Handle complex date filter objects (e.g., {gte: "timestamp", lte: "timestamp"})
+        const dateFilter: Record<string, Date> = {};
+        for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+          if (typeof val === 'string') {
+            const timestamp = parseInt(val, 10);
+            if (!isNaN(timestamp)) {
+              dateFilter[key] = new Date(timestamp);
+            }
+          } else if (typeof val === 'number') {
+            dateFilter[key] = new Date(val);
+          } else if (val instanceof Date) {
+            dateFilter[key] = val;
+          }
+        }
+        if (Object.keys(dateFilter).length > 0) {
+          where.startTime = dateFilter;
+        }
+      }
     }
   }
 
