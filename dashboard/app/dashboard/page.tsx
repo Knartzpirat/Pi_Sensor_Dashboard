@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { env } from '@/lib/env';
 
 import { SensorGraphCard } from './_components/sensor-graph-card';
 import { SensorControlsCard } from './_components/sensor-controls-card';
@@ -161,7 +162,7 @@ export default function DashboardPage() {
         if (measurementsResponse.ok) {
           const measurementsData = await measurementsResponse.json();
           const runningMeasurement = measurementsData.measurements?.find(
-            (m: any) => m.status === 'RUNNING' || m.status === 'STARTING'
+            (m: { status: string }) => m.status === 'RUNNING' || m.status === 'STARTING'
           );
 
           if (runningMeasurement) {
@@ -220,7 +221,6 @@ export default function DashboardPage() {
 
         if (data.sensors) {
           // Re-register all enabled sensors with backend (in case backend was restarted)
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
           const enabledSensors = (data.sensors as APISensor[]).filter((s) => s.enabled);
           console.log('Enabled sensors to register:', enabledSensors.length);
 
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                 };
                 console.log(`Registering sensor ${sensor.name}:`, JSON.stringify(sensorConfig, null, 2));
 
-                const registerResponse = await fetch(`${backendUrl}/sensors/`, {
+                const registerResponse = await fetch(`${env.clientBackendUrl}/sensors/`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(sensorConfig),
@@ -342,7 +342,6 @@ export default function DashboardPage() {
             setSensors(transformedSensors);
 
             // Re-register any new sensors with backend
-            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
             const newSensors = transformedSensors.filter(
               (ts) => !sensors.find((s) => s.id === ts.id)
             );
@@ -362,7 +361,7 @@ export default function DashboardPage() {
                 };
 
                 try {
-                  const registerResponse = await fetch(`${backendUrl}/sensors/`, {
+                  const registerResponse = await fetch(`${env.clientBackendUrl}/sensors/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(sensorConfig),
@@ -416,8 +415,7 @@ export default function DashboardPage() {
         // Read all enabled sensors for current values only
         const readingsPromises = currentSensors.map(async (sensor) => {
           try {
-            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-            const response = await fetch(`${backendUrl}/sensors/${sensor.id}/read`);
+            const response = await fetch(`${env.clientBackendUrl}/sensors/${sensor.id}/read`);
             if (response.ok) {
               const data = await response.json();
               return {
@@ -496,6 +494,48 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [sensors.length, updateInterval, isLivePaused, completedMeasurement]);
 
+  // Poll for new active measurements (when there's no active measurement)
+  React.useEffect(() => {
+    if (activeMeasurement || completedMeasurement) return;
+
+    const checkForNewMeasurement = async () => {
+      try {
+        const response = await fetch('/api/measurements');
+        if (response.ok) {
+          const data = await response.json();
+          const runningMeasurement = data.measurements?.find(
+            (m: { status: string }) => m.status === 'RUNNING' || m.status === 'STARTING'
+          );
+
+          if (runningMeasurement) {
+            const startedAt = new Date(runningMeasurement.startTime);
+            const duration = runningMeasurement.duration;
+            const elapsed = (Date.now() - startedAt.getTime()) / 1000;
+            const progress = duration ? Math.min((elapsed / duration) * 100, 100) : 0;
+            const estimatedCompletion = duration
+              ? new Date(startedAt.getTime() + duration * 1000)
+              : undefined;
+
+            setActiveMeasurement({
+              id: runningMeasurement.id,
+              title: runningMeasurement.title,
+              progress,
+              startedAt,
+              estimatedCompletion,
+              measurementSensors: runningMeasurement.measurementSensors || [],
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for new measurements:', error);
+      }
+    };
+
+    // Check every 3 seconds for new measurements
+    const interval = setInterval(checkForNewMeasurement, 3000);
+    return () => clearInterval(interval);
+  }, [activeMeasurement, completedMeasurement]);
+
   // Poll for active measurement updates
   React.useEffect(() => {
     if (!activeMeasurement) return;
@@ -506,7 +546,7 @@ export default function DashboardPage() {
         if (response.ok) {
           const data = await response.json();
           const runningMeasurement = data.measurements?.find(
-            (m: any) => m.id === activeMeasurement.id
+            (m: { id: string; status: string }) => m.id === activeMeasurement.id
           );
 
           if (runningMeasurement &&
@@ -729,7 +769,7 @@ export default function DashboardPage() {
       if (measurementsResponse.ok) {
         const measurementsData = await measurementsResponse.json();
         const runningMeasurement = measurementsData.measurements?.find(
-          (m: any) => m.status === 'RUNNING' || m.status === 'STARTING'
+          (m: { status: string }) => m.status === 'RUNNING' || m.status === 'STARTING'
         );
 
         if (runningMeasurement) {
@@ -761,7 +801,7 @@ export default function DashboardPage() {
     // Graph will automatically return to live mode when completedMeasurement is null
   };
 
-  const handleRepeatMeasurement = async (measurement: CompletedMeasurement) => {
+  const handleRepeatMeasurement = async (measurement: CompletedMeasurement): Promise<void> => {
     // Clear the completed measurement to show the "Start Measurement" button
     setCompletedMeasurement(null);
 
