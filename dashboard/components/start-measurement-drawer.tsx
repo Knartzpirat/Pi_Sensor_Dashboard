@@ -339,7 +339,7 @@ export function StartMeasurementDrawer({ trigger, onMeasurementStarted }: StartM
                         className="flex-1 h-11"
                         required
                       />
-                      <Select value={durationUnit} onValueChange={(value: any) => setDurationUnit(value)}>
+                      <Select value={durationUnit} onValueChange={(value: 'seconds' | 'minutes' | 'hours') => setDurationUnit(value)}>
                         <SelectTrigger className="w-[130px] h-11">
                           <SelectValue />
                         </SelectTrigger>
